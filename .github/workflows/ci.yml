@@ -1,0 +1,60 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  validate-skills:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Install validation dependency
+        run: python -m pip install "PyYAML>=6,<7"
+      - name: Validate Skill packages
+        run: python scripts/validate_skills.py
+      - name: Compile Python scripts
+        run: python -m compileall -q skills scripts
+      - name: Validate GETO capability foundation
+        run: python skills/geto-capability-foundation/scripts/validate_foundation.py
+      - name: Test capability context selection
+        run: >-
+          python skills/geto-capability-foundation/scripts/select_context.py
+          --query "Australia modular housing developer"
+          --country AU
+          --product-code modular_building
+      - name: Validate ResearchDelta fixture
+        run: >-
+          python skills/geto-run-market-research/scripts/validate_research_delta.py
+          skills/geto-run-market-research/references/examples/research-delta-available-empty.json
+      - name: Confirm unavailable foundation blocks formal scoring
+        shell: bash
+        run: |
+          set -euo pipefail
+          output_file="$(mktemp)"
+          if python skills/geto-run-market-research/scripts/validate_research_delta.py \
+            skills/geto-run-market-research/references/examples/research-delta-unavailable-score-blocked.json \
+            >"${output_file}"; then
+            echo "Expected blocked fixture to fail validation"
+            exit 1
+          fi
+          grep -F "GETO_LEAD_VALUE requires available capabilityFoundation" "${output_file}"
+
+  credential-scan:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Scan credentials and private artifacts
+        run: python scripts/scan_secrets.py

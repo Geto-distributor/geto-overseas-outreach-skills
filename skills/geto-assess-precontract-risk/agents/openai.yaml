@@ -1,0 +1,4 @@
+interface:
+  display_name: "GETO 签约前风险评估"
+  short_description: "在明确交易机会与签约主体后评估交易条款、履约及项目经济风险。"
+  default_prompt: "使用 $geto-assess-precontract-risk 评估目标合作的签约前风险。"

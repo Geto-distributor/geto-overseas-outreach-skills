@@ -1,0 +1,76 @@
+{
+  "relationshipAssets": [
+    {
+      "assetKey": "relationship-asset:cscec-group",
+      "partnerName": "中国建筑集团",
+      "relationshipClaim": "GETO 公开资料将中国建筑体系描述为长期项目合作入口。",
+      "entryUse": "追踪其海外在建、新签项目及当地总包、分包和采购链。",
+      "caseKeys": ["case:saribas-bridge", "case:alamein-d01m"],
+      "evidenceStatus": "company_published",
+      "sourceKeys": ["source:case-saribas-bridge", "source:case-alamein-d01m"]
+    },
+    {
+      "assetKey": "relationship-asset:cscec-third",
+      "partnerName": "中建三局",
+      "relationshipClaim": "旧底稿记录多项国内与海外合作案例。",
+      "entryUse": "作为项目发现种子，不自动建立当前海外关系。",
+      "caseKeys": ["case:alamein-d01m"],
+      "evidenceStatus": "pending_source_mapping",
+      "sourceKeys": ["source:case-alamein-d01m"]
+    },
+    {
+      "assetKey": "relationship-asset:cscec-eighth",
+      "partnerName": "中建八局",
+      "relationshipClaim": "萨里巴斯大桥案例可作为合作调查入口。",
+      "entryUse": "优先追踪东南亚桥梁和基建标的。",
+      "caseKeys": ["case:saribas-bridge"],
+      "evidenceStatus": "company_published",
+      "sourceKeys": ["source:case-saribas-bridge"]
+    },
+    {
+      "assetKey": "relationship-asset:cscec-first",
+      "partnerName": "中建一局",
+      "relationshipClaim": "旧底稿记录多项目合作。",
+      "entryUse": "追踪其超高层和房建海外项目。",
+      "caseKeys": [],
+      "evidenceStatus": "pending_source_mapping",
+      "sourceKeys": []
+    },
+    {
+      "assetKey": "relationship-asset:cscec-steel",
+      "partnerName": "中建科工",
+      "relationshipClaim": "旧底稿记录工业上楼项目合作。",
+      "entryUse": "追踪工业厂房、高支模和钢结构标的。",
+      "caseKeys": ["case:shenzhen-high-support-aluminum"],
+      "evidenceStatus": "company_published",
+      "sourceKeys": ["source:case-shenzhen-high-support"]
+    },
+    {
+      "assetKey": "relationship-asset:scg",
+      "partnerName": "上海建工",
+      "relationshipClaim": "旧底稿记录多个国内项目合作。",
+      "entryUse": "作为其海外项目与当地合作方的发现种子。",
+      "caseKeys": [],
+      "evidenceStatus": "pending_source_mapping",
+      "sourceKeys": []
+    },
+    {
+      "assetKey": "relationship-asset:colt",
+      "partnerName": "中国海外发展",
+      "relationshipClaim": "旧底稿记录开发商侧项目合作。",
+      "entryUse": "作为海外开发项目发现种子。",
+      "caseKeys": [],
+      "evidenceStatus": "pending_source_mapping",
+      "sourceKeys": []
+    },
+    {
+      "assetKey": "relationship-asset:sinochem",
+      "partnerName": "中国中化",
+      "relationshipClaim": "旧底稿记录总部项目合作。",
+      "entryUse": "作为央企业主与总部项目背书种子。",
+      "caseKeys": [],
+      "evidenceStatus": "pending_source_mapping",
+      "sourceKeys": []
+    }
+  ]
+}

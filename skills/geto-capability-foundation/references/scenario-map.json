@@ -1,0 +1,76 @@
+{
+  "scenarios": [
+    {
+      "scenarioCode": "high_rise_core_and_standard_floor",
+      "nameZh": "超高层核心筒与标准层快速周转",
+      "demandSignals": ["150m+ 高层", "核心筒提速", "标准层重复", "工期压缩"],
+      "productCodes": ["climbing_formwork", "aluminum_formwork"],
+      "targetRoleCodes": ["main_contractor", "concrete_formwork_subcontractor", "developer_owner"],
+      "caseKeys": ["case:east-asia-climbing-office", "case:alamein-d01m"]
+    },
+    {
+      "scenarioCode": "bridge_and_viaduct",
+      "nameZh": "跨海、山区、高架桥与异形桥梁构件",
+      "demandSignals": ["T 梁或箱梁", "盖梁墩柱", "悬浇挂篮", "异形或大跨构件"],
+      "productCodes": ["steel_formwork"],
+      "targetRoleCodes": ["main_contractor", "civil_structures_subcontractor", "government_infrastructure_owner"],
+      "caseKeys": ["case:saribas-bridge", "case:malaysia-suspended-bridge-segment"]
+    },
+    {
+      "scenarioCode": "rail_transit",
+      "nameZh": "轨道交通与高架车站",
+      "demandSignals": ["城市轨道", "高架站", "预制梁", "斜交梁"],
+      "productCodes": ["steel_formwork"],
+      "targetRoleCodes": ["main_contractor", "government_infrastructure_owner", "civil_structures_subcontractor"],
+      "caseKeys": ["case:malaysia-kuts"]
+    },
+    {
+      "scenarioCode": "tunnel_and_utility",
+      "nameZh": "隧道、管廊与墙板一体浇筑",
+      "demandSignals": ["隧道或管廊", "墙板一体浇筑", "快速重复单元"],
+      "productCodes": ["tunnel_formwork", "steel_formwork"],
+      "targetRoleCodes": ["main_contractor", "civil_structures_subcontractor", "government_infrastructure_owner"],
+      "caseKeys": ["case:middle-east-affordable-housing"]
+    },
+    {
+      "scenarioCode": "affordable_housing",
+      "nameZh": "国家级保障房与大规模重复住宅",
+      "demandSignals": ["大规模保障房", "无梁剪力墙", "快速经济建造", "政府住房计划"],
+      "productCodes": ["tunnel_formwork", "aluminum_formwork", "modular_building"],
+      "targetRoleCodes": ["government_infrastructure_owner", "developer_owner", "main_contractor"],
+      "caseKeys": ["case:middle-east-affordable-housing", "case:australia-modular-housing"]
+    },
+    {
+      "scenarioCode": "modular_housing",
+      "nameZh": "模块化与装配式住宅",
+      "demandSignals": ["住房紧缺", "场外制造", "高预制率", "现场快速安装"],
+      "productCodes": ["modular_building", "prefabricated_steel_structure", "precast_concrete"],
+      "targetRoleCodes": ["developer_owner", "modular_offsite_builder", "main_contractor"],
+      "caseKeys": ["case:australia-modular-housing"]
+    },
+    {
+      "scenarioCode": "architectural_concrete",
+      "nameZh": "清水混凝土地标与文体场馆",
+      "demandSignals": ["免饰面", "自由曲面", "赛事场馆", "建筑表现要求高"],
+      "productCodes": ["fair_faced_concrete_formwork", "precast_concrete"],
+      "targetRoleCodes": ["main_contractor", "design_engineering_influencer", "developer_owner", "concrete_formwork_subcontractor"],
+      "caseKeys": ["case:clear-concrete-landmark"]
+    },
+    {
+      "scenarioCode": "industrial_high_bay",
+      "nameZh": "工业上楼、大层高与大跨现浇结构",
+      "demandSignals": ["高支模", "大层高", "大跨", "早拆"],
+      "productCodes": ["aluminum_formwork", "steel_frame_timber_formwork"],
+      "targetRoleCodes": ["main_contractor", "concrete_formwork_subcontractor", "developer_owner"],
+      "caseKeys": ["case:shenzhen-high-support-aluminum"]
+    },
+    {
+      "scenarioCode": "cost_reuse",
+      "nameZh": "强降本与既有体系兼容",
+      "demandSignals": ["旧板复用", "翻新利旧", "兼容既有支撑", "异形成本控制"],
+      "productCodes": ["aluminum_formwork", "steel_formwork", "steel_frame_timber_formwork"],
+      "targetRoleCodes": ["main_contractor", "concrete_formwork_subcontractor", "distributor_rental"],
+      "caseKeys": ["case:alamein-d01m"]
+    }
+  ]
+}

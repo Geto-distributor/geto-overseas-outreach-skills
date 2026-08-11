@@ -1,0 +1,44 @@
+{
+  "companyKey": "company:geto-new-materials",
+  "brand": "GETO",
+  "canonicalNameZh": "江西志特新材料股份有限公司",
+  "canonicalNameEn": "Jiangxi GETO New Materials Corporation Limited",
+  "legacyNames": [
+    "志特新材",
+    "Zhite New Materials"
+  ],
+  "stock": {
+    "exchange": "SZSE ChiNext",
+    "ticker": "300986",
+    "listedYear": 2021,
+    "evidenceStatus": "company_published",
+    "sourceKeys": ["source:geto-company-profile"]
+  },
+  "positioning": {
+    "textZh": "面向绿色建筑模架、装配式与模块化建造，提供模板系统、深化设计、驻场服务及按项目适用的专业承包能力。",
+    "evidenceStatus": "company_published",
+    "sourceKeys": ["source:geto-company-profile"]
+  },
+  "serviceModes": [
+    {"serviceCode": "detailed_design", "nameZh": "定制化深化设计"},
+    {"serviceCode": "site_engineering", "nameZh": "派驻工程师与本土施工协同"},
+    {"serviceCode": "specialist_contracting", "nameZh": "专业承包"},
+    {"serviceCode": "refurbishment_reuse", "nameZh": "翻新利旧"},
+    {"serviceCode": "hybrid_system_design", "nameZh": "兼容既有体系的组合方案"}
+  ],
+  "cooperationModes": [
+    {"cooperationModeCode": "direct_supply", "nameZh": "直接供货"},
+    {"cooperationModeCode": "joint_venture", "nameZh": "合资合作"},
+    {"cooperationModeCode": "agency_distribution", "nameZh": "代理或经销合作"},
+    {"cooperationModeCode": "technical_licensing", "nameZh": "技术授权"},
+    {"cooperationModeCode": "local_assembly", "nameZh": "本地组装"}
+  ],
+  "globalClaims": [
+    {"claimCode": "overseas_since", "value": 2013, "evidenceStatus": "company_published", "sourceKeys": ["source:geto-company-profile"]},
+    {"claimCode": "production_base_count", "value": 12, "evidenceStatus": "pending_refresh", "sourceKeys": ["source:geto-company-profile"]},
+    {"claimCode": "countries_served", "value": "70+", "evidenceStatus": "pending_refresh", "sourceKeys": ["source:geto-company-profile"]},
+    {"claimCode": "trademark_jurisdictions", "value": 32, "evidenceStatus": "pending_refresh", "sourceKeys": ["source:geto-company-profile"]},
+    {"claimCode": "qualification_bca_band2", "value": "BCA BAND2", "evidenceStatus": "pending_refresh", "sourceKeys": ["source:geto-company-profile"]},
+    {"claimCode": "qualification_cidb_g7", "value": "CIDB G7", "evidenceStatus": "pending_refresh", "sourceKeys": ["source:geto-company-profile"]}
+  ]
+}

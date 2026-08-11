@@ -1,0 +1,104 @@
+{
+  "sources": [
+    {
+      "sourceKey": "source:geto-company-profile",
+      "title": "志特新材简介",
+      "url": "https://mp.weixin.qq.com/s/4H6ZlQZL4TS9QPCq5V_Mow",
+      "publisher": "GETO official WeChat account",
+      "sourceType": "company_official",
+      "evidenceStatus": "company_published",
+      "allowedClaims": ["company identity", "public product range", "public positioning", "company-stated global footprint"],
+      "retrievedOn": null
+    },
+    {
+      "sourceKey": "source:case-shenzhen-high-support",
+      "title": "深福保科技生态园高支模铝模项目文章",
+      "url": "http://mp.weixin.qq.com/s?__biz=MzAwODc5MTMxNQ==&mid=2650726765&idx=1&sn=dfc683bf809031da8c5d5afd5525427b",
+      "publisher": "GETO official WeChat account",
+      "sourceType": "company_case_study",
+      "evidenceStatus": "company_published",
+      "allowedClaims": ["GETO publicly described high-support aluminum formwork application in this project"],
+      "retrievedOn": null
+    },
+    {
+      "sourceKey": "source:case-east-asia-climbing",
+      "title": "东亚办公楼爬模与铝模一体化项目文章",
+      "url": "http://mp.weixin.qq.com/s?__biz=MzAwODc5MTMxNQ==&mid=2650726894&idx=1&sn=c1ffb2f123104949ec459b86ac20b5bf",
+      "publisher": "GETO official WeChat account",
+      "sourceType": "company_case_study",
+      "evidenceStatus": "company_published",
+      "allowedClaims": ["GETO publicly described a climbing and aluminum formwork solution for an East Asia office project"],
+      "retrievedOn": null
+    },
+    {
+      "sourceKey": "source:case-malaysia-kuts",
+      "title": "马来西亚交通系统异形钢模项目文章",
+      "url": "http://mp.weixin.qq.com/s?__biz=MzAwODc5MTMxNQ==&mid=2650726615&idx=1&sn=1b589349e902d48eabc65c14cebd470f",
+      "publisher": "GETO official WeChat account",
+      "sourceType": "company_case_study",
+      "evidenceStatus": "company_published",
+      "allowedClaims": ["GETO publicly described steel formwork for irregular components in a Malaysia transport project"],
+      "retrievedOn": null
+    },
+    {
+      "sourceKey": "source:case-middle-east-tunnel",
+      "title": "中东保障性住房钢制隧道模项目文章",
+      "url": "http://mp.weixin.qq.com/s?__biz=MzAwODc5MTMxNQ==&mid=2650725992&idx=1&sn=67198d2ae545fa4dc31c4079b69c76de",
+      "publisher": "GETO official WeChat account",
+      "sourceType": "company_case_study",
+      "evidenceStatus": "company_published",
+      "allowedClaims": ["GETO publicly described steel tunnel formwork for an anonymized Middle East affordable-housing project"],
+      "retrievedOn": null
+    },
+    {
+      "sourceKey": "source:case-australia-modular",
+      "title": "澳洲模块化建筑项目文章",
+      "url": "http://mp.weixin.qq.com/s?__biz=MzAwODc5MTMxNQ==&mid=2650726987&idx=1&sn=8acb7c1e4ab3af24dd44a9c279508c9c",
+      "publisher": "GETO official WeChat account",
+      "sourceType": "company_case_study",
+      "evidenceStatus": "company_published",
+      "allowedClaims": ["GETO publicly described multiple modular building projects in Australia"],
+      "retrievedOn": null
+    },
+    {
+      "sourceKey": "source:case-clear-concrete-landmark",
+      "title": "国际赛事地标清水混凝土应用文章",
+      "url": "http://mp.weixin.qq.com/s?__biz=MzAwODc5MTMxNQ==&mid=2650725686&idx=1&sn=c92d4f55732b5bf2bcf1c1980784590c",
+      "publisher": "GETO official WeChat account",
+      "sourceType": "company_case_study",
+      "evidenceStatus": "company_published",
+      "allowedClaims": ["GETO publicly described fair-faced concrete application in an international-event landmark"],
+      "retrievedOn": null
+    },
+    {
+      "sourceKey": "source:case-malaysia-bridge-segment",
+      "title": "马来西亚跨海大桥高空悬浇项目文章",
+      "url": "http://mp.weixin.qq.com/s?__biz=MzAwODc5MTMxNQ==&mid=2650726475&idx=1&sn=721b63a7aba810840c3f2c36e614c84a",
+      "publisher": "GETO official WeChat account",
+      "sourceType": "company_case_study",
+      "evidenceStatus": "company_published",
+      "allowedClaims": ["GETO publicly described steel formwork for a suspended bridge segment in Malaysia"],
+      "retrievedOn": null
+    },
+    {
+      "sourceKey": "source:case-saribas-bridge",
+      "title": "马来西亚萨里巴斯大桥项目文章",
+      "url": "http://mp.weixin.qq.com/s?__biz=MzAwODc5MTMxNQ==&mid=2650725710&idx=1&sn=2f4abdd4071d622f876a9930e897cd21",
+      "publisher": "GETO official WeChat account",
+      "sourceType": "company_case_study",
+      "evidenceStatus": "company_published",
+      "allowedClaims": ["GETO publicly described its formwork work on the Saribas Bridge project"],
+      "retrievedOn": null
+    },
+    {
+      "sourceKey": "source:case-alamein-d01m",
+      "title": "地中海明珠项目文章",
+      "url": "http://mp.weixin.qq.com/s?__biz=MzAwODc5MTMxNQ==&mid=2650726047&idx=1&sn=b9ccb61e5413fad2dc34e92f060fffab",
+      "publisher": "GETO official WeChat account",
+      "sourceType": "company_case_study",
+      "evidenceStatus": "company_published",
+      "allowedClaims": ["GETO publicly described its formwork solution for the Alamein D01M project"],
+      "retrievedOn": null
+    }
+  ]
+}

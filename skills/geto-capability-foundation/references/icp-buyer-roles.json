@@ -1,0 +1,80 @@
+{
+  "roleCodes": [
+    {
+      "roleCode": "main_contractor",
+      "nameZh": "大型总包商或承建商",
+      "priority": 1,
+      "commercialQualification": "若自营结构工程、直接采购模架或能决定专业分包和系统选型，可成为合格客户；否则继续追实际采购方。",
+      "typicalFunctions": ["procurement_influence", "project_control", "possible_buyer", "possible_actual_user"]
+    },
+    {
+      "roleCode": "developer_owner",
+      "nameZh": "开发商或项目业主",
+      "priority": 2,
+      "commercialQualification": "能决定项目标准、指定系统或直接采购时可成为合格客户；仅持有项目但不影响采购时作为机会来源。",
+      "typicalFunctions": ["budget_owner", "specification_influence", "possible_buyer"]
+    },
+    {
+      "roleCode": "government_infrastructure_owner",
+      "nameZh": "政府、交通或保障房项目业主",
+      "priority": 2,
+      "commercialQualification": "需确认采购边界、本地采购限制及承包链；通常先形成 Project，再定位总包或专业采购方。",
+      "typicalFunctions": ["budget_owner", "tender_owner", "specification_influence"]
+    },
+    {
+      "roleCode": "concrete_formwork_subcontractor",
+      "nameZh": "混凝土、支模或结构专业分包商",
+      "priority": 1,
+      "commercialQualification": "直接采购、租赁、持有库存或实际使用模架时通常是关键客户。",
+      "typicalFunctions": ["buyer", "actual_user", "technical_evaluator"]
+    },
+    {
+      "roleCode": "civil_structures_subcontractor",
+      "nameZh": "桥梁、隧道或土木结构专业分包商",
+      "priority": 2,
+      "commercialQualification": "直接承担结构施工并控制模具、钢模或专项方案时可进入客户池。",
+      "typicalFunctions": ["buyer", "actual_user", "technical_evaluator"]
+    },
+    {
+      "roleCode": "modular_offsite_builder",
+      "nameZh": "模块化或场外制造企业",
+      "priority": 2,
+      "commercialQualification": "需区分潜在客户、竞对、制造供应商与联合交付伙伴；多角色可并存。",
+      "typicalFunctions": ["possible_buyer", "actual_user", "manufacturer", "possible_competitor", "possible_partner"]
+    },
+    {
+      "roleCode": "design_engineering_influencer",
+      "nameZh": "建筑设计院、工程顾问或结构设计方",
+      "priority": 3,
+      "commercialQualification": "通常是规格影响方而非付款方；只有存在直接采购或采购代理证据时才计入合格客户。",
+      "typicalFunctions": ["specification_influence", "technical_evaluator"]
+    },
+    {
+      "roleCode": "distributor_rental",
+      "nameZh": "模架经销、代理、租赁或进口渠道",
+      "priority": 3,
+      "commercialQualification": "控制本地库存、进口、租赁或客户覆盖时可成为渠道客户；同时保留 ecosystem/partner 角色。",
+      "typicalFunctions": ["buyer", "channel_controller", "rental_operator", "possible_partner"]
+    },
+    {
+      "roleCode": "chinese_gc_local_partner",
+      "nameZh": "中资出海总包的当地合作方或分包体系",
+      "priority": 2,
+      "commercialQualification": "这是发现路径，不是自动客户资格；必须定位具体 Company、Project 与采购/使用边界。",
+      "typicalFunctions": ["relationship_entry", "possible_buyer", "possible_actual_user"]
+    }
+  ],
+  "demandSignalCodes": [
+    "high_rise_150m_plus",
+    "bridge_viaduct_complex",
+    "rail_transit",
+    "tunnel_utility",
+    "large_affordable_housing",
+    "modular_offsite_housing",
+    "architectural_concrete_landmark",
+    "national_infrastructure_budget",
+    "green_or_prefab_policy",
+    "industrial_high_bay",
+    "cost_reuse_pressure"
+  ]
+}

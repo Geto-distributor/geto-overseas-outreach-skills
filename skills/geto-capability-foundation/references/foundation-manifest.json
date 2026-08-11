@@ -1,0 +1,28 @@
+{
+  "foundationKey": "geto:capability-foundation",
+  "asOf": "2026-08-11",
+  "brand": "GETO",
+  "statusCodes": [
+    "available",
+    "partial",
+    "unavailable"
+  ],
+  "evidenceStatusCodes": [
+    "company_published",
+    "independent_verified",
+    "pending_source_mapping",
+    "pending_refresh",
+    "not_disclosed"
+  ],
+  "requiredResources": [
+    "company-profile.json",
+    "product-catalog.json",
+    "scenario-map.json",
+    "icp-buyer-roles.json",
+    "case-register.json",
+    "relationship-assets.json",
+    "competitor-seeds.json",
+    "source-register.json"
+  ],
+  "deliveryRule": "Read-only research context; never an OmniX write payload by itself."
+}

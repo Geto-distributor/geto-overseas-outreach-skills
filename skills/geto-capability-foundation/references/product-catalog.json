@@ -1,0 +1,76 @@
+{
+  "products": [
+    {
+      "productCode": "aluminum_formwork",
+      "nameZh": "铝合金模板",
+      "category": "formwork_system",
+      "capabilitySummary": "适用于标准层快速周转，可结合早拆和翻新利旧方案。",
+      "competitionSurfaces": ["product", "project_procurement", "rental_or_sale", "technical_solution"],
+      "sourceKeys": ["source:geto-company-profile"]
+    },
+    {
+      "productCode": "steel_formwork",
+      "nameZh": "钢模系统",
+      "category": "formwork_system",
+      "capabilitySummary": "适配桥梁 T 梁、盖梁、墩柱、护栏、异形和大型构件。",
+      "competitionSurfaces": ["product", "project_procurement", "technical_solution"],
+      "sourceKeys": ["source:geto-company-profile", "source:case-malaysia-kuts", "source:case-saribas-bridge"]
+    },
+    {
+      "productCode": "steel_frame_timber_formwork",
+      "nameZh": "钢框木模",
+      "category": "formwork_system",
+      "capabilitySummary": "钢框与木面板组合，用于通用现浇结构。",
+      "competitionSurfaces": ["product", "project_procurement"],
+      "sourceKeys": ["source:geto-company-profile"]
+    },
+    {
+      "productCode": "climbing_formwork",
+      "nameZh": "爬升式模架",
+      "category": "climbing_and_protection",
+      "capabilitySummary": "包含爬模、防护平台和防护屏，适用于超高层核心筒和高塔提速。",
+      "competitionSurfaces": ["system_platform", "project_procurement", "technical_solution"],
+      "sourceKeys": ["source:geto-company-profile", "source:case-east-asia-climbing"]
+    },
+    {
+      "productCode": "fair_faced_concrete_formwork",
+      "nameZh": "清水混凝土模架",
+      "category": "specialist_formwork",
+      "capabilitySummary": "面向免抹灰、成型即饰面的场馆、地标与文化建筑。",
+      "competitionSurfaces": ["specialist_method", "project_procurement", "technical_solution"],
+      "sourceKeys": ["source:geto-company-profile", "source:case-clear-concrete-landmark"]
+    },
+    {
+      "productCode": "tunnel_formwork",
+      "nameZh": "隧道模",
+      "category": "specialist_formwork",
+      "capabilitySummary": "墙体与楼板整体浇筑，适用于无梁剪力墙公寓、别墅和保障性住房。",
+      "competitionSurfaces": ["specialist_method", "project_procurement", "technical_solution"],
+      "sourceKeys": ["source:geto-company-profile", "source:case-middle-east-tunnel"]
+    },
+    {
+      "productCode": "precast_concrete",
+      "nameZh": "装配式 PC",
+      "category": "offsite_construction",
+      "capabilitySummary": "面向装配式混凝土构件和预制构件应用。",
+      "competitionSurfaces": ["offsite_manufacturing", "project_procurement"],
+      "sourceKeys": ["source:geto-company-profile", "source:case-clear-concrete-landmark"]
+    },
+    {
+      "productCode": "prefabricated_steel_structure",
+      "nameZh": "装配式钢结构",
+      "category": "offsite_construction",
+      "capabilitySummary": "面向装配式建筑和模块化钢结构交付。",
+      "competitionSurfaces": ["offsite_manufacturing", "project_procurement", "channel_control"],
+      "sourceKeys": ["source:geto-company-profile", "source:case-australia-modular"]
+    },
+    {
+      "productCode": "modular_building",
+      "nameZh": "模块化建筑",
+      "category": "offsite_construction",
+      "capabilitySummary": "PC 与钢结构模块化建造，强调高预制率与现场干式快装。",
+      "competitionSurfaces": ["offsite_manufacturing", "project_procurement", "channel_control", "technical_solution"],
+      "sourceKeys": ["source:geto-company-profile", "source:case-australia-modular"]
+    }
+  ]
+}

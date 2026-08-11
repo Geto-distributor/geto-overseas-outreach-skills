@@ -1,0 +1,12 @@
+{
+  "seedOnly": true,
+  "usageRule": "These names are recall seeds only. Resolve the company and perform current market competition adjudication before assigning a competitor role.",
+  "seeds": [
+    {"seedName": "PERI", "homeMarket": "DE", "seedThemes": ["formwork system", "scaffolding", "rental network"]},
+    {"seedName": "Doka", "homeMarket": "AT", "seedThemes": ["formwork system", "self-climbing", "bridge"]},
+    {"seedName": "MEVA", "homeMarket": "DE", "seedThemes": ["wall formwork", "plastic facing"]},
+    {"seedName": "ULMA Construction", "homeMarket": "ES", "seedThemes": ["formwork", "scaffolding"]},
+    {"seedName": "RMD Kwikform", "homeMarket": "GB", "seedThemes": ["shoring", "formwork rental"]},
+    {"seedName": "Ischebeck", "homeMarket": "DE", "seedThemes": ["shoring", "support systems"]}
+  ]
+}
