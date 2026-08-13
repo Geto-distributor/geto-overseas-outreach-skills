@@ -13,10 +13,9 @@ flowchart LR
   L --> D["geto-diligence-company"]
   C --> D
   C --> R["geto-map-relationships"]
-  D --> L
+  D --> A["可选六维 Assessment"]
   D --> R
-  L --> A["六维客户价值评分"]
-  R --> A
+  A --> L["候选池聚合与排序"]
   A --> P{"明确签约机会与条款?"}
   P -->|是| K["geto-assess-precontract-risk"]
   P -->|否| F["持续补证/销售跟进"]
@@ -29,7 +28,7 @@ flowchart LR
 1. resolve-before-upsert。
 2. 先形成同一次运行共享的 CapabilityContext，再发现候选和判断 GETO 适配。
 3. 先发现候选，再对目标公司做背调。
-4. 背调和能力底座门槛都通过后才能做六维价值评分。
+4. diligence 仅在 `assessmentMode=lead_value` 且背调、能力底座、批准模型门槛都通过后生成六维 Assessment；find-leads 不重新计算。
 5. 竞对案例客户先过客户资格门，再进入 Company/CommercialAccount 和线索池。
 6. 关系证据只证明关系本身，不能自动证明 buyer、payer、exclusive 或 current。
 7. 签约前风险只在精确交易对象形成后运行。
@@ -46,6 +45,8 @@ flowchart LR
 GETO 能力底座不是 Provider：它不联网、不鉴权、不写入。当它缺失时，公开 Web 和可用 Provider 仍可收集市场事实，但产品适配、竞对确认和正式评分必须挂起。
 
 不得自动安装缺失 Skill，不得由总编排直接复制 Provider 或 Market 的 HTTP 请求。
+
+OmniX 只通过 Agent REST 集成。MCP 不进入 capability check、路由、恢复或测试。
 
 ## adversarial 模式
 

@@ -9,8 +9,8 @@
 | Skill | 职责 |
 |---|---|
 | `geto-capability-foundation` | 共享、只读的 GETO 产品、场景、ICP、案例与证据状态底座 |
-| `geto-find-leads` | 多路发现销售线索，并在背调后执行六维客户价值评分 |
-| `geto-diligence-company` | 单一公司主体归一、深度背调与 Claim/Source 证据补强 |
+| `geto-find-leads` | 多路发现、去重和管理候选池，聚合背调返回的六维 Assessment 并跨公司排序 |
+| `geto-diligence-company` | 单一公司主体归一、深度背调、Claim/Source 证据补强，并可选生成六维客户价值 Assessment |
 | `geto-mine-competitor-customers` | 发现并判定真实竞对，沿竞对官方案例反查未来客户 |
 | `geto-map-relationships` | 建模公司、项目、产品、采购与合作关系 |
 | `geto-assess-precontract-risk` | 对明确合作机会执行签约前主体、条款和项目经济风险评估 |
@@ -27,11 +27,10 @@ flowchart LR
   L --> D["geto-diligence-company"]
   C --> D
   C --> R["geto-map-relationships"]
-  D --> L
+  D --> A["可选六维客户价值 Assessment"]
   D --> R
-  L --> A["六维客户价值评分"]
-  R --> A
-  A --> K["geto-assess-precontract-risk"]
+  A --> L
+  O --> K["geto-assess-precontract-risk（仅明确签约机会）"]
   O --> M["OmniX 私人草稿"]
   K --> M
 ```
@@ -43,6 +42,8 @@ flowchart LR
 - [OmniX Market Skill](https://github.com/Geto-distributor/omnix-market-skill)
 - [OmniX Netease Waimao Skill](https://github.com/Geto-distributor/omnix-netease-waimao-skill)
 - [TradeWind API Skill](https://github.com/liyichen7887/tradewind-global-trade-company-people-search)
+
+OmniX 集成只使用 Agent REST API。MCP 不属于本仓库的设计、实现或测试范围。
 
 公开 Web 研究是主要研究路径。TradeWind 和网易外贸通缺失时继续 Web-only，并显式记录覆盖缺口；OmniX Market 缺失时输出 API-ready ResearchDelta，但不声称已写入；GETO 能力底座缺失时可以继续中性发现和客观背调，但不能发布产品适配、竞对确认或正式客户价值总分。
 
@@ -66,6 +67,7 @@ python scripts/scan_secrets.py
 python skills/geto-capability-foundation/scripts/validate_foundation.py
 python skills/geto-run-market-research/scripts/validate_research_delta.py \
   skills/geto-run-market-research/references/examples/research-delta-available-empty.json
+python -m unittest discover -s tests -v
 ```
 
 CI 会遍历全部 Skills，校验 frontmatter、UI 元数据、相对引用、Python 语法、领域合同 smoke tests 和凭据模式。

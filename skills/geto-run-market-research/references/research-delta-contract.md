@@ -91,13 +91,17 @@ Company 至少保存 `companyKey`、canonicalName、aliases、primaryDomain、re
 
 Project 至少保存 projectName、projectType、city/region/country、scale/amount/currency、stage、currentStatus、timeWindow、entryWindow、demandJudgement、procurementBoundary、matchedProducts、participantCompanies、knownRelationships、claimKeys/sourceKeys。Opportunity 连接 CommercialAccount 与 Project，并表达 GETO 的采购路径和窗口，不能只是一段 recommendation。
 
+`commercialAccounts`、`opportunities` 是跨 Skill 业务映射视图，不要求 OmniX Agent REST 提供独立 CRUD。一个市场内 Company 与 CommercialAccount 一一对应、Project 与 Opportunity 一一对应；写入时分别内嵌到 Company/Project draft，并由服务端唯一约束保护。
+
 ## Relationship
 
 Relationship 至少保存 sourceCompanyKey、targetCompanyKey、relationshipType、cooperationMode、projectKey/productCode、current/historical status、strength、exclusive、procurementParty、actualUser、payer、location/timeWindow、entryPoint/limitation、evidenceStatus 与独立 claim/source keys。节点角色不得进入 relationshipType。
 
 ## Assessment
 
-每个 Assessment 保存 assessmentModelCode、modelVersion、asOf、totalScore/rating（可为空）、对象自然键和 dimensions。每个 dimension 独立保存 observed/final score、maxScore、rationale、claimKeys/sourceKeys、gap/cap codes；不得复制总评或将一个 Source 映射到全部维度。
+每个 `GETO_LEAD_VALUE` Assessment 保存 `producerSkill=geto-diligence-company`、`diligenceStatus`、`assessmentStatus`、assessmentModelCode、modelVersion、asOf、totalScore/rating（可为空）、Company/account 映射键和 dimensions。每个 dimension 独立保存 observed/final score、maxScore、rationale、claimKeys/sourceKeys、gap/cap codes；不得复制总评或将一个 Source 映射到全部维度。
+
+pending/failed/identity_conflict、能力底座或模型不可用、或任一维度不可评分时，不得生成 totalScore、rating 或 levelCode。总分/等级只能来自批准的 `deterministic_validator|server_rule`，并保存 calculation/rating scale version；find-leads 不得改写 diligence 产出的维度。
 
 ## Claim、Source 与链接
 

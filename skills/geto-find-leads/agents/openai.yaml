@@ -1,4 +1,4 @@
 interface:
-  display_name: "GETO 线索发现与价值评分"
-  short_description: "发现国家市场销售线索，完成背调后按 GETO 六维模型评分。"
+  display_name: "GETO 线索发现与 Assessment 聚合"
+  short_description: "发现并去重国家线索，聚合公司背调返回的 Assessment 后排序。"
   default_prompt: "使用 $geto-find-leads 在指定国家发现并评估 GETO 销售线索。"

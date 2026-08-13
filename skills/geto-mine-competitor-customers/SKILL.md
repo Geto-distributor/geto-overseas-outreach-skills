@@ -14,7 +14,7 @@ description: 为 GETO 发现真实竞对、完成竞争判定，并沿确认竞�
 - TradeWind 与网易外贸通作为多路召回和交叉验证；缺失时允许 Web-only，并记录 Provider 状态。
 - 合格客户必须交给 $geto-diligence-company。
 - 竞对—客户—项目关系必须交给 $geto-map-relationships。
-- 客户价值统一使用 $geto-find-leads 的六维评分。
+- 竞对本身默认调用 diligence 的 `assessmentMode=none`；合格竞对客户进入统一线索池后调用 `assessmentMode=lead_value`。
 - $omnix-market 缺失时输出 ResearchDelta 草稿包，不能声称已入库。
 
 ## G1：竞对候选发现与竞争判定
@@ -90,9 +90,9 @@ description: 为 GETO 发现真实竞对、完成竞争判定，并沿确认竞�
 qualified_customer 必须按顺序：
 
 1. 统一 Company/CommercialAccount resolve。
-2. $geto-diligence-company 背调。
+2. `$geto-diligence-company` 背调，并传 `assessmentMode=lead_value`。
 3. $geto-map-relationships 建立竞对—客户—项目—产品关系。
-4. $geto-find-leads 六维客户价值评分。
+4. `$geto-find-leads` 聚合 diligence 返回的 Assessment 并纳入同版本排序；不得重新评分。
 
 ## 输出与 KPI
 

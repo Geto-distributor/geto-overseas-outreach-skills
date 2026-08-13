@@ -1,19 +1,19 @@
 ---
 name: geto-diligence-company
-description: 对 GETO 海外市场中的单一目标公司执行深度背调与证据补强，覆盖主体身份、官网产品与服务、项目、股权与财务、诉讼监管、负面新闻、联系人、海关及经营信号，并形成 Claim/Source 证据链。用于线索评分前背调、竞对客户背调、主体冲突处理和合作对象核查；不负责广泛找公司或直接生成客户价值总分。
+description: 对 GETO 海外市场中的单一目标公司执行深度背调与证据补强，形成 Claim/Source 证据链，并可在背调完成后按 assessmentMode 可选生成 GETO_LEAD_VALUE 六维客户价值 Assessment。用于线索候选背调、竞对客户背调、主体冲突处理和合作对象核查；不负责广泛找公司、跨公司排名或签约风险评估。
 ---
 
 # GETO 公司背调与证据补强
 
-一次只研究一个已初步归一的 Company/CommercialAccount。目标是形成可审计 EvidencePackage，为线索评分、关系判断或签约前风险提供证据，不替下游做结论聚合。
+一次只研究一个已初步归一的 Company。目标是形成可审计 EvidencePackage，并在明确请求时生成该公司的六维客户价值 Assessment。一个国家内 Company 与 CommercialAccount 一一对应；业务输入使用 Company，持久化时由 `$omnix-market` 映射到内嵌 account，不把两者当成两个待发现主体。
 
 ## 输入要求
 
 至少提供公司名称以及官网域名、法定实体、注册号、所在国家中的一项身份锚点。若主体仍可能指向多个实体，先返回 identity_conflict，不得混合背调。
 
-输入还应包含市场、产品范围、已有自然键/别名、研究深度、asOf 和已知来源。完整合同见 [evidence-contract.md](references/evidence-contract.md)。
+输入还应包含市场、产品范围、已有自然键/别名、研究深度、asOf、已知来源和 `assessmentMode=none|lead_value`。`assessmentMode` 缺省为 `none`；国家线索池候选和已进入统一线索池的竞对客户使用 `lead_value`。完整合同见 [evidence-contract.md](references/evidence-contract.md)。
 
-当任务要求判断“与 GETO 是否适配”时，还要读取 `$geto-capability-foundation` 形成产品和场景切片。没有底座不影响客观公司背调，但适配交接状态必须为 `pending_capability_foundation`。
+当任务要求判断“与 GETO 是否适配”或 `assessmentMode=lead_value` 时，还要读取 `$geto-capability-foundation` 形成产品和场景切片。没有底座不影响客观公司背调，但适配交接保持 `pending_capability_foundation`，评分状态为 `pending_capability_foundation`。
 
 ## 启动预检
 
@@ -61,11 +61,20 @@ description: 对 GETO 海外市场中的单一目标公司执行深度背调与�
 
 联系人、海关和财务必须输出为独立对象，遵守 [child-resources.md](references/child-resources.md)。不得塞入 Company 长文本。
 
-### 8. GETO 适配交接
+### 8. GETO 能力映射
 
-仅在能力底座可用时，将目标公司的产品、项目、采购边界证据与 `productCode`、`scenarioCode` 逐项匹配，输出 matched/pending/refuted 和对应 claim/source keys。不得用 GETO 自身案例替代目标公司的需求证据，也不得在本 Skill 计算客户价值分。
+仅在能力底座可用时，将目标公司的产品、项目、采购边界证据与 `productCode`、`scenarioCode` 逐项匹配，输出 matched/pending/refuted 和对应 claim/source keys。不得用 GETO 自身案例替代目标公司的需求证据。
 
-### 9. 完成判定
+### 9. 可选六维客户价值评分
+
+- `assessmentMode=none`：设置 `assessmentStatus=not_requested`，只交付 EvidencePackage，不创建 Assessment。
+- `assessmentMode=lead_value`：读取 [lead-assessment-contract.md](references/lead-assessment-contract.md)，在背调状态、能力底座和批准模型均满足时生成逐维判断与证据；Assessment 的 `producerSkill` 固定为 `geto-diligence-company`。
+- 背调为 pending、failed 或 identity_conflict 时设置 `pending_diligence`，不得评分。
+- 能力底座或批准模型不可用时分别设置 `pending_capability_foundation`、`pending_model`，不得生成总分或等级。
+- 任一维度不可评分时设置 `incomplete_evidence`，保留明确缺口，但不得生成总分或等级。
+- 总分和等级只接受批准的确定性公式/服务端规则结果。Agent 提供逐维判断、理由和 Claim/Source，不自行猜公式、peer prior 或等级阈值。
+
+### 10. 完成判定
 
 - completed：身份稳定，必查面已查询，关键结论有证据。
 - completed_with_explicit_gaps：身份稳定，但存在明确未找到/未查询项。
@@ -73,7 +82,7 @@ description: 对 GETO 海外市场中的单一目标公司执行深度背调与�
 - failed：不可恢复失败。
 - identity_conflict：无法确定单一主体。
 
-输出 EvidencePackage；不得在本 Skill 内生成客户价值总分或签约决定。
+`diligenceStatus` 与 `assessmentStatus` 独立输出。背调完成不代表评分完成，未请求评分也不是缺陷。输出 EvidencePackage + optional Assessment；不做跨公司排名，也不生成签约决定。
 
 ## 禁止事项
 

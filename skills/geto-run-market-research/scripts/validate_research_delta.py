@@ -18,6 +18,15 @@ PROVIDER_STATUSES = {
     "upstream_unavailable", "partial", "failed",
 }
 CAPABILITY_FOUNDATION_STATUSES = {"available", "partial", "unavailable"}
+DILIGENCE_STATUSES = {
+    "completed", "completed_with_explicit_gaps", "pending", "failed", "identity_conflict",
+}
+ASSESSMENT_STATUSES = {
+    "not_requested", "pending_diligence", "pending_capability_foundation",
+    "pending_model", "incomplete_evidence", "completed",
+}
+ASSESSMENT_CALCULATORS = {"deterministic_validator", "server_rule"}
+LEAD_LEVELS = {"A", "B", "C", "U"}
 ROLE_RELATIONSHIP_TYPES = {"customer", "competitor", "partner", "ecosystem", "project"}
 LEAD_DIMENSIONS = {
     "project_city_value": 15,
@@ -144,9 +153,20 @@ def validate(path: Path) -> tuple[list[str], list[str]]:
                 errors.append(f"externalObservations[{index}].{field} is required")
 
     companies = keys["companies"]
+    account_company_keys: list[str] = []
     for index, account in enumerate(collections["commercialAccounts"]):
         if isinstance(account, dict) and account.get("companyKey") not in companies:
             errors.append(f"commercialAccounts[{index}] references unknown companyKey")
+        if isinstance(account, dict) and account.get("companyKey"):
+            account_company_keys.append(str(account["companyKey"]))
+    duplicate_account_companies = [
+        value for value, count in Counter(account_company_keys).items() if count > 1
+    ]
+    if duplicate_account_companies:
+        errors.append(
+            "commercialAccounts violates one-account-per-company-per-market: "
+            f"{duplicate_account_companies}"
+        )
     for index, project in enumerate(collections["projects"]):
         if not isinstance(project, dict):
             continue
@@ -155,6 +175,7 @@ def validate(path: Path) -> tuple[list[str], list[str]]:
                 errors.append(f"projects[{index}].{field} is required")
         if project.get("matchedProductCodes") and foundation_status == "unavailable":
             errors.append(f"projects[{index}] cannot publish matchedProductCodes without capability foundation")
+    opportunity_project_keys: list[str] = []
     for index, opportunity in enumerate(collections["opportunities"]):
         if not isinstance(opportunity, dict):
             continue
@@ -162,6 +183,16 @@ def validate(path: Path) -> tuple[list[str], list[str]]:
             errors.append(f"opportunities[{index}] references unknown commercialAccountKey")
         if opportunity.get("projectKey") not in keys["projects"]:
             errors.append(f"opportunities[{index}] references unknown projectKey")
+        elif opportunity.get("projectKey"):
+            opportunity_project_keys.append(str(opportunity["projectKey"]))
+    duplicate_opportunity_projects = [
+        value for value, count in Counter(opportunity_project_keys).items() if count > 1
+    ]
+    if duplicate_opportunity_projects:
+        errors.append(
+            "opportunities violates one-opportunity-per-project: "
+            f"{duplicate_opportunity_projects}"
+        )
     role_pairs: set[tuple[str, str]] = set()
     for index, role in enumerate(list_value(root, "companyRoles", errors)):
         if not isinstance(role, dict):
@@ -249,6 +280,22 @@ def validate(path: Path) -> tuple[list[str], list[str]]:
                 errors.append(f"assessmentDimensions[{index}].rationale is required when scored")
             if not dimension.get("claimKeys") or not dimension.get("sourceKeys"):
                 errors.append(f"assessmentDimensions[{index}] requires dimension-specific evidence when scored")
+        code = dimension.get("dimensionCode")
+        maximum = LEAD_DIMENSIONS.get(str(code))
+        observed = dimension.get("observedScore")
+        final = dimension.get("finalDimensionScore")
+        if maximum is not None:
+            for field, value in (("observedScore", observed), ("finalDimensionScore", final)):
+                if value is not None and (
+                    not isinstance(value, (int, float)) or not 0 <= float(value) <= maximum
+                ):
+                    errors.append(
+                        f"assessmentDimensions[{index}].{field} must be between 0 and {maximum}"
+                    )
+        if dimension.get("evidenceGrade") == "U" and final is not None:
+            errors.append(
+                f"assessmentDimensions[{index}] cannot score an evidenceGrade=U dimension"
+            )
 
     for index, assessment in enumerate(collections["assessments"]):
         if not isinstance(assessment, dict):
@@ -256,16 +303,74 @@ def validate(path: Path) -> tuple[list[str], list[str]]:
         assessment_key = str(assessment.get("assessmentKey"))
         dimensions = dimensions_by_assessment.get(assessment_key, [])
         if assessment.get("assessmentModelCode") == "GETO_LEAD_VALUE":
-            if foundation_status != "available":
-                errors.append(f"assessments[{index}] GETO_LEAD_VALUE requires available capabilityFoundation")
+            producer = assessment.get("producerSkill")
+            diligence_status = assessment.get("diligenceStatus")
+            assessment_status = assessment.get("assessmentStatus")
+            if producer != "geto-diligence-company":
+                errors.append(
+                    f"assessments[{index}] GETO_LEAD_VALUE producerSkill must be geto-diligence-company"
+                )
+            if diligence_status not in DILIGENCE_STATUSES:
+                errors.append(f"assessments[{index}].diligenceStatus is invalid")
+            if assessment_status not in ASSESSMENT_STATUSES - {"not_requested"}:
+                errors.append(f"assessments[{index}].assessmentStatus is invalid")
+            if assessment.get("assessmentMode") not in {None, "lead_value"}:
+                errors.append(f"assessments[{index}].assessmentMode must be lead_value")
+            if diligence_status not in {"completed", "completed_with_explicit_gaps"}:
+                if assessment_status != "pending_diligence":
+                    errors.append(
+                        f"assessments[{index}] non-completed diligence requires pending_diligence"
+                    )
+            elif foundation_status != "available":
+                if assessment_status != "pending_capability_foundation":
+                    errors.append(
+                        f"assessments[{index}] unavailable capability foundation requires "
+                        "pending_capability_foundation"
+                    )
+            elif not assessment.get("modelVersion"):
+                if assessment_status != "pending_model":
+                    errors.append(
+                        f"assessments[{index}] missing modelVersion requires pending_model"
+                    )
             dimension_map = {item.get("dimensionCode"): item for item in dimensions}
-            if set(dimension_map) != set(LEAD_DIMENSIONS):
+            if dimensions and set(dimension_map) != set(LEAD_DIMENSIONS):
                 errors.append(f"assessments[{index}] GETO_LEAD_VALUE requires exactly six dimensions")
             for code, maximum in LEAD_DIMENSIONS.items():
                 item = dimension_map.get(code)
                 if item is not None and item.get("maxScore") != maximum:
                     errors.append(f"assessments[{index}] {code}.maxScore must be {maximum}")
+            unscored = [
+                item for item in dimensions
+                if not isinstance(item.get("finalDimensionScore"), (int, float))
+                or item.get("evidenceGrade") == "U"
+            ]
+            if (
+                diligence_status in {"completed", "completed_with_explicit_gaps"}
+                and foundation_status == "available"
+                and assessment.get("modelVersion")
+                and dimensions
+                and unscored
+                and assessment_status != "incomplete_evidence"
+            ):
+                errors.append(
+                    f"assessments[{index}] unscored dimension requires incomplete_evidence"
+                )
+            if assessment_status == "completed":
+                if set(dimension_map) != set(LEAD_DIMENSIONS) or unscored:
+                    errors.append(
+                        f"assessments[{index}] completed requires six scored dimensions"
+                    )
+                if assessment.get("scoreCalculatedBy") not in ASSESSMENT_CALCULATORS:
+                    errors.append(
+                        f"assessments[{index}] completed requires deterministic/server calculator"
+                    )
         total = assessment.get("totalScore")
+        level = assessment.get("rating", assessment.get("levelCode"))
+        assessment_status = assessment.get("assessmentStatus")
+        if assessment_status != "completed" and (total is not None or level is not None):
+            errors.append(
+                f"assessments[{index}] non-completed assessment cannot publish total or level"
+            )
         if total is not None:
             for field in ("assessmentModelCode", "modelVersion", "asOf"):
                 if not assessment.get(field):
@@ -275,6 +380,15 @@ def validate(path: Path) -> tuple[list[str], list[str]]:
                 errors.append(f"assessments[{index}] totalScore requires numeric dimensions")
             elif not math.isclose(float(total), sum(float(score) for score in scores), abs_tol=0.01):
                 errors.append(f"assessments[{index}] totalScore does not equal dimension sum")
+            if assessment.get("scoreCalculatedBy") not in ASSESSMENT_CALCULATORS:
+                errors.append(
+                    f"assessments[{index}] totalScore requires deterministic/server calculator"
+                )
+        if level is not None:
+            if level not in LEAD_LEVELS:
+                errors.append(f"assessments[{index}] lead level must be A, B, C or U")
+            if not assessment.get("ratingScaleVersion"):
+                errors.append(f"assessments[{index}] level requires ratingScaleVersion")
         rationales = [str(item.get("rationale") or "").strip() for item in dimensions]
         if len(rationales) > 1 and rationales[0] and len(set(rationales)) == 1:
             errors.append(f"assessments[{index}] copies one rationale to every dimension")

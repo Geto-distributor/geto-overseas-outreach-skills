@@ -34,9 +34,9 @@ description: 为 GETO 海外市场调研提供共享、只读的我方能力底�
 
 ## 下游约束
 
-- `$geto-find-leads`：没有能力底座时可继续中性候选召回，但不得计算 `multi_product_fit` 或正式客户价值总分。
+- `$geto-find-leads`：没有能力底座时可继续中性候选召回；不得自行计算任何维度或总分。
 - `$geto-mine-competitor-customers`：没有产品与竞争面定义时只能保留 `competitor_candidate`，不得确认竞对。
-- `$geto-diligence-company`：公司事实背调可继续；GETO 适配结论保持 pending。
+- `$geto-diligence-company`：公司事实背调可继续；GETO 适配结论保持 pending，`assessmentMode=lead_value` 时评分状态为 `pending_capability_foundation`。
 - `$geto-map-relationships`：客观关系可继续建模；GETO 产品映射、合作方式和切入点保持 pending。
 - `$geto-assess-precontract-risk`：对手方风险可继续；产品范围与项目适配缺口必须进入复核清单。
 - `$geto-run-market-research`：在 ResearchDelta 中记录 `capabilityFoundation` 的状态、内容哈希及实际使用的 codes/keys。

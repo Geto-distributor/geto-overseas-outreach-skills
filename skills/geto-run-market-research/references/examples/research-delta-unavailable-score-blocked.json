@@ -48,7 +48,11 @@
     {
       "assessmentKey": "assessment:test:lead",
       "assessmentModelCode": "GETO_LEAD_VALUE",
-      "totalScore": null
+      "assessmentMode": "lead_value",
+      "producerSkill": "geto-diligence-company",
+      "diligenceStatus": "completed",
+      "assessmentStatus": "pending_capability_foundation",
+      "totalScore": 50
     }
   ],
   "assessmentDimensions": [

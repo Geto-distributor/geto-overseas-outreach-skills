@@ -35,7 +35,7 @@ jobs:
         run: >-
           python skills/geto-run-market-research/scripts/validate_research_delta.py
           skills/geto-run-market-research/references/examples/research-delta-available-empty.json
-      - name: Confirm unavailable foundation blocks formal scoring
+      - name: Confirm unavailable foundation blocks total and level
         shell: bash
         run: |
           set -euo pipefail
@@ -46,7 +46,9 @@ jobs:
             echo "Expected blocked fixture to fail validation"
             exit 1
           fi
-          grep -F "GETO_LEAD_VALUE requires available capabilityFoundation" "${output_file}"
+          grep -F "non-completed assessment cannot publish total or level" "${output_file}"
+      - name: Run contract unit tests
+        run: python -m unittest discover -s tests -v
 
   credential-scan:
     runs-on: ubuntu-latest
