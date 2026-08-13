@@ -46,8 +46,6 @@ GETO 能力底座不是 Provider：它不联网、不鉴权、不写入。当它
 
 不得自动安装缺失 Skill，不得由总编排直接复制 Provider 或 Market 的 HTTP 请求。
 
-OmniX 只通过 Agent REST 集成。MCP 不进入 capability check、路由、恢复或测试。
-
 ## adversarial 模式
 
 对下列高影响结论至少建立一条 challenger 路径：

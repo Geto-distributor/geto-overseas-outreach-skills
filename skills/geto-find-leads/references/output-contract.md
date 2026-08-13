@@ -79,7 +79,7 @@
 
 Assessment 必须保留 `producerSkill=geto-diligence-company`、`diligenceStatus`、`assessmentStatus` 和 modelVersion。`geto-find-leads` 不得改写维度；排序只纳入 completed 且同版本的 Assessment。
 
-`commercialAccounts` 与 `opportunities` 是 ResearchDelta 中的业务映射视图，不代表 OmniX Agent REST 存在独立 CRUD。一个市场内每个 Company 只映射一个内嵌 CommercialAccount，每个 Project 只映射一个内嵌 Opportunity；持久化由 Company/Project draft 合同完成。
+一个市场内每个 Company 只对应一个 CommercialAccount，每个 Project 只对应一个 Opportunity。CommercialAccount 保存公司商业画像，Opportunity 保存项目采购路径和进入窗口。
 
 能力底座摘要只记录实际使用的 codes/keys，不复制整套产品与案例库到每个 Company。`multi_product_fit` 仍须链接客户侧的逐维 Claim/Source。
 

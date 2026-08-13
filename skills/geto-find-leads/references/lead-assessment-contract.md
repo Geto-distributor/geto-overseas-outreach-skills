@@ -1,6 +1,6 @@
-# Assessment 消费合同
+# 在线索池中使用 Assessment
 
-`GETO_LEAD_VALUE` 的唯一权威评分合同位于 [geto-diligence-company/references/lead-assessment-contract.md](../../geto-diligence-company/references/lead-assessment-contract.md)。本 Skill 只消费结果：
+需要为候选公司评分时，调用 `$geto-diligence-company`；评分字段和门槛见 [GETO 客户价值评分合同](../../geto-diligence-company/references/lead-assessment-contract.md)。处理返回结果时：
 
 - 调用 `$geto-diligence-company` 时对线索池候选传 `assessmentMode=lead_value`。
 - 只接收 `producerSkill=geto-diligence-company` 的 Assessment。

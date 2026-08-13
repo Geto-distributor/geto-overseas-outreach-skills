@@ -43,8 +43,6 @@ flowchart LR
 - [OmniX Netease Waimao Skill](https://github.com/Geto-distributor/omnix-netease-waimao-skill)
 - [TradeWind API Skill](https://github.com/liyichen7887/tradewind-global-trade-company-people-search)
 
-OmniX 集成只使用 Agent REST API。MCP 不属于本仓库的设计、实现或测试范围。
-
 公开 Web 研究是主要研究路径。TradeWind 和网易外贸通缺失时继续 Web-only，并显式记录覆盖缺口；OmniX Market 缺失时输出 API-ready ResearchDelta，但不声称已写入；GETO 能力底座缺失时可以继续中性发现和客观背调，但不能发布产品适配、竞对确认或正式客户价值总分。
 
 ## 安装

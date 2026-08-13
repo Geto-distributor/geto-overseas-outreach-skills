@@ -91,7 +91,7 @@ Company 至少保存 `companyKey`、canonicalName、aliases、primaryDomain、re
 
 Project 至少保存 projectName、projectType、city/region/country、scale/amount/currency、stage、currentStatus、timeWindow、entryWindow、demandJudgement、procurementBoundary、matchedProducts、participantCompanies、knownRelationships、claimKeys/sourceKeys。Opportunity 连接 CommercialAccount 与 Project，并表达 GETO 的采购路径和窗口，不能只是一段 recommendation。
 
-`commercialAccounts`、`opportunities` 是跨 Skill 业务映射视图，不要求 OmniX Agent REST 提供独立 CRUD。一个市场内 Company 与 CommercialAccount 一一对应、Project 与 Opportunity 一一对应；写入时分别内嵌到 Company/Project draft，并由服务端唯一约束保护。
+一个市场内 Company 与 CommercialAccount 一一对应，Project 与 Opportunity 一一对应。CommercialAccount 表达公司商业画像；Opportunity 表达该项目的采购路径和进入窗口。
 
 ## Relationship
 

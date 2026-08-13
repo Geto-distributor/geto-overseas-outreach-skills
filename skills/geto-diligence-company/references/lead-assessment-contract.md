@@ -1,6 +1,6 @@
 # GETO 客户价值评分权威合同
 
-本文件是 `GETO_LEAD_VALUE` 六维客户价值评分的唯一业务权威来源。`$geto-diligence-company` 是单公司 Assessment producer；`$geto-find-leads` 只能汇总和排序返回结果，不得复制锚点、重新计算或覆盖维度。
+`$geto-diligence-company` 按本合同生成单公司的 `GETO_LEAD_VALUE` Assessment。`$geto-find-leads` 接收已完成结果，用于覆盖率统计和跨公司排序。
 
 ## 输入、状态与前置门
 

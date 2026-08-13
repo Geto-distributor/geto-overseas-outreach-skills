@@ -210,6 +210,16 @@ class ResearchDeltaAssessmentTests(unittest.TestCase):
         self.assertIn("竞对本身默认调用 diligence 的 `assessmentMode=none`", text)
         self.assertIn("合格竞对客户进入统一线索池后调用 `assessmentMode=lead_value`", text)
 
+    def test_runtime_skill_docs_do_not_embed_release_history(self) -> None:
+        forbidden = ("未合并 PR", "测试环境尚未", "当前服务端 main", "MCP", "ETag", "If-Match")
+        documents = list((ROOT / "skills").glob("geto-*/SKILL.md"))
+        documents.extend((ROOT / "skills").glob("geto-*/references/*.md"))
+        for document in documents:
+            text = document.read_text(encoding="utf-8")
+            for phrase in forbidden:
+                with self.subTest(document=document.name, phrase=phrase):
+                    self.assertNotIn(phrase, text)
+
 
 if __name__ == "__main__":
     unittest.main()

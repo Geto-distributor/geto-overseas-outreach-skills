@@ -63,7 +63,7 @@ Provider 状态使用统一枚举：`available`、`skill_unavailable`、`not_con
 
 ### 6. decision
 
-- `$geto-diligence-company` 是单公司六维 Assessment 的唯一 producer；`$geto-find-leads` 只聚合和排序，不得重算或覆盖。
+- `$geto-diligence-company` 生成单公司六维 Assessment；`$geto-find-leads` 使用 completed 结果做覆盖率统计和跨公司排序。
 - 所有 GETO 适配、竞对判定与评分使用同一份 CapabilityContext 和 contentHash。
 - `$geto-map-relationships` 建模公司—公司、公司—项目和产品关系。
 - `$geto-assess-precontract-risk` 仅在机会成熟且签约主体/条款明确时运行；它不属于普通线索评分必经阶段。
@@ -74,7 +74,7 @@ Provider 状态使用统一枚举：`available`、`skill_unavailable`、`not_con
 
 ### 8. delivery
 
-若 `$omnix-market` 可用：查询/resolve → 创建或更新 owner 私人草稿 → owner-scoped 回读 → 本地校验。只有当前 OpenAPI 暴露 `POST /markets/{marketCode}/drafts:validate` 时，才在 submit 前调用批量预校验；接口未发布时标记 `submitPrevalidationStatus=blocked_capability_unavailable`，不得猜路径。按用户意图决定是否 submit。永不调用 Approve/Reject；审核只在 Web UI。
+若 `$omnix-market` 可用：查询/resolve → 创建或更新当前用户私人草稿 → 回读 → 本地校验 → 预提交校验。预提交校验不可用时停在私人草稿并记录能力缺口。按用户意图决定是否 submit。永不调用 Approve/Reject；审核只在 Web UI。
 
 若不可用：保存或返回 API-ready ResearchDelta、checkpoint 和 delivery blocker。Excel、SQL patch、数据库 ID 不是业务交付合同。
 
@@ -90,5 +90,4 @@ Provider 状态使用统一枚举：`available`、`skill_unavailable`、`not_con
 - 评分逐维可解释且带批准模型信息。
 - ResearchDelta 保存能力底座摘要；下游使用的 product/scenario/case/source keys 可对账。
 - 所有写入都是 owner 私人草稿并可幂等重放。
-- OmniX 集成只使用 Agent REST，不发现、调用或测试 MCP。
 - 报告 provider coverage、validation errors、delivery status 与人工待办。

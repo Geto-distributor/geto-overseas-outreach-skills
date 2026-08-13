@@ -5,7 +5,7 @@ description: 对 GETO 海外市场中的单一目标公司执行深度背调与�
 
 # GETO 公司背调与证据补强
 
-一次只研究一个已初步归一的 Company。目标是形成可审计 EvidencePackage，并在明确请求时生成该公司的六维客户价值 Assessment。一个国家内 Company 与 CommercialAccount 一一对应；业务输入使用 Company，持久化时由 `$omnix-market` 映射到内嵌 account，不把两者当成两个待发现主体。
+一次只研究一个已初步归一的 Company。目标是形成可审计 EvidencePackage，并在明确请求时生成该公司的六维客户价值 Assessment。CommercialAccount 是该公司在目标市场的商业账户视角，不作为另一个主体重复研究。
 
 ## 输入要求
 

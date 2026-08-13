@@ -5,7 +5,7 @@ description: 为 GETO 在指定国家或地区发现、归一、去重并管理�
 
 # GETO 线索发现、候选池与 Assessment 聚合
 
-把广泛召回、候选归一和跨公司排序组织成统一线索池。发现候选不等于合格客户；单公司证据与评分由 `$geto-diligence-company` 返回，本 Skill 不持有评分锚点。
+把广泛召回、候选归一和跨公司排序组织成统一线索池。发现候选不等于合格客户；需要评分时，将单个 Company 交给 `$geto-diligence-company`，再使用其返回的 Assessment。
 
 ## 启动预检
 
@@ -44,7 +44,7 @@ Provider 状态和降级规则见 [provider-policy.md](references/provider-polic
 
 先查询已有 Company，再以官网主域名、法定实体、注册号、规范名称和别名 resolve。一个 Company 可同时拥有 customer、competitor、partner、ecosystem 等角色；禁止为不同角色复制公司。
 
-为潜在交易对象维护一个市场内 Company→CommercialAccount 的一一业务映射，为每个 Project 维护一个 Opportunity 映射。它们在 ResearchDelta 中结构化表达，但不假设 OmniX Agent REST 存在独立 CRUD，也不得混成一段 recommendation 文本。
+每个市场中的 Company 对应一个 CommercialAccount，每个 Project 对应一个 Opportunity。分别保存公司商业画像和项目采购机会，不得混成一段 recommendation 文本。
 
 ### 4. 候选资格初筛
 
