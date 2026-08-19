@@ -3,6 +3,7 @@
     "companyName": "Electron Group",
     "entityType": "operating_company",
     "country": "United Arab Emirates",
+    "countryCode": "AE",
     "status": "unknown",
     "summary": "Inquiry fixture with registration-country and project-country distinctions.",
     "researchConclusion": "The opportunity is usable only after signing-entity and payer verification.",
@@ -123,7 +124,7 @@
     }
   ],
   "risks": [],
-  "assessment": {},
+  "assessment": {"status": "not_requested"},
   "missingInformation": [
     {
       "topic": "contracting and paying entities",
@@ -155,7 +156,7 @@
       "fileName": "report.md",
       "path": "report.md",
       "format": "markdown",
-      "reportType": "initial",
+      "reportType": "diligence",
       "language": "en",
       "generatedOn": "2026-08-19",
       "description": "Fixture report"

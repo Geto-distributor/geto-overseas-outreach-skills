@@ -1,0 +1,81 @@
+{
+  "modelCode": "GETO_LEAD_VALUE",
+  "modelVersion": "2026-07-29",
+  "ratingScaleVersion": "value-status-2026-07-29",
+  "approvalStatus": "approved",
+  "scoreRange": [0, 100],
+  "evidenceWeights": {
+    "A": 1.0,
+    "B": 0.75,
+    "C": 0.5,
+    "U": 0.0
+  },
+  "dimensions": [
+    {
+      "dimensionCode": "project_city_value",
+      "name": "项目与城市价值",
+      "maxScore": 15,
+      "anchors": {"low": [0, 5], "medium": [6, 10], "high": [11, 15]}
+    },
+    {
+      "dimensionCode": "account_scale",
+      "name": "客户规模与行业地位",
+      "maxScore": 20,
+      "anchors": {"low": [0, 7], "medium": [8, 14], "high": [15, 20]}
+    },
+    {
+      "dimensionCode": "future_project_demand",
+      "name": "未来项目与采购需求",
+      "maxScore": 20,
+      "anchors": {"low": [0, 7], "medium": [8, 14], "high": [15, 20]}
+    },
+    {
+      "dimensionCode": "reachability",
+      "name": "决策链与触达可行性",
+      "maxScore": 10,
+      "anchors": {"low": [0, 3], "medium": [4, 6], "high": [7, 10]}
+    },
+    {
+      "dimensionCode": "payment_capacity",
+      "name": "合作与支付能力",
+      "maxScore": 15,
+      "anchors": {"low": [0, 5], "medium": [6, 10], "high": [11, 15]}
+    },
+    {
+      "dimensionCode": "multi_product_fit",
+      "name": "多产品匹配与复制价值",
+      "maxScore": 20,
+      "anchors": {"low": [0, 7], "medium": [8, 14], "high": [15, 20]}
+    }
+  ],
+  "ratingRules": [
+    {
+      "grade": "verified_high_value",
+      "minimumScore": 75,
+      "minimumCompleteness": 75,
+      "dimensionFloors": {"future_project_demand": 11, "multi_product_fit": 12, "reachability": 5},
+      "forbiddenCapCodes": ["hard_refutation", "major_identity_conflict", "major_financial_distress"]
+    },
+    {
+      "grade": "high_potential_needs_evidence",
+      "minimumScore": 65,
+      "maximumCompletenessExclusive": 75
+    },
+    {"grade": "routine_follow_up", "minimumScore": 50},
+    {"grade": "watch", "minimumScore": 0}
+  ],
+  "caps": {
+    "unresolved_legal_identity": 60,
+    "unverified_transaction_path": 75,
+    "hard_refutation": 49,
+    "major_identity_conflict": 49,
+    "major_financial_distress": 49,
+    "self_supply_or_exclusive_competitor": 49
+  },
+  "dimensionCaps": {
+    "unverified_signing_entity": {"payment_capacity": 9},
+    "unverified_future_project": {"future_project_demand": 8},
+    "unverified_product_scenario": {"multi_product_fit": 8},
+    "self_supply_or_exclusive_competitor": {"multi_product_fit": 0}
+  }
+}

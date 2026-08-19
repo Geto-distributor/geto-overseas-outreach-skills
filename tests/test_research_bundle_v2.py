@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import importlib.util
 import json
+import subprocess
 import tempfile
 import unittest
 from pathlib import Path
@@ -10,6 +11,7 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[1]
 RUN_SCRIPTS = ROOT / "skills/geto-run-market-research/scripts"
 CAPABILITY_SCRIPTS = ROOT / "skills/geto-capability-foundation/scripts"
+DILIGENCE_SCRIPTS = ROOT / "skills/geto-diligence-company/scripts"
 
 
 def load_module(name: str, path: Path):
@@ -27,6 +29,7 @@ RESEARCH_BUNDLE = load_module("research_bundle", RUN_SCRIPTS / "research_bundle.
 SOURCE_BUILDER = load_module("build_deduplicated_sources", RUN_SCRIPTS / "build_deduplicated_sources.py")
 WORKSPACE_VALIDATOR = load_module("validate_workspace", RUN_SCRIPTS / "validate_workspace.py")
 LEXICON_VALIDATOR = load_module("validate_search_lexicon", CAPABILITY_SCRIPTS / "validate_search_lexicon.py")
+ASSESSMENT_CALCULATOR = load_module("calculate_lead_assessment", DILIGENCE_SCRIPTS / "calculate_lead_assessment.py")
 
 
 def evidence(url: str = "https://example.com/product") -> dict[str, object]:
@@ -39,7 +42,7 @@ def evidence(url: str = "https://example.com/product") -> dict[str, object]:
 
 
 def base_company() -> dict[str, object]:
-    return RESEARCH_BUNDLE.empty_company("Example", "Australia")
+    return RESEARCH_BUNDLE.empty_company("Example", "Australia", "AU")
 
 
 class ResearchBundleValidationTests(unittest.TestCase):
@@ -47,7 +50,7 @@ class ResearchBundleValidationTests(unittest.TestCase):
         for name in ("freecity-company.json", "electron-company.json"):
             with self.subTest(name=name):
                 value = json.loads((ROOT / "tests/fixtures" / name).read_text(encoding="utf-8"))
-                errors, _ = RESEARCH_BUNDLE.validate_company(value)
+                errors, _, _ = RESEARCH_BUNDLE.validate_company(value)
                 self.assertEqual(errors, [])
 
     def test_installer_only_cannot_be_confirmed_competitor(self) -> None:
@@ -60,7 +63,7 @@ class ResearchBundleValidationTests(unittest.TestCase):
             "name": "Installation", "markets": ["Australia"], "commercialRoles": ["installer"],
             "manufacturingStatus": "not_found", "getoRelevance": "high", "evidence": [evidence()],
         }]
-        errors, _ = RESEARCH_BUNDLE.validate_company(value)
+        errors, _, _ = RESEARCH_BUNDLE.validate_company(value)
         self.assertTrue(any("confirmed competitor requires" in item for item in errors))
         self.assertTrue(any("installer/service_contractor-only" in item for item in errors))
 
@@ -74,7 +77,7 @@ class ResearchBundleValidationTests(unittest.TestCase):
             "name": "Own system", "markets": ["Australia"], "commercialRoles": ["brand_owner"],
             "manufacturingStatus": "outsourced", "getoRelevance": "high", "evidence": [evidence()],
         }]
-        errors, _ = RESEARCH_BUNDLE.validate_company(value)
+        errors, _, _ = RESEARCH_BUNDLE.validate_company(value)
         self.assertEqual(errors, [])
 
     def test_channel_rental_can_be_confirmed_competitor(self) -> None:
@@ -87,19 +90,41 @@ class ResearchBundleValidationTests(unittest.TestCase):
             "name": "Rental fleet", "markets": ["Australia"], "commercialRoles": ["rental_provider"],
             "manufacturingStatus": "not_found", "getoRelevance": "high", "evidence": [evidence()],
         }]
-        errors, _ = RESEARCH_BUNDLE.validate_company(value)
+        errors, _, _ = RESEARCH_BUNDLE.validate_company(value)
         self.assertEqual(errors, [])
 
     def test_assessment_total_requires_complete_evidenced_dimensions(self) -> None:
         value = base_company()
         value["assessment"] = {
-            "assessmentType": "lead_value", "overallScore": 80, "grade": "A",
-            "overallConclusion": "Strong candidate", "assessedOn": "2026-08-19",
-            "dimensions": [{"name": "project opportunity", "score": None, "rationale": "Pending", "evidence": []}],
+            "assessmentType": "lead_value", "status": "completed", "modelCode": "GETO_LEAD_VALUE",
+            "modelVersion": "2026-07-29", "ratingScaleVersion": "value-status-2026-07-29",
+            "capabilityContext": {}, "overallScore": 80, "grade": "verified_high_value",
+            "informationCompleteness": 100, "overallConclusion": "Strong candidate",
+            "assessedOn": "2026-08-19", "dimensions": [], "capCodes": [], "gapCodes": [],
         }
-        errors, _ = RESEARCH_BUNDLE.validate_company(value)
-        self.assertTrue(any("dimensions[0].evidence" in item for item in errors))
-        self.assertTrue(any("overallScore/grade" in item for item in errors))
+        errors, _, _ = RESEARCH_BUNDLE.validate_company(value)
+        self.assertTrue(any("capabilityContext" in item for item in errors))
+        self.assertTrue(any("exactly six dimensions" in item for item in errors))
+
+    def test_assessment_and_report_files_reject_variant_fields(self) -> None:
+        value = base_company()
+        value["assessment"] = {"status": "not_requested", "assessmentStatus": "insufficient_evidence"}
+        value["reportFiles"] = [{"type": "markdown_report", "path": "report.md"}]
+        errors, _, _ = RESEARCH_BUNDLE.validate_company(value)
+        self.assertTrue(any("not_requested permits only" in item for item in errors))
+        self.assertTrue(any("unsupported fields: type" in item for item in errors))
+
+    def test_not_queried_is_info_not_warning(self) -> None:
+        value = base_company()
+        value["researchQueries"] = [{
+            "topic": "provider", "channel": "TradeWind", "query": "Example",
+            "scope": "company lookup", "status": "not_queried", "checkedOn": "2026-08-19",
+            "resultCount": 0, "evidence": [],
+        }]
+        errors, warnings, infos = RESEARCH_BUNDLE.validate_company(value)
+        self.assertEqual(errors, [])
+        self.assertEqual(warnings, [])
+        self.assertTrue(any("not_queried" in item for item in infos))
 
     def test_forbidden_local_keys_and_secrets_are_errors(self) -> None:
         value = base_company()
@@ -108,7 +133,7 @@ class ResearchBundleValidationTests(unittest.TestCase):
             "topic": "secret", "title": "credential", "details": "api_key=omx_test_abcdefghijk",
             "evidence": [evidence()],
         }]
-        errors, _ = RESEARCH_BUNDLE.validate_company(value)
+        errors, _, _ = RESEARCH_BUNDLE.validate_company(value)
         self.assertTrue(any("forbidden" in item for item in errors))
         self.assertTrue(any("credential leak" in item for item in errors))
 
@@ -129,6 +154,22 @@ class ResearchBundleValidationTests(unittest.TestCase):
         self.assertIn("Evidence occurrences: 2", text)
         self.assertNotIn("utm_source", text)
 
+    def test_source_builder_groups_multiple_locators_for_one_url(self) -> None:
+        value = base_company()
+        first = evidence("https://example.com/report.pdf")
+        first["locator"] = "p. 3"
+        second = evidence("https://example.com/report.pdf")
+        second["locator"] = "p. 19"
+        value["websites"] = [{"url": "https://example.com", "evidence": [first, second]}]
+        with tempfile.TemporaryDirectory() as directory:
+            company_dir = Path(directory) / "companies" / "Example"
+            company_dir.mkdir(parents=True)
+            company_json = company_dir / "company.json"
+            company_json.write_text(json.dumps(value), encoding="utf-8")
+            text = SOURCE_BUILDER.build(company_json).read_text(encoding="utf-8")
+        self.assertEqual(text.count("## 1."), 1)
+        self.assertIn("Locators: p. 19; p. 3", text)
+
     def test_workspace_requires_report_and_sources(self) -> None:
         value = base_company()
         value["websites"] = [{"url": "https://example.com", "evidence": [evidence()]}]
@@ -138,9 +179,64 @@ class ResearchBundleValidationTests(unittest.TestCase):
             company_dir = root / "companies" / "Example"
             company_dir.mkdir(parents=True)
             (company_dir / "company.json").write_text(json.dumps(value), encoding="utf-8")
-            errors, _ = WORKSPACE_VALIDATOR.validate(root)
+            errors, _, _ = WORKSPACE_VALIDATOR.validate(root)
         self.assertTrue(any("report.md" in item for item in errors))
         self.assertTrue(any("Sources/sources.md" in item for item in errors))
+
+    def test_company_workspace_mode_ignores_siblings_and_country_progress(self) -> None:
+        value = base_company()
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory) / "AU-Australia"
+            company_dir = root / "companies" / "Example"
+            company_dir.mkdir(parents=True)
+            (company_dir / "company.json").write_text(json.dumps(value), encoding="utf-8")
+            (company_dir / "report.md").write_text("# report", encoding="utf-8")
+            sibling = root / "companies" / "Broken"
+            sibling.mkdir()
+            errors, _, _ = WORKSPACE_VALIDATOR.validate(root, company_dir)
+        self.assertFalse(any("progress.md" in item or "Broken" in item for item in errors))
+
+    def test_progress_merge_preserves_parallel_task_blocks(self) -> None:
+        script = RUN_SCRIPTS / "merge_progress.py"
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            progress = root / "progress.md"
+            payloads = []
+            for section in ("company_a", "company_b"):
+                path = root / f"{section}.json"
+                path.write_text(json.dumps({
+                    "sectionName": section, "title": section, "status": "completed",
+                    "did": ["diligence"], "artifacts": [f"{section}/company.json"],
+                    "decision": ["lead confirmed"], "gaps": [], "next": ["review"],
+                }), encoding="utf-8")
+                payloads.append(path)
+            processes = [subprocess.Popen(["python3", str(script), str(progress), str(path)]) for path in payloads]
+            self.assertEqual([process.wait() for process in processes], [0, 0])
+            text = progress.read_text(encoding="utf-8")
+        self.assertIn("task:company_a:start", text)
+        self.assertIn("task:company_b:start", text)
+
+    def test_approved_model_calculates_six_dimensions(self) -> None:
+        company = base_company()
+        model = json.loads((ROOT / "skills/geto-diligence-company/references/lead-value-model.json").read_text())
+        company["assessment"] = {"dimensions": [
+            {"dimensionCode": item["dimensionCode"], "observedScore": item["maxScore"],
+             "evidenceGrade": "A", "rationale": "Verified", "evidence": [evidence()],
+             "gapCodes": [], "capCodes": []}
+            for item in model["dimensions"]
+        ], "capCodes": [], "gapCodes": [], "overallConclusion": "Verified lead"}
+        capability = {
+            "foundationKey": "geto:capability-foundation", "foundationVersion": "2026-08-11",
+            "asOf": "2026-08-11", "status": "available", "contentHash": "sha256:test",
+            "productCodes": ["FORMWORK"], "scenarioCodes": [], "roleCodes": [],
+            "caseKeys": [], "gapCodes": [],
+        }
+        assessment = ASSESSMENT_CALCULATOR.calculate(company, model, capability, "2026-08-19")
+        company["assessment"] = assessment
+        errors, _, _ = RESEARCH_BUNDLE.validate_company(company)
+        self.assertEqual(errors, [])
+        self.assertEqual(assessment["overallScore"], 100)
+        self.assertEqual(assessment["grade"], "verified_high_value")
 
 
 class SearchLexiconTests(unittest.TestCase):

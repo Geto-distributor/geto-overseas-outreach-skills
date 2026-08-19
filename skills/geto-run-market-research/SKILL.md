@@ -27,7 +27,8 @@ description: 编排 GETO 海外市场的一次完整或定向调研，以当前�
 运行：
 
 ```bash
-python scripts/init_company_workspace.py --country-root '<国家目录>'
+python scripts/init_company_workspace.py --workspace-root '<ResearchBundle>' \
+  --country-code '<ISO2>' --country-name '<English Display Name>'
 ```
 
 在 `<国家>/progress.md` 记录研究范围、固定检查点和待创建任务。若用户尚未明确授权创建用户可见任务，先征求一次授权。一级工作使用用户可见任务，subagent 仅用于单任务内部并行。
@@ -47,7 +48,7 @@ python scripts/init_company_workspace.py --country-root '<国家目录>'
 
 ### 3. 收集统一任务回传
 
-每个任务必须回传：做了什么、找到了什么、成果路径、接受/拒绝理由、缺口、下一步。主任务把这些内容写入 `progress.md`，并保留查询边界和 Provider 状态。
+每个任务必须回传：做了什么、找到了什么、成果路径、接受/拒绝理由、缺口、下一步。每个任务以唯一 sectionName 调用 `merge_progress.py` 合并自己的区块；文件锁与原子替换保证并发写入互不覆盖。主任务保留查询边界和 Provider 状态。
 
 ### 4. 主体归一与分类仲裁
 
@@ -81,10 +82,11 @@ python scripts/init_company_workspace.py --country-root '<国家目录>'
 ```bash
 python scripts/build_deduplicated_sources.py '<公司目录>/company.json'
 python scripts/validate_company_json.py '<公司目录>/company.json'
+python scripts/validate_workspace.py --company-dir '<公司目录>'
 python scripts/validate_workspace.py '<国家目录>'
 ```
 
-任何 ERROR 必须修复后再交付或上传；WARNING 必须写入 `missingInformation` 或 `progress.md`。固定检查点为 `intake`、`discovery`、`arbitration`、`diligence`、`decision`、`validation`、`optional_upload`、`complete`。
+单公司任务只运行 `--company-dir` 模式；国家主任务运行国家模式。任何 ERROR 必须修复后再交付或上传；WARNING 必须处置或写入 `missingInformation`/`progress.md`，INFO 保留为查询覆盖说明。固定检查点为 `intake`、`discovery`、`arbitration`、`diligence`、`decision`、`validation`、`optional_upload`、`complete`。
 
 ### 8. 可选 OmniX 上传
 

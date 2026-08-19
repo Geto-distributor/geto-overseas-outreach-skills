@@ -25,8 +25,12 @@ description: 对 GETO 海外市场中的单一目标公司执行深度背调，�
 调用 `$geto-run-market-research` 的工作空间脚本创建：
 
 ```bash
-python scripts/init_company_workspace.py --country-root '<国家目录>' --company-name '<自然公司名>'
+python scripts/init_company_workspace.py --workspace-root '<ResearchBundle>' \
+  --country-code '<ISO2>' --country-name '<English Display Name>' \
+  --company-name '<自然公司名>'
 ```
+
+国家目录固定为 `<ISO2>-<English-Display-Name>`。`company.countryCode` 保存 ISO2，`company.country` 保存统一展示名。
 
 只在获得真实内容时创建 `Info/`、`Financial/`、`ProductsAndServices/`、`Projects/`、`NewsAndSocialMedia/`、`CustomsTransactions/`、`LawsuitsAndCompliance/`、`Inquiries/`、`RisksAndAssessment/` 或 `Additional/`。
 
@@ -40,7 +44,7 @@ python scripts/init_company_workspace.py --country-root '<国家目录>' --compa
 
 ### 4. Provider 补强
 
-TradeWind 和网易外贸通只作为独立 Provider 任务返回的 ExternalObservation。需要补查时向对应用户可见任务追问或创建该 Provider 专用任务。保留查询边界、失败和未查询状态；Provider 结果不能覆盖法定主体或官网一手事实。
+TradeWind 和网易外贸通只作为独立 Provider 任务返回的 ExternalObservation。需要补查时向对应用户可见任务追问或创建该 Provider 专用任务。在 `researchQueries[]` 保留 topic、channel、query、scope、status、checkedOn、resultCount 和 Evidence。`not_queried`、已查无结果和失败分别记录；Provider 结果不能覆盖法定主体或官网一手事实。
 
 ### 5. 写入内嵌 Evidence
 
@@ -63,9 +67,18 @@ TradeWind 和网易外贸通只作为独立 Provider 任务返回的 ExternalObs
 
 ### 8. 可选评分与报告
 
-`assessmentMode=lead_value` 时，只有身份稳定、背调完成、能力底座和批准模型可用且各维证据充分，才生成 `assessment` 总分/等级；否则保留明确状态与缺口。评分不改变 competitor 分类。
+`assessmentMode=lead_value` 时，使用 [lead-value-model.json](references/lead-value-model.json) 与能力底座 `contextRef`。先填写六维观察分、证据等级与 Evidence，再运行 `scripts/calculate_lead_assessment.py`；脚本按门禁生成明确状态、总分和等级。评分不改变 competitor 分类。
 
-生成初版 `report.md`，并把真实报告路径写入 `reportFiles[]`。运行来源去重与公司校验；修复 ERROR，WARNING 写入 `missingInformation`。
+`company.json` 是事实与评估的唯一权威结构化来源；`report.md` 是由它组织的可读结论。模块 Markdown 仅保存原始材料、查询日志或扩展分析，按实际内容创建，不手工维护第二份事实表。
+
+生成 `report.md`，并按固定字段 `fileName/path/format/reportType/language/generatedOn/description` 写入 `reportFiles[]`。用 `write_company_json.py` 校验并原子替换完整 JSON，再运行来源聚合与单公司校验：
+
+```bash
+python scripts/build_deduplicated_sources.py '<公司目录>/company.json'
+python scripts/validate_workspace.py --company-dir '<公司目录>'
+```
+
+修复 ERROR；WARNING 表示需处理的风险或冲突，INFO 表示如实记录的未查询或已查无结果。
 
 ## 任务回传
 

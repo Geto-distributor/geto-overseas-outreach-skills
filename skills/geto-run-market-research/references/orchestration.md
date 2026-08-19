@@ -13,7 +13,7 @@
 
 `intake → discovery → arbitration → diligence → decision → validation → optional_upload → complete`
 
-主任务在 `progress.md` 为每个检查点记录状态、任务标题、成果路径、接受/拒绝理由、缺口和下一步；完整任务 trace 留在 Codex 任务自身。
+主任务在 `progress.md` 为每个检查点记录状态、任务标题、成果路径、接受/拒绝理由、缺口和下一步；任务使用唯一 sectionName 调用 `merge_progress.py` 更新自己的区块。完整任务 trace 留在 Codex 任务自身。
 
 ## 统一回传
 

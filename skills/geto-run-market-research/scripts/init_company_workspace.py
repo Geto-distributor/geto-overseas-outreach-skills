@@ -5,6 +5,7 @@ from __future__ import annotations
 
 import argparse
 import json
+import re
 from pathlib import Path
 
 from research_bundle import empty_company
@@ -17,11 +18,12 @@ ALLOWED_MODULES = {
 }
 
 
-def progress_template(country: str) -> str:
+def progress_template(country: str, country_code: str) -> str:
     return f"""# {country} GETO 市场调研进度
 
 ## 范围
 - 国家：{country}
+- 国家代码：{country_code}
 - 产品：待填写
 - 语言：待填写
 - 截止日：待填写
@@ -55,18 +57,36 @@ def progress_template(country: str) -> str:
 
 def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument("--country-root", required=True)
+    location = parser.add_mutually_exclusive_group(required=True)
+    location.add_argument("--workspace-root")
+    location.add_argument("--country-root", help=argparse.SUPPRESS)
+    parser.add_argument("--country-code")
+    parser.add_argument("--country-name")
     parser.add_argument("--company-name")
-    parser.add_argument("--country", default="")
     parser.add_argument("--module", action="append", default=[])
     args = parser.parse_args()
 
-    country_root = Path(args.country_root).expanduser().resolve()
+    if args.workspace_root:
+        country_code = str(args.country_code or "").upper()
+        country_name = str(args.country_name or "").strip()
+        if not re.fullmatch(r"[A-Z]{2}", country_code):
+            raise SystemExit("country-code must be ISO 3166-1 alpha-2")
+        slug = re.sub(r"[^A-Za-z0-9]+", "-", country_name).strip("-")
+        if not slug:
+            raise SystemExit("country-name must contain a stable Latin display name")
+        country_root = Path(args.workspace_root).expanduser().resolve() / f"{country_code}-{slug}"
+    else:
+        country_root = Path(args.country_root).expanduser().resolve()
+        match = re.fullmatch(r"([A-Z]{2})-(.+)", country_root.name)
+        if not match:
+            raise SystemExit("country-root directory must use <ISO2>-<English-Display-Name>")
+        country_code = args.country_code or match.group(1)
+        country_name = args.country_name or match.group(2).replace("-", " ")
     country_root.mkdir(parents=True, exist_ok=True)
     (country_root / "companies").mkdir(exist_ok=True)
     progress = country_root / "progress.md"
     if not progress.exists():
-        progress.write_text(progress_template(args.country or country_root.name), encoding="utf-8")
+        progress.write_text(progress_template(country_name, country_code), encoding="utf-8")
 
     created = [str(progress), str(country_root / "companies")]
     if args.company_name:
@@ -80,7 +100,7 @@ def main() -> int:
         company_json = company_dir / "company.json"
         if not company_json.exists():
             company_json.write_text(
-                json.dumps(empty_company(args.company_name, args.country), ensure_ascii=False, indent=2) + "\n",
+                json.dumps(empty_company(args.company_name, country_name, country_code), ensure_ascii=False, indent=2) + "\n",
                 encoding="utf-8",
             )
         report = company_dir / "report.md"

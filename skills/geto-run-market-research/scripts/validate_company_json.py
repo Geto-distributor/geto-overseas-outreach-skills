@@ -16,10 +16,10 @@ def main() -> int:
     args = parser.parse_args()
     path = Path(args.company_json).expanduser().resolve()
     try:
-        errors, warnings = validate_company(load_json(path))
+        errors, warnings, infos = validate_company(load_json(path))
     except (OSError, json.JSONDecodeError) as error:
-        errors, warnings = [f"{path}: {error}"], []
-    result = {"file": str(path), **format_result(errors, warnings)}
+        errors, warnings, infos = [f"{path}: {error}"], [], []
+    result = {"file": str(path), **format_result(errors, warnings, infos)}
     print(json.dumps(result, ensure_ascii=False, indent=2))
     return 0 if not errors else 1
 

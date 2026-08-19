@@ -14,19 +14,21 @@ def build(company_json: Path) -> Path:
     grouped: dict[tuple[str, str], list[dict[str, object]]] = defaultdict(list)
     for evidence in all_evidence(load_json(company_json)):
         url = canonical_url(str(evidence.get("sourceUrl") or ""))
-        locator = str(evidence.get("locator") or "").strip()
-        grouped[(url, locator)].append(evidence)
+        document_key = str(evidence.get("sourceTitle") or "Customer document").strip().casefold()
+        grouped[("url", url) if url else ("document", document_key)].append(evidence)
 
     lines = ["# Sources", "", "由 company.json 内嵌 Evidence 派生；company.json 是权威结构化来源。", ""]
-    for number, ((url, locator), items) in enumerate(sorted(grouped.items()), 1):
+    for number, ((kind, identity), items) in enumerate(sorted(grouped.items()), 1):
         first = items[0]
+        url = identity if kind == "url" else ""
         title = str(first.get("sourceTitle") or url or "Customer document")
         lines.append(f"## {number}. {title}")
         lines.append("")
         if url:
             lines.append(f"- URL: {url}")
-        if locator:
-            lines.append(f"- Locator: {locator}")
+        locators = sorted({str(item.get("locator") or "").strip() for item in items if item.get("locator")})
+        if locators:
+            lines.append(f"- Locators: {'; '.join(locators)}")
         publishers = sorted({str(item.get("publisher") or "") for item in items if item.get("publisher")})
         relations = sorted({str(item.get("relation") or "") for item in items if item.get("relation")})
         retrieved = sorted({str(item.get("retrievedOn") or "") for item in items if item.get("retrievedOn")})

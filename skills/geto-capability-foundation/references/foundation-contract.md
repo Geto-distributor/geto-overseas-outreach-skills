@@ -4,17 +4,17 @@ CapabilityContext 是只读的本次研究能力切片，不是目标市场事�
 
 ```json
 {
+  "foundationKey": "geto:capability-foundation",
   "foundationVersion": "",
   "asOf": "YYYY-MM-DD",
   "status": "available|partial|unavailable",
   "contentHash": "sha256:...",
   "productCodes": [],
   "scenarioCodes": [],
-  "competitionSurfaces": [],
-  "targetCompanyRoles": [],
-  "searchLexiconVersion": "",
+  "roleCodes": [],
+  "caseKeys": [],
   "gapCodes": []
 }
 ```
 
-主任务把所用版本和 codes 写入 progress.md。目标 Company 的产品、项目、分类和关系必须由目标市场 Evidence 支持，不能把 CapabilityContext 当作事实来源。
+`select_context.py` 在 `contextRef` 返回这组固定字段。执行客户价值评估时把该对象原样写入 `assessment.capabilityContext`；主任务在 `progress.md` 记录 foundationVersion、contentHash 和所用 codes 的摘要。目标 Company 的产品、项目、分类和关系必须由目标市场 Evidence 支持，不能把 CapabilityContext 当作事实来源。

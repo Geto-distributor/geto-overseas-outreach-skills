@@ -118,6 +118,7 @@ def main() -> int:
 
     result = {
         "foundationKey": manifest["foundationKey"],
+        "foundationVersion": manifest["foundationVersion"],
         "asOf": manifest["asOf"],
         "contentHash": f"sha256:{digest.hexdigest()}",
         "status": "partial" if gaps else "available",
@@ -136,6 +137,18 @@ def main() -> int:
         "sources": [item for item in sources if item["sourceKey"] in source_keys],
         "sourceKeys": sorted(source_keys),
         "gaps": gaps,
+    }
+    result["contextRef"] = {
+        "foundationKey": result["foundationKey"],
+        "foundationVersion": result["foundationVersion"],
+        "asOf": result["asOf"],
+        "status": result["status"],
+        "contentHash": result["contentHash"],
+        "productCodes": result["selection"]["productCodes"],
+        "scenarioCodes": result["selection"]["scenarioCodes"],
+        "roleCodes": result["selection"]["roleCodes"],
+        "caseKeys": sorted(item["caseKey"] for item in selected_cases),
+        "gapCodes": result["gaps"],
     }
     print(json.dumps(result, ensure_ascii=False, indent=2))
     return 0
