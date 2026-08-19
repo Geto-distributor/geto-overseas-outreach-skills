@@ -1,54 +1,7 @@
-# 输出合同
+# 竞对任务输出
 
-~~~json
-{
-  "capabilityFoundation": {
-    "foundationKey": "geto:capability-foundation",
-    "contentHash": "sha256:...",
-    "status": "available|partial|unavailable",
-    "productCodes": [],
-    "scenarioCodes": [],
-    "caseKeys": [],
-    "sourceKeys": [],
-    "gapCodes": []
-  },
-  "competitorCandidates": [],
-  "competitionDecisions": [],
-  "confirmedCompetitors": [],
-  "officialCases": [
-    {
-      "competitorCompanyKey": "",
-      "counterpartyCompanyKey": "",
-      "projectKey": null,
-      "productCodes": [],
-      "cooperationDescription": "",
-      "counterpartyRoleCode": "",
-      "customerQualificationStatusCode": "",
-      "buyerCompanyKey": null,
-      "payerCompanyKey": null,
-      "procurementMode": null,
-      "exclusive": null,
-      "currentStatus": "unknown",
-      "relationshipKey": "",
-      "claimKeys": [],
-      "sourceKeys": []
-    }
-  ],
-  "qualifiedCustomers": [],
-  "competitorMetrics": [
-    {
-      "competitorCompanyKey": "",
-      "qualifiedCustomerCount": 0,
-      "scoredCustomerCount": 0,
-      "assessmentCoverage": 0,
-      "averageCustomerValueScore": null
-    }
-  ],
-  "exclusions": [],
-  "providerStatuses": {},
-  "quality": {},
-  "provenance": {}
-}
-~~~
+输出包含：研究范围、查询边界、候选公司自然名、稳定官网/注册锚点、产品/市场重叠、commercialRoles、manufacturingStatus、分类建议、接受/拒绝理由、Evidence、官方案例关系、新候选客户、缺口和下一步。
 
-合格客户必须引用统一 Company/CommercialAccount、背调 EvidencePackage 和六维 Assessment。关系字段未知时使用 null/unknown，不能用推断值补齐。
+每个需确认的竞对指向独立公司目录。客户反查结果只作为主任务的新候选；主任务决定创建背调任务、关联已有 Company 或拒绝。
+
+不得输出本地技术 Key、ResearchDelta、ThreatScore、Draft/Approval 状态或直接 OmniX 写入操作。

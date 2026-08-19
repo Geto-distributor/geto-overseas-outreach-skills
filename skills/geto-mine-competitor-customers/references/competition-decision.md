@@ -1,32 +1,27 @@
-# 竞争判定对象
+# Competitor Gate
 
-~~~json
+把结论写入 company.json 的 researchClassifications[]：
+
+```json
 {
-  "companyKey": "stable-company-key",
-  "candidateStatus": "competitor_candidate",
-  "capabilityFoundation": {
-    "foundationKey": "geto:capability-foundation",
-    "contentHash": "sha256:...",
-    "status": "available|partial|unavailable"
-  },
-  "competitionDecision": "confirmed|rejected|pending|conflicting",
-  "competitionCategory": "SystemPlatform|SpecialistProductMethod|ModularOffsite|ChannelMaterial|null",
-  "marketOverlap": {
-    "country": "AU",
-    "productCodes": [],
-    "competitionSurfaces": [],
-    "methodOverlap": [],
-    "projectBudgetOverlap": [],
-    "channelControlOverlap": []
-  },
-  "reasoning": "",
-  "counterEvidence": [],
-  "claimKeys": [],
-  "sourceKeys": [],
-  "lastCheckedOn": "YYYY-MM-DD"
+  "classification": "competitor",
+  "status": "confirmed|possible|rejected",
+  "country": "",
+  "productScope": [],
+  "reason": "",
+  "evidence": []
 }
-~~~
+```
 
-判定是可证伪结论，不是关键词分类。多角色公司可同时保留 competitor 与 partner/customer/ecosystem 角色。产品、制造能力、项目渗透和本地网络作为背景事实保存，不汇总成威胁评分。
+confirmed 必须同时证明：产品/技术/渠道重叠、目标市场经营、商业控制/销售/出租/分销或自有系统。名称关键词不是证据。
 
-能力底座 partial/unavailable 时 `competitionDecision` 只能是 pending；Provider 或关键词命中不能补足 GETO 竞争面定义。
+判定矩阵：
+
+| 履约/商业角色 | 竞对边界 |
+| --- | --- |
+| manufacturer/system_owner/brand_owner | 产品和市场重叠时可 confirmed |
+| distributor/reseller/rental_provider | 经营竞品时为渠道竞对 |
+| installer/service_contractor-only | rejected |
+| contract_manufacturer-only | 非独立销售时 rejected/possible ecosystem |
+| outsourced + 自有品牌/系统 | 可 confirmed |
+| 商业控制 unknown | possible，创建背调补证 |

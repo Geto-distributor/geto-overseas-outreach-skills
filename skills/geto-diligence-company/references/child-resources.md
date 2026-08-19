@@ -1,15 +1,9 @@
-# 独立子资源
+# Company 子资源字段
 
-## Contact
+- contacts：contactType、name、jobTitle、department、seniority、responsibilities、buyingRole、location、workEmail、workPhone、linkedinUrl、otherProfileUrl、verificationStatus、lastVerifiedOn、evidence。
+- financialRecords：recordType、period、value、currency、unit、valueStatus、description、evidence。
+- customsTransactions：resultType、direction、importer、exporter、partnerCountry、transactionOn、dateRange、hsCode、productDescription、quantity、quantityUnit、value、currency、ports、recordCount、provider、queryScope、verificationStatus、notes、evidence。
+- inquiries：receivedOn、buyerName、buyerContact、buyerRole、requestedProduct、quantity、technicalRequirements、projectName、projectCountry、deliveryDestination/Port、signingEntity、payer、paymentTerms、requestedDocuments、attachments、verificationStatus、openQuestions、evidence。
+- projects、relationships、licensesAndCertifications、newsAndSocialMedia、lawsuitsAndCompliance、risks、missingInformation、recommendedActions、additionalInformation 均使用主字段合同并内嵌 Evidence。
 
-contactKey、姓名、职位、层级、工作邮箱、工作电话、公司域名、地点、公司自然键、verificationStatus、sourceKeys、lastCheckedOn。按公司域名、姓名与职位去重，避免把同一联系人重复挂接。
-
-## CustomsEvidence
-
-evidenceKey、主体、交易方、查询时间窗口、HS/商品描述、数量/金额、记录数、查询条件、来源、valueStatus、evidenceBoundary。汇总有数但明细无数时必须明确两者边界。
-
-## Financial
-
-financialKey、公司自然键、财报期、币种、营收、利润、资产负债等结构化指标、风险结论、sourceKeys、valueStatus。不同财报期不得合并成一个长文本。
-
-三类资源均可引用 Claim/Source，但不得把第三方 Observation 直接当已核实事实。
+联系人、财务、海关和询盘不能塞入 company.summary 或报告长文本代替结构化字段。注册资本与实缴资本只进入 capitalRecords。

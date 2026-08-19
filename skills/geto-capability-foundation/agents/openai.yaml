@@ -1,4 +1,4 @@
 interface:
   display_name: "GETO 能力底座"
-  short_description: "提供 GETO 产品、场景、ICP、案例与证据状态"
-  default_prompt: "Use $geto-capability-foundation to select the relevant GETO products, scenarios, ICP signals, and verified case anchors for this research."
+  short_description: "提供产品、场景、ICP、案例和版本化召回关键词。"
+  default_prompt: "使用 $geto-capability-foundation 选择本次研究的 GETO 产品、场景与 SearchLexicon 切片。"

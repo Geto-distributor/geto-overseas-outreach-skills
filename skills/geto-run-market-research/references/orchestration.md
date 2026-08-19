@@ -1,60 +1,59 @@
-# 总编排合同
+# 用户可见任务编排
 
-## 模块关系
+## 拓扑
 
-~~~mermaid
-flowchart LR
-  U["业务输入"] --> O["geto-run-market-research"]
-  O --> F["geto-capability-foundation"]
-  F --> L["geto-find-leads"]
-  F --> C["geto-mine-competitor-customers"]
-  O --> L["geto-find-leads"]
-  O --> C["geto-mine-competitor-customers"]
-  L --> D["geto-diligence-company"]
-  C --> D
-  C --> R["geto-map-relationships"]
-  D --> A["可选六维 Assessment"]
-  D --> R
-  A --> L["候选池聚合与排序"]
-  A --> P{"明确签约机会与条款?"}
-  P -->|是| K["geto-assess-precontract-risk"]
-  P -->|否| F["持续补证/销售跟进"]
-  O --> M["omnix-market 私人草稿"]
-  K --> M
-~~~
+- 当前完整国家调研任务是主任务。
+- Web 发现按六个 companyRole 分为六个用户可见任务。
+- 竞对发现按产品/技术面和商业角色拆任务。
+- TradeWind、网易外贸通各自一个独立任务。
+- 一家公司一个背调任务；一个竞对也使用一家公司一个任务。
+- subagent 只在单个任务内部并行网页、法规、项目或反证轨。
 
-## 顺序约束
+## 状态机
 
-1. resolve-before-upsert。
-2. 先形成同一次运行共享的 CapabilityContext，再发现候选和判断 GETO 适配。
-3. 先发现候选，再对目标公司做背调。
-4. diligence 仅在 `assessmentMode=lead_value` 且背调、能力底座、批准模型门槛都通过后生成六维 Assessment；find-leads 不重新计算。
-5. 竞对案例客户先过客户资格门，再进入 Company/CommercialAccount 和线索池。
-6. 关系证据只证明关系本身，不能自动证明 buyer、payer、exclusive 或 current。
-7. 签约前风险只在精确交易对象形成后运行。
+`intake → discovery → arbitration → diligence → decision → validation → optional_upload → complete`
 
-## Provider 路由
+主任务在 `progress.md` 为每个检查点记录状态、任务标题、成果路径、接受/拒绝理由、缺口和下一步。不记录内部 thread ID、runId 或 taskId；任务 trace 留在 Codex 自身。
 
-| 能力 | 主路径 | 可选增强 | 缺失时处理 |
-|---|---|---|---|
-| 公开公司/项目发现 | Web Search | TradeWind、网易外贸通 | 继续 Web-only |
-| 单公司公开背调 | 官网、监管、财报、新闻、法院等 Web 来源 | TradeWind、网易外贸通 | 保留覆盖缺口 |
-| 联系人/海关补充 | 可验证公开来源 | TradeWind、网易外贸通 | not_queried/not_found 分开 |
-| 已有实体解析与交付 | OmniX Market Skill | 无 | 研究继续，交付 blocked |
+## 统一回传
 
-GETO 能力底座不是 Provider：它不联网、不鉴权、不写入。当它缺失时，公开 Web 和可用 Provider 仍可收集市场事实，但产品适配、竞对确认和正式评分必须挂起。
+每个任务结束时返回：
 
-不得自动安装缺失 Skill，不得由总编排直接复制 Provider 或 Market 的 HTTP 请求。
+1. 做了什么；
+2. 找到了什么；
+3. 成果所在路径；
+4. 接受或拒绝理由；
+5. 未完成项和缺口；
+6. 建议主任务采取的下一步。
 
-## adversarial 模式
+Provider 任务另加 provider、queryBoundary、retrievedOn、status 和 ExternalObservation 文件路径。单公司任务另加身份锚点、lead/competitor 分类建议、冲突与 report.md 路径。
 
-对下列高影响结论至少建立一条 challenger 路径：
+## 恢复
 
-- 主体身份与别名合并。
-- 真实竞对判定。
-- 官方案例中的客户资格。
-- 项目未来性与采购窗口。
-- 客户价值高分维度。
-- 付款能力或签约 hard stop。
+恢复时先读 `progress.md` 和成果文件，再使用任务等待/读取能力获取尚未完成任务的最新状态。仅向需要补证的任务发 follow-up；不重建已完成任务，不无条件重查已完成来源。
 
-硬反证必须更新原 Claim 的 relationType=`refutes`、状态和下游对象，不得保留已被证伪的评分或关系。
+## progress.md 最小结构
+
+```markdown
+# <国家> GETO 市场调研进度
+
+## 范围
+- 国家：
+- 产品：
+- 语言：
+- 截止日：
+- 结果范围：
+
+## 检查点
+| 阶段 | 状态 | 成果路径 | 缺口 | 下一步 |
+
+## 任务
+| 任务 | 状态 | 做了什么 | 成果路径 | 接受/拒绝理由 | 缺口 | 下一步 |
+
+## 公司仲裁
+| 公司 | lead | competitor | 目录 | 理由/冲突 |
+
+## 上传
+- uploadStatus: not_requested
+- detailRoute:
+```

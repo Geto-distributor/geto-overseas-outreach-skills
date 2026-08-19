@@ -1,0 +1,166 @@
+{
+  "company": {
+    "companyName": "Electron Group",
+    "entityType": "operating_company",
+    "country": "United Arab Emirates",
+    "status": "unknown",
+    "summary": "Inquiry fixture with registration-country and project-country distinctions.",
+    "researchConclusion": "The opportunity is usable only after signing-entity and payer verification.",
+    "evidence": []
+  },
+  "aliases": [],
+  "registrations": [
+    {
+      "registrationType": "company_registration",
+      "registrationNumber": "FIXTURE-001",
+      "registeredName": "Electron Group",
+      "registeredBusinessScope": [],
+      "jurisdiction": "United Arab Emirates",
+      "status": "active",
+      "registeredOn": null,
+      "expiresOn": null,
+      "evidence": [
+        {
+          "sourceTitle": "Customer registration attachment",
+          "sourceUrl": "",
+          "publisher": "Customer",
+          "sourceType": "customer_document",
+          "publishedOn": null,
+          "retrievedOn": "2026-08-19",
+          "relation": "supports",
+          "locator": "registration.pdf page 1",
+          "excerpt": "Registered in UAE",
+          "note": "Fixture"
+        }
+      ]
+    }
+  ],
+  "capitalRecords": [],
+  "websites": [],
+  "addresses": [],
+  "marketPresence": [],
+  "socialChannels": [],
+  "researchClassifications": [
+    {
+      "classification": "lead",
+      "status": "possible",
+      "country": "Saudi Arabia",
+      "productScope": ["aluminium_formwork"],
+      "reason": "Direct project inquiry, pending counterparty verification.",
+      "evidence": [
+        {
+          "sourceTitle": "Inquiry email",
+          "sourceUrl": "",
+          "publisher": "Customer",
+          "sourceType": "customer_document",
+          "publishedOn": "2026-08-18",
+          "retrievedOn": "2026-08-19",
+          "relation": "supports",
+          "locator": "inquiry.eml",
+          "excerpt": "Aluminium formwork request for Saudi project",
+          "note": "Fixture"
+        }
+      ]
+    }
+  ],
+  "companyRoles": [],
+  "productsAndServices": [],
+  "projects": [],
+  "relationships": [],
+  "contacts": [],
+  "licensesAndCertifications": [],
+  "financialRecords": [],
+  "newsAndSocialMedia": [],
+  "customsTransactions": [],
+  "lawsuitsAndCompliance": [],
+  "inquiries": [
+    {
+      "receivedOn": "2026-08-18",
+      "buyerName": "Electron Group",
+      "buyerContact": "Purchasing contact",
+      "buyerRole": "procurement",
+      "requestedProduct": "Aluminium formwork",
+      "quantity": null,
+      "quantityUnit": null,
+      "technicalRequirements": ["wall and slab system", "shop drawings"],
+      "projectName": "Saudi residential project",
+      "projectCountry": "Saudi Arabia",
+      "deliveryDestination": "Saudi Arabia",
+      "deliveryPort": null,
+      "signingEntity": null,
+      "payer": null,
+      "paymentTerms": null,
+      "requestedDocuments": ["signing entity registration", "project authorization", "payer confirmation"],
+      "attachments": ["inquiry.eml", "registration.pdf"],
+      "verificationStatus": "conflicting",
+      "openQuestions": ["Which entity signs?", "Which entity pays?", "What is the confirmed quantity?"],
+      "evidence": [
+        {
+          "sourceTitle": "Inquiry email",
+          "sourceUrl": "",
+          "publisher": "Customer",
+          "sourceType": "customer_document",
+          "publishedOn": "2026-08-18",
+          "retrievedOn": "2026-08-19",
+          "relation": "supports",
+          "locator": "inquiry.eml",
+          "excerpt": "Saudi Arabia project",
+          "note": "Fixture"
+        },
+        {
+          "sourceTitle": "Customer registration attachment",
+          "sourceUrl": "",
+          "publisher": "Customer",
+          "sourceType": "customer_document",
+          "publishedOn": null,
+          "retrievedOn": "2026-08-19",
+          "relation": "context",
+          "locator": "registration.pdf page 1",
+          "excerpt": "United Arab Emirates registration",
+          "note": "Registration country is not project country"
+        }
+      ]
+    }
+  ],
+  "risks": [],
+  "assessment": {},
+  "missingInformation": [
+    {
+      "topic": "contracting and paying entities",
+      "status": "conflicting",
+      "description": "The inquiry project is in Saudi Arabia while the provided registration is from UAE.",
+      "whyItMatters": "Contract and payment risk cannot be evaluated without exact entities.",
+      "checkedScope": "Inquiry email and supplied registration attachment",
+      "recommendedAction": "Request project authorization and payer confirmation.",
+      "evidence": [
+        {
+          "sourceTitle": "Inquiry email",
+          "sourceUrl": "",
+          "publisher": "Customer",
+          "sourceType": "customer_document",
+          "publishedOn": "2026-08-18",
+          "retrievedOn": "2026-08-19",
+          "relation": "context",
+          "locator": "inquiry.eml",
+          "excerpt": "Saudi project",
+          "note": "Fixture"
+        }
+      ]
+    }
+  ],
+  "recommendedActions": [],
+  "additionalInformation": [],
+  "reportFiles": [
+    {
+      "fileName": "report.md",
+      "path": "report.md",
+      "format": "markdown",
+      "reportType": "initial",
+      "language": "en",
+      "generatedOn": "2026-08-19",
+      "description": "Fixture report"
+    }
+  ],
+  "researchStatus": "completed_with_gaps",
+  "lastResearchedOn": "2026-08-19"
+}

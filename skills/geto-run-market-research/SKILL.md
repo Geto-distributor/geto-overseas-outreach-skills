@@ -1,93 +1,101 @@
 ---
 name: geto-run-market-research
-description: 编排 GETO 海外市场的一次完整或定向调研，协调线索发现与六维评分、公司背调、竞对发现与客户反查、商业关系网和签约前风险模块，统一维护 ResearchRun、检查点、Claim/Source 证据链与 OmniX 私人草稿。用于国家/地区市场调研、销售线索池、竞对客户挖掘或需要一次性完成多模块研究的任务。
+description: 编排 GETO 海外市场的一次完整或定向调研，以当前用户任务为主任务，按公司角色、Provider 和单公司背调创建用户可见任务，维护国家 progress.md 与本地 ResearchBundle，并在验证通过后可选上传 OmniX。用于国家/地区市场调研、销售线索池、竞对客户挖掘或多模块研究；不使用 ResearchDelta、OmniX Draft/Approval 或跨公司的 subagent 一级编排。
 ---
 
 # GETO 海外市场情报总编排
 
-## 目标
+## 目标与边界
 
-把多个专业 Skills 编排成一个可恢复、可审计、可提交 OmniX 的 ResearchRun。各子 Skill 对自己的业务判断负责；本 Skill 负责范围、依赖、阶段交接、去重、质量门槛和交付，不重新实现 Provider 或 Market REST 调用。
+把当前国家调研任务作为主任务。用用户可见的独立任务承载角色发现、Provider 查询和逐公司背调；subagent 只允许在单个任务内部并行。主任务维护人可直接浏览的 ResearchBundle，不依赖 OmniX 完成研究。
 
-开始前读取 [orchestration.md](references/orchestration.md)；合并结果时读取 [research-delta-contract.md](references/research-delta-contract.md)。需要持久化本地检查点时使用 `scripts/research_run.py`，交付前必须运行 `scripts/validate_research_delta.py`。
+开始前读取 [orchestration.md](references/orchestration.md) 与 [company-json-contract.md](references/company-json-contract.md)。需要初始化或验证本地成果时使用本 Skill 的 `scripts/`。
 
 ## 输入
 
-- 国家/地区、marketCode、scopeCode、GETO 产品范围、研究截止日 `asOf`。
-- 业务目标：线索池、竞对客户、关系网、单公司背调、完整市场调研或签约前复核。
-- `executionMode`: `quick` 或 `adversarial`；两者使用同一领域对象和证据合同。
-- `resultMode`: `full` 或 `sample`；sample 必须保存采样边界，不能冒充全量。
-- 可选种子：公司、项目、竞对、产品、关键词、目标角色、排除项。
-- 是否仅创建私人草稿；只有明确“提交审核”才允许进入 submit。
+- 国家/地区、语言、GETO 产品范围、研究截止日 `asOf`。
+- 业务目标、结果范围 `full|sample`、可选种子与排除项。
+- 是否启用 TradeWind、网易外贸通、竞对反查和签约前风险。
+- 工作空间根目录；缺省使用用户指定的项目工作区，不把密钥或完整任务 trace 写入其中。
 
-## 阶段流程
+## 主任务工作流
 
-### 1. intake
+### 1. Intake 与初始化
 
-确认范围、自然语言歧义、市场与时间边界。调用 `$geto-capability-foundation` 将产品族、工程场景、ICP 和案例解析为本次 CapabilityContext。生成 `researchRunKey`，记录 skill/agent/model、asOf、resultMode、provenance。不要把 API Key、cookie 或 Provider 原始凭证写入状态文件。
+确认国家、产品、时间、样本边界和交付语言。读取 `$geto-capability-foundation` 取得产品、场景、竞争面和 SearchLexicon 切片。
 
-### 2. capability check
+运行：
 
-检查以下 Skill 是否存在且可用：
+```bash
+python scripts/init_company_workspace.py --country-root '<国家目录>'
+```
 
-- `$omnix-market`
-- `$tradewind-api`
-- `$netease-waimao`
-- `$geto-capability-foundation`
-- 五个 GETO 子 Skills
+在 `<国家>/progress.md` 记录研究范围、固定检查点和待创建任务。若用户尚未明确授权创建用户可见任务，先征求一次授权；不要用 subagent 替代这些一级任务。
 
-Provider 状态使用统一枚举：`available`、`skill_unavailable`、`not_configured`、`unauthenticated`、`forbidden`、`rate_limited`、`provider_session_expired`、`upstream_unavailable`、`partial`、`failed`。
+### 2. 创建用户可见发现任务
 
-公开 Web 研究始终是主链。TradeWind 与网易外贸通是可选增强：缺失时继续 Web-only，并明确覆盖差距。OmniX Market 缺失时研究仍完成 API-ready ResearchDelta，但 `deliveryStatus=blocked_market_unavailable`。
+至少分别创建六个 Web 发现任务：
 
-能力底座状态独立记录为 available/partial/unavailable，不放入 Provider 状态。partial/unavailable 时仍可完成中性发现和客观证据整理，但禁止正式 GETO 产品适配、竞对确认、`multi_product_fit` 和客户价值总分。
+1. `developer`
+2. `main_contractor`
+3. `subcontractor`
+4. `agent_consultant_pm`
+5. `distributor_trading`
+6. `design_consulting_supervision_other`
 
-### 3. resolve
+竞对发现按产品/技术面和商业角色另行拆分。TradeWind 与网易外贸通启用时各创建一个独立任务，不与 Web 发现混用 trace。使用 Codex 的任务创建、等待、读取和追问能力协调；保留任务自身 trace，不生成 SessionManifest、SessionHandoff 或本地技术 ID。
 
-若 `$omnix-market` 可用，先查询已有 Company、别名、域名、LegalEntity、Project、Product、Relationship、Source 与 Assessment，再决定 create/update/link。任何子 Skill 都必须 resolve-before-upsert。
+### 3. 收集统一任务回传
 
-### 4. discovery
+每个任务必须回传：做了什么、找到了什么、成果路径、接受/拒绝理由、缺口、下一步。主任务把这些内容写入 `progress.md`，并保留查询边界和 Provider 状态。
 
-根据目标编排：
+### 4. 主体归一与分类仲裁
 
-- `$geto-find-leads`：Web Search、可用 Provider 和已有图谱多路发现候选。
-- `$geto-mine-competitor-customers`：G1 竞对判定，G2 官方案例客户反查。
+只用法定注册号、已确认稳定官网域名等强身份锚点自动去重。名称相似、共同地址、集团关系或项目共现只能标记冲突，不能自动合并。
 
-竞对反查出的合格客户必须回流统一线索池，不能形成另一套 Company。
+对每家公司独立执行 Lead Gate 与 Competitor Gate；同一公司可同时拥有一条 lead 和一条 competitor 分类。公司名称和关键词只用于召回。竞对判定必须核查官网 Products、Services、Solutions、Manufacturing、Factory、Rental、Distribution、Projects 和 About，并确认产品/市场重叠与商业控制或渠道控制。installer/service_contractor-only 必须拒绝 competitor；自有品牌/系统即使委外生产仍可能确认；经销、转售、出租竞品属于渠道竞对。
 
-### 5. evidence
+### 5. 一家公司一个背调任务
 
-所有进入价值评分或关键关系的 Company 调用 `$geto-diligence-company`。普通主体核验和竞对本身传 `assessmentMode=none`；国家线索池候选和已回流的竞对客户传 `assessmentMode=lead_value`。ExternalObservation 经过主体归一、冲突仲裁和 Claim/Source 绑定后才进入 ResearchDelta。
+为每个入选 Company 创建独立用户可见背调任务。输入包含自然公司名、强身份锚点、发现来源、目标国家/产品、开放问题和禁止重复查询清单。竞对也一家公司一个任务，并重点核查官方项目、具名客户和合作方。
 
-`adversarial` 模式对关键 Claim 运行 Builder/Challenger：硬反证可回滚候选资格、竞对判定、关系或评分；不得只追加一段“风险提示”。
+任务使用 `$geto-diligence-company` 写入：
 
-### 6. decision
+```text
+<国家>/companies/<公司自然名称>/company.json
+<国家>/companies/<公司自然名称>/report.md
+```
 
-- `$geto-diligence-company` 生成单公司六维 Assessment；`$geto-find-leads` 使用 completed 结果做覆盖率统计和跨公司排序。
-- 所有 GETO 适配、竞对判定与评分使用同一份 CapabilityContext 和 contentHash。
-- `$geto-map-relationships` 建模公司—公司、公司—项目和产品关系。
-- `$geto-assess-precontract-risk` 仅在机会成熟且签约主体/条款明确时运行；它不属于普通线索评分必经阶段。
+模块目录只在有真实内容时创建。
 
-### 7. delta validation
+### 6. 评分、关系与风险
 
-运行 `python scripts/validate_research_delta.py <delta.json>`，校验自然键、角色与关系类型、证据链接、状态枚举、模型信息、重复实体、孤立子资源、source package 和各模块 handoff。任何 ERROR 都阻止写入/提交；WARNING 必须进入人工复核清单。任何未查字段保持显式状态；不得为了“完整”补空洞结论。
+- `$geto-find-leads` 聚合已完成单公司背调后的六维评分，不重新计算单公司结果。
+- `$geto-map-relationships` 只对已归一公司/项目建立 typed Relationship。
+- `$geto-assess-precontract-risk` 仅在具体交易、签约主体和条款已明确时运行。
 
-### 8. delivery
+### 7. 本地验证
 
-若 `$omnix-market` 可用：查询/resolve → 创建或更新当前用户私人草稿 → 回读 → 本地校验 → 预提交校验。预提交校验不可用时停在私人草稿并记录能力缺口。按用户意图决定是否 submit。永不调用 Approve/Reject；审核只在 Web UI。
+逐公司生成来源索引并校验：
 
-若不可用：保存或返回 API-ready ResearchDelta、checkpoint 和 delivery blocker。Excel、SQL patch、数据库 ID 不是业务交付合同。
+```bash
+python scripts/build_deduplicated_sources.py '<公司目录>/company.json'
+python scripts/validate_company_json.py '<公司目录>/company.json'
+python scripts/validate_workspace.py '<国家目录>'
+```
 
-## 检查点
+任何 ERROR 必须修复后再交付或上传；WARNING 必须写入 `missingInformation` 或 `progress.md`。固定检查点为 `intake`、`discovery`、`arbitration`、`diligence`、`decision`、`validation`、`optional_upload`、`complete`。
 
-固定阶段为 `intake`、`resolve`、`discovery`、`evidence`、`decision`、`submission`。每阶段记录 status、startedOn、completedOn、inputs、outputs、gapCodes、providerStatuses。失败后从最近完成的阶段恢复，不能无条件重跑并制造重复 Source/Company。
+### 8. 可选 OmniX 上传
+
+仅在本地验证通过后询问用户：是否上传、Base URL/API Key 是否已安全配置、上传为 `private` 还是 `public`。用户同意后调用 `$omnix-market` 的单一无版本 Company Aggregate API。没有 OmniX 或用户不上传不阻断研究完成。
+
+在 `progress.md` 记录 `uploadStatus=not_requested|not_configured|uploaded_private|uploaded_public|blocked_public_duplicate|failed` 和平台返回的 detailRoute；不得记录 API Key。
 
 ## 完成条件
 
-- 研究范围和 resultMode 可解释。
-- Company 多角色统一，Project/Opportunity 和 Relationship 结构化。
-- 关键结论均有 Claim/Source/ClaimSourceLink 或明确 pending/not_found。
-- 评分逐维可解释且带批准模型信息。
-- ResearchDelta 保存能力底座摘要；下游使用的 product/scenario/case/source keys 可对账。
-- 所有写入都是 owner 私人草稿并可幂等重放。
-- 报告 provider coverage、validation errors、delivery status 与人工待办。
+- 六个角色发现任务及已启用 Provider 的独立任务都有回传和成果路径。
+- 每个评分公司可追溯到独立背调任务、自然名称目录、`company.json` 与 `report.md`。
+- lead/competitor 分类、接受/拒绝理由、冲突与查询边界没有在合并中丢失。
+- `Sources/sources.md` 已由内嵌 Evidence 去重生成，工作空间验证无 ERROR。
+- 中断后可仅依靠 `progress.md`、成果路径和用户可见任务 trace 恢复。

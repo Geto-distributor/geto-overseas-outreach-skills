@@ -1,4 +1,4 @@
 interface:
   display_name: "GETO 竞对发现与客户反查"
-  short_description: "判定真实竞对，并从其官方案例反查 GETO 可合作客户。"
-  default_prompt: "使用 $geto-mine-competitor-customers 发现竞对并反查其客户。"
+  short_description: "按商业控制和履约模式判断竞对并反查官方案例客户。"
+  default_prompt: "使用 $geto-mine-competitor-customers 按一个产品或角色轨道发现竞对并反查客户。"

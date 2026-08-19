@@ -1,0 +1,167 @@
+{
+  "schemaVersion": "1.0",
+  "lexiconVersion": "2026-08-19",
+  "description": "GETO country-role-product-technology recall lexicon. Terms are recall-only and never confirm a lead, company role, manufacturing state, or competitor.",
+  "entries": [
+    {
+      "marketCode": "GLOBAL",
+      "language": "en",
+      "laneCode": "developer",
+      "companyRole": "developer",
+      "productCode": "multi_product",
+      "projectScenario": ["high-rise residential", "concrete residential", "modular housing", "mining camp", "site accommodation"],
+      "technology": ["aluminium formwork", "steel formwork", "volumetric modular construction", "offsite construction", "prefabricated steel structure", "DfMA"],
+      "method": ["design and build", "off-site manufacturing", "precast", "modular delivery"],
+      "positiveTerms": ["property developer", "real estate developer", "residential developer", "project pipeline"],
+      "synonyms": ["builder-developer", "master developer", "community developer"],
+      "abbreviations": ["VMC", "DfMA"],
+      "negativeTerms": ["software framework", "web framework", "employment agency"],
+      "queryTemplates": ["{country} developer {technology} projects", "site:{country_tld} developer projects {projectScenario}"],
+      "sourceChannels": ["government_planning", "developer_website", "project_database", "tender"]
+    },
+    {
+      "marketCode": "GLOBAL",
+      "language": "en",
+      "laneCode": "main_contractor",
+      "companyRole": "main_contractor",
+      "productCode": "multi_product",
+      "projectScenario": ["high-rise", "concrete", "residential", "infrastructure"],
+      "technology": ["aluminium formwork", "climbing formwork", "steel formwork", "DfMA", "offsite construction"],
+      "method": ["main contractor", "general contractor", "design and construct", "EPC"],
+      "positiveTerms": ["main contractor", "general contractor", "builder", "construction group"],
+      "synonyms": ["head contractor", "principal contractor", "tier 1 contractor"],
+      "abbreviations": ["GC", "EPC", "D&C"],
+      "negativeTerms": ["labor hire only", "software contractor"],
+      "queryTemplates": ["{country} main contractor concrete high-rise projects", "{country} general contractor formwork procurement"],
+      "sourceChannels": ["contractor_website", "tender", "government_award", "industry_ranking"]
+    },
+    {
+      "marketCode": "GLOBAL",
+      "language": "en",
+      "laneCode": "subcontractor",
+      "companyRole": "subcontractor",
+      "productCode": "formwork",
+      "projectScenario": ["concrete structure", "high-rise", "bridge", "tunnel"],
+      "technology": ["formwork", "falsework", "shoring", "climbing system"],
+      "method": ["installation", "erection", "dismantling", "stripping", "labor subcontract"],
+      "positiveTerms": ["concrete subcontractor", "formwork subcontractor", "structural subcontractor"],
+      "synonyms": ["formwork installer", "concrete frame contractor", "temporary works contractor"],
+      "abbreviations": [],
+      "negativeTerms": ["software framework", "labor hire only"],
+      "queryTemplates": ["{country} formwork subcontractor installation dismantling", "{country} concrete frame subcontractor projects"],
+      "sourceChannels": ["subcontractor_website", "contractor_directory", "project_award", "license_registry"]
+    },
+    {
+      "marketCode": "GLOBAL",
+      "language": "en",
+      "laneCode": "agent_consultant_pm",
+      "companyRole": "agent_consultant_pm",
+      "productCode": "multi_product",
+      "projectScenario": ["project delivery", "technical selection", "procurement advisory"],
+      "technology": ["formwork engineering", "modular construction", "DfMA"],
+      "method": ["project management", "procurement consulting", "technical advisory"],
+      "positiveTerms": ["project management consultant", "construction consultant", "procurement agent"],
+      "synonyms": ["PMC", "owner's representative", "project advisor"],
+      "abbreviations": ["PMC", "PMCM"],
+      "negativeTerms": ["recruitment agent", "travel agent"],
+      "queryTemplates": ["{country} project management consultant high-rise", "{country} construction procurement agent modular"],
+      "sourceChannels": ["consultant_website", "tender", "professional_directory", "project_team"]
+    },
+    {
+      "marketCode": "GLOBAL",
+      "language": "en",
+      "laneCode": "distributor_trading",
+      "companyRole": "distributor_trading",
+      "productCode": "formwork",
+      "projectScenario": ["local distribution", "rental fleet", "construction supply"],
+      "technology": ["aluminium formwork", "steel formwork", "shoring", "scaffolding"],
+      "method": ["distribution", "resale", "rental", "lease", "trading"],
+      "positiveTerms": ["formwork distributor", "construction equipment rental", "building materials trader", "authorized dealer"],
+      "synonyms": ["reseller", "stockist", "rental provider", "dealer"],
+      "abbreviations": [],
+      "negativeTerms": ["car rental", "property rental", "software reseller"],
+      "queryTemplates": ["{country} formwork distributor rental", "{country} scaffolding shoring authorized dealer"],
+      "sourceChannels": ["distributor_website", "brand_partner_page", "rental_catalog", "trade_directory"]
+    },
+    {
+      "marketCode": "GLOBAL",
+      "language": "en",
+      "laneCode": "design_consulting_supervision_other",
+      "companyRole": "design_consulting_supervision_other",
+      "productCode": "multi_product",
+      "projectScenario": ["structural design", "temporary works", "construction supervision", "modular engineering"],
+      "technology": ["DfMA", "formwork design", "offsite construction", "prefabricated steel structure"],
+      "method": ["design", "engineering", "supervision", "temporary works design"],
+      "positiveTerms": ["structural engineer", "temporary works designer", "construction supervision consultant", "modular design consultant"],
+      "synonyms": ["engineering consultant", "design institute", "site supervision"],
+      "abbreviations": ["TW", "DfMA"],
+      "negativeTerms": ["graphic design", "software architecture"],
+      "queryTemplates": ["{country} temporary works formwork design consultant", "{country} modular DfMA engineering consultant"],
+      "sourceChannels": ["consultant_website", "professional_registry", "project_team", "tender"]
+    },
+    {
+      "marketCode": "AU",
+      "language": "en",
+      "laneCode": "developer",
+      "companyRole": "developer",
+      "productCode": "volumetric_modular",
+      "projectScenario": ["modular housing", "mining camp", "site accommodation"],
+      "technology": ["volumetric modular construction", "offsite construction", "off-site manufacturing", "prefabricated steel structure", "DfMA"],
+      "method": ["design for manufacture and assembly", "factory-built modules"],
+      "positiveTerms": ["modular developer", "modular building company", "offsite housing"],
+      "synonyms": ["volumetric modular", "factory-built accommodation"],
+      "abbreviations": ["VMC", "DfMA"],
+      "negativeTerms": ["software framework", "temporary labor"],
+      "queryTemplates": ["Australia volumetric modular construction company projects", "Australia VMC mining camp site accommodation"],
+      "sourceChannels": ["company_website", "government_planning", "industry_association", "project_news"]
+    },
+    {
+      "marketCode": "GLOBAL",
+      "language": "en",
+      "laneCode": "competitor_commercial_control",
+      "companyRole": "competitor_candidate",
+      "productCode": "multi_product",
+      "projectScenario": ["product commercialization", "manufacturing", "rental", "distribution", "installation"],
+      "technology": ["formwork system", "modular system", "prefabrication"],
+      "method": ["manufacture", "factory", "system owner", "brand owner", "contract manufacturing", "outsourced manufacturing", "rental", "distribution", "resale", "installation", "erection", "dismantling", "labor"],
+      "positiveTerms": ["manufacturer", "factory", "own system", "proprietary system", "our brand", "rental fleet", "authorized distributor"],
+      "synonyms": ["system provider", "brand owner", "reseller", "installer", "service contractor"],
+      "abbreviations": ["OEM", "ODM", "VMC"],
+      "negativeTerms": ["installation only", "erection only", "dismantling only", "labor only", "software framework"],
+      "queryTemplates": ["site:{domain} (products OR services OR solutions OR manufacturing OR factory OR rental OR distribution)", "{company} own brand system factory distributor installer"],
+      "sourceChannels": ["official_products", "official_services", "official_manufacturing", "official_projects", "registry", "hiring"]
+    }
+  ],
+  "regressionSeeds": [
+    {
+      "name": "Freecity VMC recall",
+      "queryText": "Australian company delivering volumetric modular construction and offsite mining camp accommodation",
+      "expectedRecall": true,
+      "expectedClassificationBoundary": "Recall as a VMC candidate; require official product, market, and commercial-control evidence before lead or competitor confirmation."
+    },
+    {
+      "name": "Framework name false positive",
+      "queryText": "XYZ Framework provides erection and dismantling labor using systems purchased from others",
+      "expectedRecall": true,
+      "expectedClassificationBoundary": "Competitor must be rejected when installer/service_contractor-only is confirmed."
+    },
+    {
+      "name": "Formwork installer only",
+      "queryText": "Formwork installation, stripping and labor subcontractor with no owned product or sales",
+      "expectedRecall": true,
+      "expectedClassificationBoundary": "Possible lead/subcontractor; not a confirmed competitor."
+    },
+    {
+      "name": "Outsourced own brand",
+      "queryText": "Company owns and sells a proprietary formwork brand manufactured by a contract factory",
+      "expectedRecall": true,
+      "expectedClassificationBoundary": "May be confirmed competitor despite outsourced manufacturing if product and market overlap."
+    },
+    {
+      "name": "Channel rental competitor",
+      "queryText": "Authorized distributor and rental provider for a competing formwork system",
+      "expectedRecall": true,
+      "expectedClassificationBoundary": "Classify as channel competitor when target-market operation is evidenced."
+    }
+  ]
+}

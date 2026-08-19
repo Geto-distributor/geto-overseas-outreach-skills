@@ -1,0 +1,143 @@
+{
+  "company": {
+    "companyName": "Freecity Group Holdings",
+    "entityType": "corporate_group",
+    "country": "Australia",
+    "status": "active",
+    "summary": "VMC and offsite building candidate fixture.",
+    "researchConclusion": "Recalled through VMC terms; classified only from product and commercial-control evidence.",
+    "evidence": []
+  },
+  "aliases": [],
+  "registrations": [],
+  "capitalRecords": [],
+  "websites": [],
+  "addresses": [],
+  "marketPresence": [
+    {
+      "country": "Australia",
+      "presenceType": "sales",
+      "status": "confirmed",
+      "description": "Operates in the Australian market.",
+      "evidence": [
+        {
+          "sourceTitle": "Freecity market page",
+          "sourceUrl": "https://example.com/freecity/about?utm_source=test",
+          "publisher": "Freecity",
+          "sourceType": "official_website",
+          "publishedOn": null,
+          "retrievedOn": "2026-08-19",
+          "relation": "supports",
+          "locator": "About",
+          "excerpt": "Australian operations",
+          "note": "Fixture"
+        }
+      ]
+    }
+  ],
+  "socialChannels": [],
+  "researchClassifications": [
+    {
+      "classification": "lead",
+      "status": "possible",
+      "country": "Australia",
+      "productScope": ["volumetric_modular"],
+      "reason": "May buy complementary systems for modular delivery.",
+      "evidence": [
+        {
+          "sourceTitle": "Freecity products",
+          "sourceUrl": "https://example.com/freecity/products",
+          "publisher": "Freecity",
+          "sourceType": "official_website",
+          "publishedOn": null,
+          "retrievedOn": "2026-08-19",
+          "relation": "context",
+          "locator": "Products",
+          "excerpt": "Volumetric modular construction",
+          "note": "Fixture"
+        }
+      ]
+    },
+    {
+      "classification": "competitor",
+      "status": "confirmed",
+      "country": "Australia",
+      "productScope": ["volumetric_modular"],
+      "reason": "Owns and sells an overlapping modular system in Australia.",
+      "evidence": [
+        {
+          "sourceTitle": "Freecity products",
+          "sourceUrl": "https://example.com/freecity/products#systems",
+          "publisher": "Freecity",
+          "sourceType": "official_website",
+          "publishedOn": null,
+          "retrievedOn": "2026-08-19",
+          "relation": "supports",
+          "locator": "Systems",
+          "excerpt": "Proprietary modular system",
+          "note": "Fixture"
+        }
+      ]
+    }
+  ],
+  "companyRoles": [],
+  "productsAndServices": [
+    {
+      "name": "Freecity modular system",
+      "type": "system",
+      "category": "volumetric_modular",
+      "description": "Proprietary VMC system sold in Australia with outsourced production.",
+      "technologyTerms": ["VMC", "volumetric modular construction", "DfMA"],
+      "applications": ["modular housing", "mining camp", "site accommodation"],
+      "targetCustomers": ["developers"],
+      "markets": ["Australia"],
+      "commercialRoles": ["system_owner", "brand_owner"],
+      "manufacturingStatus": "outsourced",
+      "manufacturingDescription": "Production is outsourced while the company controls the brand and sales.",
+      "factoryLocations": [],
+      "status": "current",
+      "getoRelevance": "high",
+      "evidence": [
+        {
+          "sourceTitle": "Freecity products",
+          "sourceUrl": "https://example.com/freecity/products",
+          "publisher": "Freecity",
+          "sourceType": "official_website",
+          "publishedOn": null,
+          "retrievedOn": "2026-08-19",
+          "relation": "supports",
+          "locator": "Products",
+          "excerpt": "Own modular system",
+          "note": "Fixture"
+        }
+      ]
+    }
+  ],
+  "projects": [],
+  "relationships": [],
+  "contacts": [],
+  "licensesAndCertifications": [],
+  "financialRecords": [],
+  "newsAndSocialMedia": [],
+  "customsTransactions": [],
+  "lawsuitsAndCompliance": [],
+  "inquiries": [],
+  "risks": [],
+  "assessment": {},
+  "missingInformation": [],
+  "recommendedActions": [],
+  "additionalInformation": [],
+  "reportFiles": [
+    {
+      "fileName": "report.md",
+      "path": "report.md",
+      "format": "markdown",
+      "reportType": "initial",
+      "language": "en",
+      "generatedOn": "2026-08-19",
+      "description": "Fixture report"
+    }
+  ],
+  "researchStatus": "completed",
+  "lastResearchedOn": "2026-08-19"
+}
