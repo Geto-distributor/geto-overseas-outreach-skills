@@ -7,7 +7,7 @@ description: 对单条 GETO 海外询盘执行主体核验、需求还原、项�
 
 一次只处理一条询盘及其目标 Company。询盘准备度回答当前能否报价和推进，不替代客户长期价值评分。
 
-开始前完整读取 [child-resources.md](references/child-resources.md)、[inquiry-contract.md](references/inquiry-contract.md) 和 [inquiry-readiness-model.json](references/inquiry-readiness-model.json)。本 Skill 自带 Company、Evidence、inquiries、contacts、projects、financial、customs、risk 和报告字段合同；调用 `$geto-diligence-company` 时只复用其公司研究流程，assessmentMode 固定为 none。
+开始前完整读取 [child-resources.md](references/child-resources.md)、[project-research-contract.md](references/project-research-contract.md)、[report-contract.md](references/report-contract.md)、[inquiry-contract.md](references/inquiry-contract.md) 和 [inquiry-readiness-model.json](references/inquiry-readiness-model.json)。本 Skill 自带 Company、Evidence、项目深挖和报告合同；调用 `$geto-diligence-company` 时只复用其公司研究流程，assessmentMode 固定为 none。
 
 ## 输入
 
@@ -19,7 +19,7 @@ description: 对单条 GETO 海外询盘执行主体核验、需求还原、项�
 
 1. 初始化规范国家和自然公司名目录；一条询盘只绑定一个当前待核验 Company。
 2. 把原始信息写入 `inquiries[]`，保留附件路径、开放问题和 customer_document Evidence。
-3. 调用 `$geto-diligence-company` 核查主体、官网、产品、项目、联系人、风险和 lead/competitor，assessmentMode 使用 none。
+3. 调用 `$geto-diligence-company` 核查主体、官网、产品、项目、联系人、风险和 lead/competitor，assessmentMode 使用 none。项目按发现瀑布流枚举官网组合，并沿政府、业主、开发商、主包、顾问、分包和供应商反查。
 4. 主体冲突、冒名、邮箱域名冲突和 Provider 宽匹配分别保留，不自动合并。
 5. 按模型六维 components 填写 `inquiryAssessment.dimensions[]` 的 score、rationale、Evidence 和 gapCodes。只给证据支持的准备度分；缺失信息记 0 和 gap，不使用同行均值。
 6. 运行：
@@ -30,7 +30,8 @@ python '<geto-diligence-inquiry-dir>/scripts/calculate_inquiry_readiness.py' \
   --assessed-on 'YYYY-MM-DD'
 ```
 
-7. 生成 report.md、Sources/sources.md 并运行单公司 validator。报告分别陈述公司事实、询盘准备度、报价前必问项和长期客户价值状态。
+7. 按 report-contract.md 生成详细 report.md。项目有公开组合时写总表并至少详述 3 个重要项目；项目不足时详述全部，并提供项目检索覆盖表。报告分别陈述公司事实、询盘准备度、报价前必问项和长期客户价值状态。
+8. 生成 Sources/sources.md 并运行单公司 validator；不得用短摘要代替深度报告。
 
 ## 边界
 

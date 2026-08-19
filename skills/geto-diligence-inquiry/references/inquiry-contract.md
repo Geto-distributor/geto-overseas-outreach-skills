@@ -8,6 +8,8 @@
 - 目标 Company 的主体、产品、项目、联系人和风险 Evidence。
 - 研究截止日和本地公司目录。
 
+项目发现和报告深度分别遵循 project-research-contract.md 与 report-contract.md。项目公开资料不足时仍记录完整查询覆盖、反查路径和客户补件清单。
+
 ## 评分
 
 使用 `inquiry-readiness-model.json` 的六维 components。只给已被询盘原文或目标公司 Evidence 支持的 component 分；缺失信息得 0 readiness points 并进入 gapCodes。未知不等于确认不存在，但二者在“当前能否报价/推进”上都不产生准备度分。

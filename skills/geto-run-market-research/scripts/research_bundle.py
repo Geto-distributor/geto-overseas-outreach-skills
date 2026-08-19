@@ -166,6 +166,48 @@ def _contains_secret(text: str) -> bool:
     return any(pattern.search(text) for pattern in SECRET_PATTERNS)
 
 
+INQUIRY_REPORT_TOPICS = {
+    "summary": r"执行摘要|Executive Summary",
+    "inquiry": r"询盘|Inquiry",
+    "identity": r"主体|身份|Identity",
+    "business": r"业务|产品|能力|Business|Product|Capability",
+    "projects": r"项目|Project",
+    "contacts": r"联系人|管理层|Contact|Management",
+    "financial": r"财务|信用|Financial|Credit",
+    "compliance": r"诉讼|监管|合规|制裁|Litigation|Compliance|Sanction",
+    "provider": r"Provider|海关|Customs|供应链",
+    "fit": r"GETO|适配|匹配|Fit",
+    "readiness": r"准备度|Readiness",
+    "conflicts": r"冲突|缺口|Conflict|Gap",
+    "risk": r"风险矩阵|Risk Matrix|硬阻断",
+    "actions": r"下一步|动作清单|Next Action",
+    "terms": r"交易条件|付款条件|Commercial Terms",
+    "conclusion": r"最终判断|最终结论|Final Conclusion",
+}
+
+
+def validate_inquiry_report(text: str, company: dict[str, Any]) -> list[str]:
+    assessment = company.get("inquiryAssessment")
+    if not isinstance(assessment, dict) or assessment.get("status") == "not_requested":
+        return []
+    errors: list[str] = []
+    headings = re.findall(r"(?m)^##\s+(.+)$", text)
+    if len(headings) < 12:
+        errors.append("report.md: inquiry diligence requires at least 12 substantive H2 sections")
+    heading_text = "\n".join(headings)
+    for topic, pattern in INQUIRY_REPORT_TOPICS.items():
+        if not re.search(pattern, heading_text, re.IGNORECASE):
+            errors.append(f"report.md: missing inquiry diligence section topic {topic}")
+    projects = [item for item in company.get("projects", []) if isinstance(item, dict) and item.get("projectName")]
+    required_projects = projects[:3] if len(projects) >= 3 else projects
+    for project in required_projects:
+        if str(project["projectName"]).casefold() not in text.casefold():
+            errors.append(f"report.md: material project is not discussed: {project['projectName']}")
+    if len(projects) < 3 and not re.search(r"项目检索覆盖|Project Search Coverage", text, re.IGNORECASE):
+        errors.append("report.md: sparse project evidence requires a project search coverage section")
+    return errors
+
+
 def _validate_evidence_item(source: Any, path: str, errors: list[str]) -> None:
     if not isinstance(source, dict):
         errors.append(f"{path} must be an object")

@@ -10,7 +10,7 @@ from pathlib import Path
 
 from research_bundle import (
     CAPABILITY_CONTEXT_FIELDS, SECRET_PATTERNS, all_evidence, format_result,
-    load_json, validate_company,
+    load_json, validate_company, validate_inquiry_report,
 )
 
 
@@ -48,6 +48,15 @@ def validate(root: Path, company_dir: Path | None = None) -> tuple[list[str], li
         errors.extend(f"{company_dir.name}: {item}" for item in local_errors)
         warnings.extend(f"{company_dir.name}: {item}" for item in local_warnings)
         infos.extend(f"{company_dir.name}: {item}" for item in local_infos)
+        if report.is_file():
+            try:
+                report_text = report.read_text(encoding="utf-8")
+            except (OSError, UnicodeDecodeError) as error:
+                errors.append(f"{company_dir.name}: report.md cannot be read: {error}")
+            else:
+                errors.extend(
+                    f"{company_dir.name}: {item}" for item in validate_inquiry_report(report_text, value)
+                )
         assessment = value.get("assessment", {})
         if isinstance(assessment, dict) and assessment.get("status") != "not_requested":
             context_file = company_dir / "RisksAndAssessment" / "capability-context.json"

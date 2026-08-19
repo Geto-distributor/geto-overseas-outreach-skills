@@ -357,6 +357,23 @@ class ResearchBundleValidationTests(unittest.TestCase):
         self.assertEqual(company["inquiryAssessment"]["overallScore"], 100)
         self.assertEqual(company["inquiryAssessment"]["grade"], "ready_for_quotation")
 
+    def test_inquiry_report_requires_depth_and_project_coverage(self) -> None:
+        company = base_company()
+        company["inquiryAssessment"] = {"status": "completed"}
+        shallow = "# Report\n\n## 结论\n\n资料较少。\n"
+        errors = RESEARCH_BUNDLE.validate_inquiry_report(shallow, company)
+        self.assertTrue(any("12 substantive" in item for item in errors))
+        self.assertTrue(any("project search coverage" in item for item in errors))
+
+        headings = [
+            "执行摘要", "询盘原始信息", "主体身份", "业务与产品能力", "项目组合",
+            "项目检索覆盖", "管理层与联系人", "财务与信用", "诉讼监管与合规",
+            "Provider 海关与供应链", "GETO 适配", "询盘准备度", "核心冲突与缺口",
+            "风险矩阵与硬阻断", "下一步动作清单", "建议交易条件", "最终判断",
+        ]
+        detailed = "# Report\n\n" + "\n\n".join(f"## {heading}\n\n待证据化展开。" for heading in headings)
+        self.assertEqual(RESEARCH_BUNDLE.validate_inquiry_report(detailed, company), [])
+
     def test_info_summary_hides_details_by_default(self) -> None:
         result = RESEARCH_BUNDLE.format_result([], [], [
             "$.researchQueries[0]: not_queried",

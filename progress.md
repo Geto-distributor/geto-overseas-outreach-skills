@@ -35,12 +35,13 @@
 | 长期价值评分时序 | completed | 单公司观察输入 → 主会话同类型 cohort 中位数 → 同版本批量回写 |
 | 独立询盘背调 | completed | `geto-diligence-inquiry` 固定准备度评分，不使用 cohort 插补 |
 | 询盘字段自包含 | completed | inquiry Skill 自带完整 Company 子资源合同，并与公司 Skill 做逐字一致性回归 |
+| 深度报告与项目深挖 | completed | 18 类报告主题、项目发现瀑布流、项目角色三层证明与稀疏项目覆盖校验 |
 
 ## 验证
 
 - GETO 仓库 validator：8 Skills passed。
 - skill-creator quick_validate：8 个 GETO Skills、omnix-market、netease-waimao、tradewind-api 均 passed。
-- GETO ResearchBundle/SearchLexicon/cohort/询盘/并发/能力工件回归：21 tests passed。
+- GETO ResearchBundle/SearchLexicon/cohort/询盘/字段与报告合同/并发/能力工件回归：23 tests passed。
 - OmniX unversioned API 合同回归：9 tests passed。
 - 网易外贸通既有安全回归：11 tests passed。
 - Freecity、Electron company.json：均 0 ERROR / 0 WARNING。

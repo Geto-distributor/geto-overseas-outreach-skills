@@ -27,7 +27,7 @@
 
 ## 项目与关系
 
-- projects[]：projectName、projectType、country、region、city/location、status、description、companyRole、counterparty、contractNumber、contractValue、currency、startedOn、endedOn、inquiryMatchStatus、getoOpportunity、evidence。
+- projects[]：projectName、aliases[]、projectType、country、region、city/location、address、owner、developer、consultant、mainContractor、targetCompanyRole、contractScope、contractNumber、contractValue、currency、scale、buildingArea、storeys、units、status、procurementStage、startedOn、endedOn、currentOrHistorical、inquiryMatchStatus、roleVerificationStatus、getoOpportunity、description、evidence。
 - relationships[]：relationshipType、counterpartyName、counterpartyRole、companyRole、projectName、country、status、startedOn、endedOn、description、evidence。
 - licensesAndCertifications[]：licenseType、licenseNumber、authority、jurisdiction、issuedOn、expiresOn、status、description、evidence。
 
