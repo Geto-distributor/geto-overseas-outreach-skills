@@ -44,6 +44,8 @@
 - CapabilityContext：真实产品 code 切片返回 available contextRef，固定版本与 codes 完整。
 - 四家公司第二轮当前合同产物：合计 0 ERROR / 2 真实 WARNING / 59 INFO；国家目录、严格 assessment/reportFiles、精确 contextRef、Sources 与并发 progress 全部通过。
 - 第二轮评分：Estudio 28.5/watch；Proas incomplete_evidence、score/grade=null；Arnold's House 25.75/watch；沙特客户 12.5/watch。
+- 第三轮契约工件烟测：四份标准 sidecar 均位于 `RisksAndAssessment/capability-context.json`，与 assessment 逐字段一致且无重复/空目录；四份 company.json 哈希未变。
+- INFO 汇总烟测：四家公司默认均 `infos=[]` 且分类计数正确；Proas 使用 `--include-infos` 完整展开 16 条，开关通过。
 - credential/private artifact scan：passed。
 - `git diff --check`：passed。
 
