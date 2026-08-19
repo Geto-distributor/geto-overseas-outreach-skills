@@ -67,12 +67,14 @@ def main() -> int:
     scenario_threshold = 1 if max_scenario_score <= 1 else max(2, max_scenario_score // 2)
     if requested_scenarios:
         selected_scenarios = [item for item in scenarios if item["scenarioCode"] in requested_scenarios]
+    elif not query_terms and (requested_products or requested_roles):
+        selected_scenarios = []
     else:
         selected_scenarios = [
             item for item in scenarios
-            if requested_products.intersection(item.get("productCodes", []))
-            or requested_roles.intersection(item.get("targetRoleCodes", []))
-            or scenario_scores[item["scenarioCode"]] >= scenario_threshold
+            if scenario_scores[item["scenarioCode"]] >= scenario_threshold
+            and (not requested_products or requested_products.intersection(item.get("productCodes", [])))
+            and (not requested_roles or requested_roles.intersection(item.get("targetRoleCodes", [])))
         ]
     scenario_codes = {item["scenarioCode"] for item in selected_scenarios}
     product_codes = requested_products or {

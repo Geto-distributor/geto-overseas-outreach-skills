@@ -253,6 +253,7 @@ class SearchLexiconTests(unittest.TestCase):
         )
         result = json.loads(completed.stdout)
         self.assertEqual(result["contextRef"]["productCodes"], ["aluminum_formwork"])
+        self.assertEqual(result["contextRef"]["scenarioCodes"], [])
         self.assertEqual(result["contextRef"]["status"], "available")
 
     def test_runtime_docs_read_as_a_current_contract(self) -> None:
