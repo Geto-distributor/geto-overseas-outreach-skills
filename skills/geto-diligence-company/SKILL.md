@@ -68,7 +68,7 @@ TradeWind 和网易外贸通只作为独立 Provider 任务返回的 ExternalObs
 
 ### 8. 可选评分与报告
 
-`assessmentMode=lead_value` 时，使用 [lead-value-model.json](references/lead-value-model.json) 与能力底座 `contextRef`。先填写六维观察分、证据等级与 Evidence，再运行 `scripts/calculate_lead_assessment.py`；脚本按门禁生成明确状态、总分和等级。评分不改变 competitor 分类。
+`assessmentMode=lead_value` 时，使用 [lead-value-model.json](references/lead-value-model.json) 与能力底座 `contextRef`。先填写六维观察分、证据等级与 Evidence，再运行 `<geto-diligence-company-dir>/scripts/calculate_lead_assessment.py`；脚本按门禁生成明确状态、总分和等级。评分不改变 competitor 分类。
 
 `company.json` 是事实与评估的唯一权威结构化来源；`report.md` 是由它组织的可读结论。模块 Markdown 仅保存原始材料、查询日志或扩展分析，按实际内容创建，不手工维护第二份事实表。
 

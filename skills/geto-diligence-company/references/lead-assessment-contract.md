@@ -32,7 +32,8 @@
 先在 `assessment.dimensions[]` 填写 observedScore、evidenceGrade、rationale、evidence、gapCodes 和 capCodes，再运行：
 
 ```bash
-python scripts/calculate_lead_assessment.py '<公司目录>/company.json' \
+python '<geto-diligence-company-dir>/scripts/calculate_lead_assessment.py' \
+  '<公司目录>/company.json' \
   --capability-context '<context.json>' --assessed-on 'YYYY-MM-DD'
 ```
 
