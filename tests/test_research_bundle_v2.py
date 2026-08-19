@@ -14,6 +14,7 @@ CAPABILITY_SCRIPTS = ROOT / "skills/geto-capability-foundation/scripts"
 DILIGENCE_SCRIPTS = ROOT / "skills/geto-diligence-company/scripts"
 FIND_LEADS_SCRIPTS = ROOT / "skills/geto-find-leads/scripts"
 INQUIRY_SCRIPTS = ROOT / "skills/geto-diligence-inquiry/scripts"
+COMPETITOR_CUSTOMER_SCRIPTS = ROOT / "skills/geto-mine-competitor-customers/scripts"
 
 
 def load_module(name: str, path: Path):
@@ -34,6 +35,10 @@ LEXICON_VALIDATOR = load_module("validate_search_lexicon", CAPABILITY_SCRIPTS / 
 ASSESSMENT_CALCULATOR = load_module("calculate_lead_assessment", DILIGENCE_SCRIPTS / "calculate_lead_assessment.py")
 COHORT_CALCULATOR = load_module("calculate_lead_cohort", FIND_LEADS_SCRIPTS / "calculate_lead_cohort.py")
 INQUIRY_CALCULATOR = load_module("calculate_inquiry_readiness", INQUIRY_SCRIPTS / "calculate_inquiry_readiness.py")
+COMPETITOR_CUSTOMER_AGGREGATOR = load_module(
+    "aggregate_competitor_customers",
+    COMPETITOR_CUSTOMER_SCRIPTS / "aggregate_competitor_customers.py",
+)
 
 
 def evidence(url: str = "https://example.com/product") -> dict[str, object]:
@@ -96,6 +101,79 @@ class ResearchBundleValidationTests(unittest.TestCase):
         }]
         errors, _, _ = RESEARCH_BUNDLE.validate_company(value)
         self.assertEqual(errors, [])
+
+    def test_relationship_entry_score_requires_matching_fact_anchor(self) -> None:
+        value = base_company()
+        relation = {
+            "relationshipType": "customer", "counterpartyName": "Customer A",
+            "counterpartyRole": "developer", "companyRole": "supplier",
+            "projectName": "Project A", "country": "Australia", "status": "confirmed",
+            "description": "Single-project product supply", "reviewDecision": "verified_customer",
+            "cooperationDepthCode": "single_project", "relationshipStatusCode": "current",
+            "entrySignalCode": None, "isExclusive": None,
+            "entryAssessment": {
+                "assessmentType": "relationship_entry", "status": "completed",
+                "modelCode": "GETO_RELATIONSHIP_ENTRY", "modelVersion": "1.0",
+                "score": 3, "rationale": "One current project with no framework evidence",
+                "assessedOn": "2026-08-19", "evidenceStatus": "verified",
+                "gapCodes": [], "evidence": [evidence()],
+            },
+            "evidence": [evidence()],
+        }
+        value["relationships"] = [relation]
+        errors, _, _ = RESEARCH_BUNDLE.validate_company(value)
+        self.assertEqual(errors, [])
+        relation["entryAssessment"]["score"] = 5
+        errors, _, _ = RESEARCH_BUNDLE.validate_company(value)
+        self.assertTrue(any("fact anchor" in item for item in errors))
+
+    def test_competitor_customer_portfolio_uses_scored_customers_and_coverage(self) -> None:
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory) / "AU-Australia"
+            competitor_dir = root / "companies" / "Competitor A"
+            competitor_dir.mkdir(parents=True)
+            competitor = RESEARCH_BUNDLE.empty_company("Competitor A", "Australia", "AU")
+            competitor["researchClassifications"] = [{
+                "classification": "competitor", "status": "confirmed", "country": "Australia",
+                "productScope": ["formwork"], "reason": "Own competing system", "evidence": [evidence()],
+            }]
+            competitor["productsAndServices"] = [{
+                "name": "Competing system", "markets": ["Australia"],
+                "commercialRoles": ["system_owner"], "manufacturingStatus": "outsourced",
+                "getoRelevance": "high", "evidence": [evidence()],
+            }]
+            competitor["relationships"] = [
+                {
+                    "relationshipType": "customer", "counterpartyName": name,
+                    "counterpartyRole": "developer", "companyRole": "supplier",
+                    "projectName": f"{name} Project", "country": "Australia", "status": "confirmed",
+                    "description": "Official named project supply", "reviewDecision": "verified_customer",
+                    "evidence": [evidence(f"https://example.com/{name[-1].lower()}")],
+                }
+                for name in ("Customer A", "Customer B")
+            ]
+            (competitor_dir / "company.json").write_text(json.dumps(competitor), encoding="utf-8")
+            for name, score in (("Customer A", 80), ("Customer B", None)):
+                customer = RESEARCH_BUNDLE.empty_company(name, "Australia", "AU")
+                if score is not None:
+                    customer["assessment"] = {
+                        "status": "completed", "modelCode": "GETO_LEAD_VALUE",
+                        "modelVersion": "2026-07-29", "overallScore": score,
+                        "cohortBaselineVersion": "AU:developer:fixture", "assessedOn": "2026-08-19",
+                    }
+                customer_dir = root / "companies" / name
+                customer_dir.mkdir(parents=True)
+                (customer_dir / "company.json").write_text(json.dumps(customer), encoding="utf-8")
+
+            portfolio = COMPETITOR_CUSTOMER_AGGREGATOR.aggregate(root, competitor_dir, "2026-08-19")
+            updated = json.loads((competitor_dir / "company.json").read_text(encoding="utf-8"))
+            errors, _, _ = RESEARCH_BUNDLE.validate_company(updated)
+        self.assertEqual(errors, [])
+        self.assertEqual(portfolio["status"], "partial_coverage")
+        self.assertEqual(portfolio["verifiedCustomerCount"], 2)
+        self.assertEqual(portfolio["scoredCustomerCount"], 1)
+        self.assertEqual(portfolio["customerScoreCoverage"], 0.5)
+        self.assertEqual(portfolio["averageCustomerValueScore"], 80.0)
 
     def test_assessment_total_requires_complete_evidenced_dimensions(self) -> None:
         value = base_company()
@@ -392,13 +470,34 @@ class SearchLexiconTests(unittest.TestCase):
         inquiry_contract = (
             ROOT / "skills/geto-diligence-inquiry/references/child-resources.md"
         ).read_text(encoding="utf-8")
+        competitor_contract = (
+            ROOT / "skills/geto-diligence-competitor/references/child-resources.md"
+        ).read_text(encoding="utf-8")
         self.assertEqual(inquiry_contract, company_contract)
+        self.assertEqual(competitor_contract, company_contract)
         for resource in (
             "contacts[]", "inquiries[]", "projects[]", "relationships[]",
             "financialRecords[]", "customsTransactions[]", "lawsuitsAndCompliance[]",
             "researchQueries[]", "reportFiles[]",
         ):
             self.assertIn(resource, inquiry_contract)
+        self.assertIn("competitorCustomerPortfolio", company_contract)
+
+    def test_competitor_skills_separate_company_facts_from_customer_portfolio(self) -> None:
+        diligence = (ROOT / "skills/geto-diligence-competitor/SKILL.md").read_text(encoding="utf-8")
+        mining = (ROOT / "skills/geto-mine-competitor-customers/SKILL.md").read_text(encoding="utf-8")
+        model = json.loads((
+            ROOT / "skills/geto-mine-competitor-customers/references/relationship-entry-model.json"
+        ).read_text(encoding="utf-8"))
+        competitor_contract = (
+            ROOT / "skills/geto-diligence-competitor/references/competitor-contract.md"
+        ).read_text(encoding="utf-8")
+        self.assertIn("公司级结果由竞对分类", competitor_contract)
+        self.assertNotIn("威胁分", competitor_contract)
+        self.assertIn("competitorCustomerPortfolio", mining)
+        self.assertIn("$geto-diligence-competitor", mining)
+        self.assertNotIn("competitor_intensity", diligence)
+        self.assertEqual([item["score"] for item in model["levels"]], [5, 4, 3, 2, 1, 0])
 
     def test_lexicon_and_required_regressions_validate(self) -> None:
         path = ROOT / "skills/geto-capability-foundation/references/search-lexicon.json"

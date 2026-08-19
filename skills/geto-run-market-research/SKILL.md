@@ -44,7 +44,7 @@ python scripts/init_company_workspace.py --workspace-root '<ResearchBundle>' \
 5. `distributor_trading`
 6. `design_consulting_supervision_other`
 
-竞对发现按产品/技术面和商业角色另行拆分。TradeWind 与网易外贸通启用时各创建一个独立任务。使用 Codex 的任务创建、等待、读取和追问能力协调；`progress.md` 保存业务进度，完整 trace 保留在各自任务中。
+竞对候选发现按产品/技术面和商业角色另行拆分。TradeWind 与网易外贸通启用时各创建一个独立任务。使用 Codex 的任务创建、等待、读取和追问能力协调；`progress.md` 保存业务进度，完整 trace 保留在各自任务中。
 
 ### 3. 收集统一任务回传
 
@@ -58,9 +58,9 @@ python scripts/init_company_workspace.py --workspace-root '<ResearchBundle>' \
 
 ### 5. 一家公司一个背调任务
 
-为每个入选 Company 创建独立用户可见背调任务。输入包含自然公司名、强身份锚点、发现来源、目标国家/产品、开放问题和禁止重复查询清单。竞对也一家公司一个任务，并重点核查官方项目、具名客户和合作方。
+为每个入选 Company 创建独立用户可见背调任务。输入包含自然公司名、强身份锚点、发现来源、目标国家/产品、开放问题和禁止重复查询清单。已知或候选竞对也一家公司一个任务，使用 `$geto-diligence-competitor` 核查产品商业控制、制造履约、目标市场、官方项目和具名客户候选。确认竞对后，为其客户组合创建独立 `$geto-mine-competitor-customers` 任务。
 
-任务使用 `$geto-diligence-company` 写入：
+单公司任务写入：
 
 ```text
 <国家>/companies/<公司自然名称>/company.json
@@ -72,6 +72,7 @@ python scripts/init_company_workspace.py --workspace-root '<ResearchBundle>' \
 ### 6. 评分、关系与风险
 
 - `$geto-find-leads` 在主任务收齐单公司 observedScore/Evidence 后，按国家×同类型角色生成 cohort baseline，并以同一 baselineVersion 批量计算或重算长期客户价值。
+- `$geto-mine-competitor-customers` 只对 verified_customer 复用上述长期价值结果，聚合竞对客户价值平均分和评分覆盖率，并为每条关系保留 0–5 合作切入分。
 - 有明确原始询盘时使用 `$geto-diligence-inquiry` 生成不依赖 cohort 的询盘准备度；它不替代长期客户价值。
 - `$geto-map-relationships` 只对已归一公司/项目建立 typed Relationship。
 - `$geto-assess-precontract-risk` 仅在具体交易、签约主体和条款已明确时运行。

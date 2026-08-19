@@ -38,6 +38,7 @@
   "researchQueries": [],
   "assessment": {"status": "not_requested"},
   "inquiryAssessment": {"status": "not_requested"},
+  "competitorCustomerPortfolio": {"status": "not_requested"},
   "missingInformation": [],
   "recommendedActions": [],
   "additionalInformation": [],
@@ -74,7 +75,7 @@
 
 researchQueries 固定包含 topic、channel、query、scope、status、checkedOn、resultCount、evidence。status 使用 `found|no_result|partial|failed|not_queried`。
 
-reportFiles 固定包含 `fileName/path/format/reportType/language/generatedOn/description`。format 使用 `markdown|docx|pdf|html`；reportType 使用 `diligence|assessment|risk|supplement`。长期价值 assessment 的两阶段评分由 `$geto-diligence-company` 和 `$geto-find-leads` 定义；询盘准备度 inquiryAssessment 由 `$geto-diligence-inquiry` 定义。
+reportFiles 固定包含 `fileName/path/format/reportType/language/generatedOn/description`。format 使用 `markdown|docx|pdf|html`；reportType 使用 `diligence|assessment|risk|supplement`。长期价值 assessment 的两阶段评分由 `$geto-diligence-company` 和 `$geto-find-leads` 定义；询盘准备度 inquiryAssessment 由 `$geto-diligence-inquiry` 定义；竞对客户组合 competitorCustomerPortfolio 与 relationships[].entryAssessment 由 `$geto-mine-competitor-customers` 定义。
 
 ## 分类与角色
 
@@ -89,6 +90,8 @@ reportFiles 固定包含 `fileName/path/format/reportType/language/generatedOn/d
 commercialRoles 只用 manufacturer、system_owner、brand_owner、contract_manufacturer、distributor、reseller、rental_provider、installer、service_contractor、consultant、unknown。manufacturingStatus 只用 own_factory_confirmed、manufacturing_claimed、outsourced、not_found、unknown。
 
 confirmed competitor 必须同时有重叠产品/技术、目标市场与商业控制/渠道控制 Evidence。installer/service_contractor-only 必须 rejected；outsourced 自有品牌/系统可 confirmed；distributor/reseller/rental_provider 为渠道竞对。
+
+已知竞对由 `$geto-diligence-competitor` 单独背调。确认竞对的客户组合使用 `competitorCustomerPortfolio` 保存去重客户数、已评分数、评分覆盖率、客户价值平均分和逐客引用；关系切入分保存在对应 `relationships[].entryAssessment`。
 
 ## 目录和来源
 

@@ -6,7 +6,8 @@
 - Web 发现按六个 companyRole 分为六个用户可见任务。
 - 竞对发现按产品/技术面和商业角色拆任务。
 - TradeWind、网易外贸通各自一个独立任务。
-- 一家公司一个背调任务；一个竞对也使用一家公司一个任务。
+- 一条线索使用一个 `$geto-diligence-company` 任务；一家竞对使用一个 `$geto-diligence-competitor` 任务。
+- 每家 confirmed 竞对的客户组合使用一个 `$geto-mine-competitor-customers` 任务；每个 verified_customer 仍由自己的单公司任务维护事实和六维评分。
 - 一条明确原始询盘使用一个 `$geto-diligence-inquiry` 任务；同一公司的长期价值观察输入仍归入其 Company，不重复建主体。
 - subagent 只在单个任务内部并行网页、法规、项目或反证轨。
 

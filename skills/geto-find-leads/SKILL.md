@@ -32,7 +32,7 @@ description: 为 GETO 在指定国家或地区按单一公司角色轨道发现�
 - Provider Observation 不能直接成为已确认 Company、lead/competitor 分类或评分。
 - companyRoles 表达市场角色；researchClassifications 独立表达 lead/competitor。
 - 经销、租赁、分包或顾问角色不自动等于 lead；必须说明其采购、使用、选型影响或渠道边界。
-- 竞对客户回流使用同一 Company 目录和同一评分合同，不另建名单或评分口径。
+- 竞对客户回流使用同一 Company 目录、同一六维评分合同和同类型 cohort；`$geto-mine-competitor-customers` 从已核实客户分派生组合平均分与覆盖率，并在关系层评估合作切入分。
 - 未查询、未找到、冲突、过期与 Provider 失败分别记录。
 
 ## 任务回传

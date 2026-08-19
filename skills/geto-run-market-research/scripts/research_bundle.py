@@ -83,6 +83,27 @@ INQUIRY_DIMENSIONS = {
     "commercial_payment_readiness": 15,
     "technical_product_fit": 15,
 }
+COMPETITOR_PORTFOLIO_STATUSES = {
+    "not_requested", "no_verified_customers", "pending_customer_scores",
+    "partial_coverage", "completed",
+}
+COMPETITOR_PORTFOLIO_FIELDS = {
+    "assessmentType", "status", "modelCode", "modelVersion", "customerValueModelCode",
+    "asOf", "verifiedCustomerCount", "scoredCustomerCount", "customerScoreCoverage",
+    "averageCustomerValueScore", "customers",
+}
+COMPETITOR_CUSTOMER_FIELDS = {
+    "companyName", "country", "relationshipCount", "customerAssessmentStatus",
+    "customerValueScore", "customerValueModelVersion", "cohortBaselineVersion",
+    "assessedOn", "evidence",
+}
+RELATIONSHIP_ENTRY_FIELDS = {
+    "assessmentType", "status", "modelCode", "modelVersion", "score", "rationale",
+    "assessedOn", "evidenceStatus", "gapCodes", "evidence",
+}
+RELATIONSHIP_REVIEW_DECISIONS = {
+    "verified_customer", "verified_non_customer", "pending", "conflicting", "invalid",
+}
 LEAD_DIMENSIONS = {
     "project_city_value": 15,
     "account_scale": 20,
@@ -114,6 +135,7 @@ def empty_company(company_name: str = "", country: str = "", country_code: str =
     value.update({field: [] for field in ARRAY_FIELDS})
     value["assessment"] = {"status": "not_requested"}
     value["inquiryAssessment"] = {"status": "not_requested"}
+    value["competitorCustomerPortfolio"] = {"status": "not_requested"}
     value["researchStatus"] = "completed_with_gaps"
     value["lastResearchedOn"] = date.today().isoformat()
     return value
@@ -444,6 +466,184 @@ def _validate_inquiry_assessment(assessment: Any) -> list[str]:
     return errors
 
 
+def _validate_relationship_entry(relationship: dict[str, Any], path: str) -> list[str]:
+    errors: list[str] = []
+    decision = relationship.get("reviewDecision")
+    if decision is not None and decision not in RELATIONSHIP_REVIEW_DECISIONS:
+        errors.append(f"{path}.reviewDecision has an invalid value")
+    if decision == "verified_customer":
+        if relationship.get("relationshipType") != "customer":
+            errors.append(f"{path}: verified_customer requires relationshipType=customer")
+        if not relationship.get("counterpartyName"):
+            errors.append(f"{path}: verified_customer requires counterpartyName")
+        if not relationship.get("projectName") and not relationship.get("productOrService"):
+            errors.append(f"{path}: verified_customer requires projectName or productOrService")
+        if not relationship.get("description") or not _has_evidence(relationship):
+            errors.append(f"{path}: verified_customer requires cooperation description and Evidence")
+
+    assessment = relationship.get("entryAssessment")
+    if assessment is None:
+        return errors
+    if decision != "verified_customer":
+        errors.append(f"{path}.entryAssessment is limited to verified_customer relationships")
+    if not isinstance(assessment, dict):
+        errors.append(f"{path}.entryAssessment must be an object")
+        return errors
+    unknown = sorted(set(assessment) - RELATIONSHIP_ENTRY_FIELDS)
+    missing = sorted(RELATIONSHIP_ENTRY_FIELDS - set(assessment))
+    if unknown:
+        errors.append(f"{path}.entryAssessment has unsupported fields: {', '.join(unknown)}")
+    if missing:
+        errors.append(f"{path}.entryAssessment is missing fields: {', '.join(missing)}")
+    if assessment.get("assessmentType") != "relationship_entry":
+        errors.append(f"{path}.entryAssessment.assessmentType must be relationship_entry")
+    if assessment.get("modelCode") != "GETO_RELATIONSHIP_ENTRY" or assessment.get("modelVersion") != "1.0":
+        errors.append(f"{path}.entryAssessment requires GETO_RELATIONSHIP_ENTRY 1.0")
+    if assessment.get("status") not in {"completed", "pending_evidence"}:
+        errors.append(f"{path}.entryAssessment.status has an invalid value")
+    if assessment.get("evidenceStatus") not in {"verified", "partial", "pending", "conflicting"}:
+        errors.append(f"{path}.entryAssessment.evidenceStatus has an invalid value")
+    if not _validate_date(assessment.get("assessedOn")):
+        errors.append(f"{path}.entryAssessment.assessedOn must use YYYY-MM-DD")
+    if not isinstance(assessment.get("gapCodes"), list):
+        errors.append(f"{path}.entryAssessment.gapCodes must be an array")
+    evidence = assessment.get("evidence")
+    if not isinstance(evidence, list):
+        errors.append(f"{path}.entryAssessment.evidence must be an array")
+        evidence = []
+    for index, source in enumerate(evidence):
+        _validate_evidence_item(source, f"{path}.entryAssessment.evidence[{index}]", errors)
+
+    score = assessment.get("score")
+    if assessment.get("status") == "pending_evidence":
+        if score is not None:
+            errors.append(f"{path}.entryAssessment: pending_evidence requires score=null")
+        if not assessment.get("gapCodes"):
+            errors.append(f"{path}.entryAssessment: pending_evidence requires gapCodes")
+        return errors
+    if isinstance(score, bool) or not isinstance(score, int) or not 0 <= score <= 5:
+        errors.append(f"{path}.entryAssessment.score must be an integer from 0 to 5")
+        return errors
+    if not assessment.get("rationale") or not evidence:
+        errors.append(f"{path}.entryAssessment: completed score requires rationale and Evidence")
+    depth = relationship.get("cooperationDepthCode")
+    relation_status = relationship.get("relationshipStatusCode")
+    entry_signal = relationship.get("entrySignalCode")
+    anchors = {
+        0: relationship.get("isExclusive") is True or depth == "exclusive_closed",
+        1: depth == "framework_designated",
+        2: depth == "repeat_business",
+        3: depth == "single_project",
+        4: depth == "trial" or relation_status in {"historical", "ended"},
+        5: entry_signal in {
+            "open_supplier_window", "supplier_termination", "product_gap", "new_procurement_window",
+        },
+    }
+    if not anchors[score]:
+        errors.append(f"{path}.entryAssessment.score lacks the required relationship fact anchor")
+    return errors
+
+
+def _validate_competitor_portfolio(portfolio: Any) -> list[str]:
+    errors: list[str] = []
+    if portfolio is None:
+        return errors
+    if not isinstance(portfolio, dict):
+        return ["$.competitorCustomerPortfolio must be an object"]
+    status = portfolio.get("status")
+    if status not in COMPETITOR_PORTFOLIO_STATUSES:
+        return ["$.competitorCustomerPortfolio.status has an invalid value"]
+    if status == "not_requested":
+        if set(portfolio) != {"status"}:
+            errors.append("$.competitorCustomerPortfolio: not_requested permits only the status field")
+        return errors
+    unknown = sorted(set(portfolio) - COMPETITOR_PORTFOLIO_FIELDS)
+    missing = sorted(COMPETITOR_PORTFOLIO_FIELDS - set(portfolio))
+    if unknown:
+        errors.append(f"$.competitorCustomerPortfolio has unsupported fields: {', '.join(unknown)}")
+    if missing:
+        errors.append(f"$.competitorCustomerPortfolio is missing fields: {', '.join(missing)}")
+    if portfolio.get("assessmentType") != "competitor_customer_portfolio":
+        errors.append("$.competitorCustomerPortfolio.assessmentType must be competitor_customer_portfolio")
+    if portfolio.get("modelCode") != "GETO_COMPETITOR_CUSTOMER_PORTFOLIO":
+        errors.append("$.competitorCustomerPortfolio.modelCode has an invalid value")
+    if portfolio.get("modelVersion") != "2026-08-19":
+        errors.append("$.competitorCustomerPortfolio.modelVersion has an invalid value")
+    if portfolio.get("customerValueModelCode") != "GETO_LEAD_VALUE":
+        errors.append("$.competitorCustomerPortfolio.customerValueModelCode must be GETO_LEAD_VALUE")
+    if not _validate_date(portfolio.get("asOf")):
+        errors.append("$.competitorCustomerPortfolio.asOf must use YYYY-MM-DD")
+    customers = portfolio.get("customers")
+    if not isinstance(customers, list):
+        errors.append("$.competitorCustomerPortfolio.customers must be an array")
+        customers = []
+    scores: list[float] = []
+    seen: set[str] = set()
+    for index, customer in enumerate(customers):
+        path = f"$.competitorCustomerPortfolio.customers[{index}]"
+        if not isinstance(customer, dict):
+            errors.append(f"{path} must be an object")
+            continue
+        unknown_customer = sorted(set(customer) - COMPETITOR_CUSTOMER_FIELDS)
+        missing_customer = sorted(COMPETITOR_CUSTOMER_FIELDS - set(customer))
+        if unknown_customer:
+            errors.append(f"{path} has unsupported fields: {', '.join(unknown_customer)}")
+        if missing_customer:
+            errors.append(f"{path} is missing fields: {', '.join(missing_customer)}")
+        name = str(customer.get("companyName") or "").strip()
+        if not name:
+            errors.append(f"{path}.companyName is required")
+        elif name.casefold() in seen:
+            errors.append(f"{path}.companyName is duplicated")
+        seen.add(name.casefold())
+        if not isinstance(customer.get("relationshipCount"), int) or customer.get("relationshipCount", 0) < 1:
+            errors.append(f"{path}.relationshipCount must be a positive integer")
+        evidence = customer.get("evidence")
+        if not isinstance(evidence, list) or not evidence:
+            errors.append(f"{path}.evidence must contain relationship Evidence")
+            evidence = []
+        for evidence_index, source in enumerate(evidence):
+            _validate_evidence_item(source, f"{path}.evidence[{evidence_index}]", errors)
+        score = customer.get("customerValueScore")
+        if score is None:
+            if any(customer.get(field) is not None for field in (
+                "customerValueModelVersion", "cohortBaselineVersion", "assessedOn"
+            )):
+                errors.append(f"{path}: unscored customer cannot contain score version metadata")
+        elif isinstance(score, bool) or not isinstance(score, (int, float)) or not 0 <= score <= 100:
+            errors.append(f"{path}.customerValueScore must be between 0 and 100")
+        else:
+            scores.append(float(score))
+            if customer.get("customerAssessmentStatus") != "completed":
+                errors.append(f"{path}: scored customer requires completed assessment status")
+            if not customer.get("customerValueModelVersion") or not customer.get("cohortBaselineVersion"):
+                errors.append(f"{path}: scored customer requires model and cohort baseline versions")
+            if not _validate_date(customer.get("assessedOn")):
+                errors.append(f"{path}.assessedOn must use YYYY-MM-DD when scored")
+
+    verified = len(customers)
+    scored = len(scores)
+    coverage = round(scored / verified, 4) if verified else 0.0
+    average = round(sum(scores) / scored, 1) if scored else None
+    if portfolio.get("verifiedCustomerCount") != verified:
+        errors.append("$.competitorCustomerPortfolio.verifiedCustomerCount does not match customers")
+    if portfolio.get("scoredCustomerCount") != scored:
+        errors.append("$.competitorCustomerPortfolio.scoredCustomerCount does not match customers")
+    if portfolio.get("customerScoreCoverage") != coverage:
+        errors.append("$.competitorCustomerPortfolio.customerScoreCoverage is inconsistent")
+    if portfolio.get("averageCustomerValueScore") != average:
+        errors.append("$.competitorCustomerPortfolio.averageCustomerValueScore is inconsistent")
+    expected_status = (
+        "no_verified_customers" if verified == 0 else
+        "pending_customer_scores" if scored == 0 else
+        "partial_coverage" if scored < verified else
+        "completed"
+    )
+    if status != expected_status:
+        errors.append("$.competitorCustomerPortfolio.status is inconsistent with coverage")
+    return errors
+
+
 def validate_company(value: Any) -> tuple[list[str], list[str], list[str]]:
     errors: list[str] = []
     warnings: list[str] = []
@@ -593,8 +793,13 @@ def validate_company(value: Any) -> tuple[list[str], list[str], list[str]]:
         elif item.get("status") in {"provider_failed", "outdated", "conflicting"}:
             warnings.append(f"$.missingInformation[{index}]: unresolved {item.get('status')}")
 
+    for index, relationship in enumerate(value.get("relationships", [])):
+        if isinstance(relationship, dict):
+            errors.extend(_validate_relationship_entry(relationship, f"$.relationships[{index}]"))
+
     errors.extend(_validate_assessment(value.get("assessment")))
     errors.extend(_validate_inquiry_assessment(value.get("inquiryAssessment")))
+    errors.extend(_validate_competitor_portfolio(value.get("competitorCustomerPortfolio")))
 
     for index, report_file in enumerate(value.get("reportFiles", [])):
         path = f"$.reportFiles[{index}]"

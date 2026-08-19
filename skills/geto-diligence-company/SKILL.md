@@ -1,6 +1,6 @@
 ---
 name: geto-diligence-company
-description: 对 GETO 海外市场中的单一目标公司执行深度背调，输出自然公司名目录、company.json、内嵌 Evidence、按需模块资料与 report.md，并可准备长期客户价值的六维观察输入。用于一家公司一个独立任务的线索或竞对背调与主体冲突核查；明确原始询盘使用 geto-diligence-inquiry，不负责广泛找公司、跨公司最终评分或直接上传 OmniX。
+description: 对 GETO 海外市场中的单一线索或普通目标公司执行深度背调，输出自然公司名目录、company.json、内嵌 Evidence、按需模块资料与 report.md，并可准备长期客户价值的六维观察输入。用于一家公司一个独立任务的客户事实核查与主体冲突处理；原始询盘使用 geto-diligence-inquiry，已知竞对使用 geto-diligence-competitor。
 ---
 
 # GETO 单公司背调
@@ -51,9 +51,9 @@ TradeWind 和网易外贸通只作为独立 Provider 任务返回的 ExternalObs
 
 把事实写入 `company.json` 对应 item，每个主要列表 item 自带 `evidence[]`。Evidence 关系只用 `supports|refutes|context`；冲突来源全部保留，不以数量投票。最终从全部内嵌 Evidence 生成 `Sources/sources.md`。
 
-### 6. 产品商业角色与竞对事实
+### 6. 产品商业角色与分类事实
 
-对每个相关产品/服务写入 `commercialRoles[]`、`manufacturingStatus`、`manufacturingDescription`、`factoryLocations[]` 与 Evidence。名称含 framework、formwork、modular 只能作为召回线索：
+对每个相关产品/服务写入 `commercialRoles[]`、`manufacturingStatus`、`manufacturingDescription`、`factoryLocations[]` 与 Evidence。线索研究中发现竞对事实时仍按以下边界分类；需要系统产品对标与竞对客户研究时交给 `$geto-diligence-competitor`。名称含 framework、formwork、modular 只能作为召回线索：
 
 - manufacturer/system_owner/brand_owner 且产品和市场重叠：可支持直接竞对；
 - distributor/reseller/rental_provider 且经营竞品：可支持渠道竞对；

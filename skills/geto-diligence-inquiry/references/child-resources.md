@@ -28,7 +28,8 @@
 ## 项目与关系
 
 - projects[]：projectName、aliases[]、projectType、country、region、city/location、address、owner、developer、consultant、mainContractor、targetCompanyRole、contractScope、contractNumber、contractValue、currency、scale、buildingArea、storeys、units、status、procurementStage、startedOn、endedOn、currentOrHistorical、inquiryMatchStatus、roleVerificationStatus、getoOpportunity、description、evidence。
-- relationships[]：relationshipType、counterpartyName、counterpartyRole、companyRole、projectName、country、status、startedOn、endedOn、description、evidence。
+- relationships[] 通用字段：relationshipType、counterpartyName、counterpartyRole、companyRole、projectName、country、status、startedOn、endedOn、description、evidence。
+- 竞对客户关系扩展字段：relationshipRole、productOrService、cooperationModeCode、cooperationDepthCode、relationshipStatusCode、buyer、payer、actualUser、isExclusive、firstEvidenceOn、lastVerifiedOn、reviewDecision、entryPoint、limitation、entrySignalCode、entryAssessment。详细枚举与 0–5 切入评估结构由 geto-mine-competitor-customers 的 competitor-customer-contract 定义。
 - licensesAndCertifications[]：licenseType、licenseNumber、authority、jurisdiction、issuedOn、expiresOn、status、description、evidence。
 
 ## 联系人
@@ -61,4 +62,5 @@
 
 - assessment：长期客户价值观察输入与主任务 cohort 结果；字段由 lead-assessment-contract 定义。
 - inquiryAssessment：单条询盘准备度；字段由 geto-diligence-inquiry 的 inquiry-contract 定义。
+- competitorCustomerPortfolio：竞对已核实客户的去重组合统计；保存客户数、已评分数、覆盖率、客户价值平均分和 customers[]。字段由 geto-mine-competitor-customers 的 competitor-customer-contract 定义。
 - reportFiles[]：fileName、path、format、reportType、language、generatedOn、description。format 使用 markdown|docx|pdf|html；reportType 使用 diligence|assessment|risk|supplement。

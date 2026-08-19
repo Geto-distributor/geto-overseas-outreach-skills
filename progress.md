@@ -36,12 +36,14 @@
 | 独立询盘背调 | completed | `geto-diligence-inquiry` 固定准备度评分，不使用 cohort 插补 |
 | 询盘字段自包含 | completed | inquiry Skill 自带完整 Company 子资源合同，并与公司 Skill 做逐字一致性回归 |
 | 深度报告与项目深挖 | completed | 18 类报告主题、项目发现瀑布流、项目角色三层证明与稀疏项目覆盖校验 |
+| 单竞对深度背调 | completed | `skills/geto-diligence-competitor/`；主体、产品商业控制、制造、项目与客户候选独立合同 |
+| 竞对客户组合与切入口径 | completed | `competitorCustomerPortfolio`、`GETO_RELATIONSHIP_ENTRY 1.0`、`aggregate_competitor_customers.py` |
 
 ## 验证
 
-- GETO 仓库 validator：8 Skills passed。
-- skill-creator quick_validate：8 个 GETO Skills、omnix-market、netease-waimao、tradewind-api 均 passed。
-- GETO ResearchBundle/SearchLexicon/cohort/询盘/字段与报告合同/并发/能力工件回归：23 tests passed。
+- GETO 仓库 validator：9 Skills passed。
+- skill-creator quick_validate：9 个 GETO Skills、omnix-market、netease-waimao、tradewind-api 均 passed。
+- GETO ResearchBundle/SearchLexicon/cohort/询盘/竞对客户组合/关系切入/字段与报告合同/并发/能力工件回归：26 tests passed。
 - OmniX unversioned API 合同回归：9 tests passed。
 - 网易外贸通既有安全回归：11 tests passed。
 - Freecity、Electron company.json：均 0 ERROR / 0 WARNING。
@@ -55,6 +57,8 @@
 - 询盘时序终验：四条 inquiry readiness 分别为 43、42、40、46，均为 nurture_or_verify；四个长期价值 cohort 各 1 家，全部 pending_cohort_baseline 且无临时总分。
 - 深度报告终验：四份报告均 18 个 H2、157–173 行；项目数 3/1/2/0，项目不足 3 个的报告均包含完整项目检索覆盖表。
 - Provider 载荷终验：TradeWind 根层 people[5] 与嵌套 meta 分页矛盾已输出 not_exhaustive + pagination_metadata_inconsistent。
+- 竞对职责终验：单竞对 Skill 只输出竞对事实与分类；竞对客户 Skill 复用客户六维 cohort 分，按去重客户聚合平均分和覆盖率，并在关系层单列 0–5 切入分。
+- 竞对组合烟测：2 个 verified_customer 中 1 个具有 completed 客户价值分时，输出 partial_coverage、覆盖率 0.5、均分仅取已评分客户；缺分客户未补零。
 - credential/private artifact scan：passed。
 - `git diff --check`：passed。
 

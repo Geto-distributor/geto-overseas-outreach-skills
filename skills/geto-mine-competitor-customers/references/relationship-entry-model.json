@@ -1,0 +1,16 @@
+{
+  "modelCode": "GETO_RELATIONSHIP_ENTRY",
+  "modelVersion": "1.0",
+  "assessmentType": "relationship_entry",
+  "scale": {"minimum": 0, "maximum": 5, "direction": "higher_is_easier_to_enter"},
+  "levels": [
+    {"score": 5, "meaning": "明确开放窗口", "factAnchors": ["公开招募新供应商或替代供应商", "现供应终止", "明确产品缺口", "新采购窗口"]},
+    {"score": 4, "meaning": "较易切入", "factAnchors": ["历史合作已结束", "试用未转采购", "一次合作结束且未发现复购"]},
+    {"score": 3, "meaning": "有条件切入", "factAnchors": ["当前单项目或一次采购", "反证检索未发现框架、指定或排他约束"]},
+    {"score": 2, "meaning": "难度较高", "factAnchors": ["当前重复采购", "多项目稳定合作", "排他状态未证"]},
+    {"score": 1, "meaning": "短期较难", "factAnchors": ["长期框架", "指定供应", "联合投标", "深度设计协同"]},
+    {"score": 0, "meaning": "当前不可切", "factAnchors": ["已证实排他", "封闭采购", "技术或合同锁定"]}
+  ],
+  "pendingRule": "状态、持续性、合作深度、采购方式、锁定信息不足或冲突时 score 为 null。",
+  "separationRule": "关系切入分与客户价值分分别展示。"
+}

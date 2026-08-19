@@ -1,47 +1,65 @@
 ---
 name: geto-mine-competitor-customers
-description: 为 GETO 按单一产品技术面或商业角色召回竞对候选，并在一家公司一个独立任务中核验产品商业控制、制造与履约模式，再沿确认竞对的官方项目案例反查未来可合作客户。用于模架、装配式、模块化、租赁经销与材料生态的竞对发现和客户反查；竞对结论以目标公司产品、市场和商业控制 Evidence 为准。
+description: 从已确认的 GETO 海外竞对官方项目与案例中反查可识别客户，核验竞对—客户关系，逐客进入同一客户线索池和六维 cohort 评分，并计算竞对客户价值平均分与每条关系的 0–5 合作切入分。用于一家公司一个竞对任务的客户组合研究、关系仲裁和切入机会判断；竞对公司本身的深度背调使用 geto-diligence-competitor。
 ---
 
-# GETO 竞对发现与客户反查
+# GETO 竞对客户反查与组合评估
 
-分开执行两道门：G1 判断是否真实竞争，G2 从确认竞对的官方案例寻找合格客户。一次发现任务只处理一个产品/技术面或商业角色；每个需确认的竞对使用独立背调任务。
+一次只处理一家已确认竞对。研究链固定为：竞对 → 客户 → 产品或项目 → 合作方式 → 当前或历史 → Evidence。
 
-## 依赖
+开始前读取 [competitor-customer-contract.md](references/competitor-customer-contract.md)、[relationship-entry-model.json](references/relationship-entry-model.json) 与 [output-contract.md](references/output-contract.md)。
 
-- Web 研究必需。
-- `$geto-capability-foundation` 提供产品、场景、competitionSurface 与 SearchLexicon。
-- `$geto-diligence-company` 负责一家公司一个任务的事实补强。
-- `$geto-map-relationships` 负责竞对—客户—项目关系。
-- Provider 只在 TradeWind/网易各自独立任务中返回 ExternalObservation。
+## 输入
 
-## G1：竞对召回与判定
+- 已通过 `$geto-diligence-competitor` 确认为 competitor 的公司目录。
+- 目标国家、GETO 产品范围、研究截止日和已完成查询清单。
+- 国家 ResearchBundle 路径与客户 cohort 边界。
 
-1. 按产品/技术、项目、制造、品牌、租赁、经销和服务角色召回候选。framework、formwork、modular 等名称命中只用于召回。
-2. 用强身份锚点归一候选，不按相似名称合并。
-3. 为需要确认的每家公司创建独立背调任务，优先核查官网 Products、Services、Solutions、Manufacturing、Factory、Rental、Distribution、Projects 与 About。
-4. Competitor Gate 必须同时满足：
-   - 产品、系统、工法或渠道与 GETO competitionSurface 重叠；
-   - 在目标国家/市场实际经营；
-   - 公司控制相关产品的商业化、销售、出租、分销或自有系统，而不只是安装实施。
-5. 依据 [competition-decision.md](references/competition-decision.md) 形成 `confirmed|possible|rejected`：
-   - manufacturer/system_owner/brand_owner 且重叠：直接竞对；
-   - distributor/reseller/rental_provider 且经营竞品：渠道竞对；
-   - installer/service_contractor-only：拒绝 competitor，可继续判断 lead/合作伙伴；
-   - contract_manufacturer-only：制造供应方/生态方，除非独立销售自有重叠产品；
-   - outsourced 自有品牌/系统：仍可能确认竞对；
-   - 商业控制或制造状态不清：possible，补证后再判。
+competitor 分类为 possible 或 rejected 时，只回传关系研究缺口，不生成正式客户组合。
 
-自有工厂是强证据但不是必要条件，也不能替代产品和市场重叠证据。
+## 工作流
 
-## G2：官方案例客户反查
+### 1. 官方客户召回
 
-优先读取竞对官网 Projects、Case Studies、Testimonials、News。只有具名客户/合作方、可识别项目或产品、明确合作内容时才建立候选关系；不要求客户侧重复确认。
+优先查询竞对官网 Projects、Case Studies、Testimonials、News、References、客户故事和可定位能力书。提取具名公司、项目、产品或服务、合作内容、时间和来源。
 
-Logo、匿名案例、同场参建、组合实体未拆分、不同项目串案或已有反证不得进入客户池。案例不能自动证明 buyer、payer、采购方式、买断/租赁、排他或当前持续性。
+Logo、匿名案例、搜索摘要、共同参建和无法拆分的组合实体进入 pending 候选。
 
-把可采购、使用或影响选型的实体交回主任务，创建独立 `$geto-diligence-company` 任务；渠道、制造供应、设计和施工伙伴进入关系图但不计客户数。
+### 2. 关系资格仲裁
 
-## 输出与回传
+按 [competitor-customer-contract.md](references/competitor-customer-contract.md) 形成 `verified_customer|verified_non_customer|pending|conflicting|invalid`。`verified_customer` 需要可识别公司，并由竞对或对方官方内容闭合具体项目或具体产品/服务及实际合作内容。
 
-按 [output-contract.md](references/output-contract.md) 保存候选、竞对分类建议、拒绝理由、官方案例关系和新公司名单。回传做了什么、成果路径、接受/拒绝理由、缺口和下一步。
+buyer、payer、实际使用方、sale/rental、排他、框架关系和当前持续性分别取证。未知字段保持 null。
+
+### 3. 客户一客一档
+
+每个 verified_customer 使用同一自然公司名目录。已有 Company 复用；新客户由主任务创建独立 `$geto-diligence-company` 任务，并以 `assessmentMode=lead_value` 准备六维观察输入。
+
+主任务使用 `$geto-find-leads` 按国家×公司角色建立 cohort baseline，并批量完成客户长期价值评分。竞对来源不改变六维模型或 cohortKey。
+
+### 4. 关系切入分
+
+每条 verified_customer 关系按 [relationship-entry-model.json](references/relationship-entry-model.json) 评估 0–5 分。分数表达 GETO 成为替代、补充或第二来源的当前可行性；Evidence 不足时 score=null、status=pending_evidence。
+
+entryAssessment 写入对应 `relationships[]` item。客户价值分表达客户本身的长期价值，关系切入分表达某条竞对关系的进入难度，两者分别展示。
+
+### 5. 竞对客户组合聚合
+
+客户 cohort 评分完成后运行：
+
+```bash
+python scripts/aggregate_competitor_customers.py \
+  --country-root '<国家目录>' \
+  --competitor-dir '<竞对公司目录>' \
+  --as-of '<YYYY-MM-DD>'
+```
+
+脚本按去重 verified_customer 计算 verifiedCustomerCount、scoredCustomerCount、customerScoreCoverage 和 averageCustomerValueScore，并写入竞对 company.json 的 `competitorCustomerPortfolio`。缺少当前六维评分的客户不填 0；覆盖率随平均分一并交付。
+
+### 6. 报告与验证
+
+更新竞对 report.md 的客户组合、评分覆盖、逐客价值、关系切入分、切入口与限制；更新客户报告中的竞对来源关系。生成 Sources，并运行单公司与国家 workspace validator。
+
+## 任务回传
+
+回传查询范围、各关系仲裁结果、已核实客户及公司目录、待核/冲突对象、客户评分覆盖率、竞对客户价值平均分、逐关系切入分、成果路径和下一步。
