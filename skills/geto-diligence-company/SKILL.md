@@ -25,7 +25,8 @@ description: 对 GETO 海外市场中的单一目标公司执行深度背调，�
 调用 `$geto-run-market-research` 的工作空间脚本创建：
 
 ```bash
-python scripts/init_company_workspace.py --workspace-root '<ResearchBundle>' \
+python '<geto-run-market-research-dir>/scripts/init_company_workspace.py' \
+  --workspace-root '<ResearchBundle>' \
   --country-code '<ISO2>' --country-name '<English Display Name>' \
   --company-name '<自然公司名>'
 ```
@@ -71,11 +72,15 @@ TradeWind 和网易外贸通只作为独立 Provider 任务返回的 ExternalObs
 
 `company.json` 是事实与评估的唯一权威结构化来源；`report.md` 是由它组织的可读结论。模块 Markdown 仅保存原始材料、查询日志或扩展分析，按实际内容创建，不手工维护第二份事实表。
 
-生成 `report.md`，并按固定字段 `fileName/path/format/reportType/language/generatedOn/description` 写入 `reportFiles[]`。用 `write_company_json.py` 校验并原子替换完整 JSON，再运行来源聚合与单公司校验：
+生成 `report.md`，并按固定字段 `fileName/path/format/reportType/language/generatedOn/description` 写入 `reportFiles[]`。共享工作空间脚本从 `$geto-run-market-research` 的安装目录调用，用它校验并原子替换完整 JSON，再运行来源聚合与单公司校验：
 
 ```bash
-python scripts/build_deduplicated_sources.py '<公司目录>/company.json'
-python scripts/validate_workspace.py --company-dir '<公司目录>'
+python '<geto-run-market-research-dir>/scripts/write_company_json.py' \
+  '<完整临时 JSON>' '<公司目录>/company.json'
+python '<geto-run-market-research-dir>/scripts/build_deduplicated_sources.py' \
+  '<公司目录>/company.json'
+python '<geto-run-market-research-dir>/scripts/validate_workspace.py' \
+  --company-dir '<公司目录>'
 ```
 
 修复 ERROR；WARNING 表示需处理的风险或冲突，INFO 表示如实记录的未查询或已查无结果。
