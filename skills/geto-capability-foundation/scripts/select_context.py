@@ -67,7 +67,7 @@ def main() -> int:
     scenario_threshold = 1 if max_scenario_score <= 1 else max(2, max_scenario_score // 2)
     if requested_scenarios:
         selected_scenarios = [item for item in scenarios if item["scenarioCode"] in requested_scenarios]
-    elif not query_terms and (requested_products or requested_roles):
+    elif requested_products or requested_roles:
         selected_scenarios = []
     else:
         selected_scenarios = [

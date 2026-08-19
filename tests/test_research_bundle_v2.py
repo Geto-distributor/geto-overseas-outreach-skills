@@ -256,6 +256,14 @@ class SearchLexiconTests(unittest.TestCase):
         self.assertEqual(result["contextRef"]["scenarioCodes"], [])
         self.assertEqual(result["contextRef"]["status"], "available")
 
+        with_query = subprocess.run(
+            ["python3", str(CAPABILITY_SCRIPTS / "select_context.py"),
+             "--country", "SA", "--product-code", "aluminum_formwork",
+             "--query", "column formwork contractor Jeddah"],
+            check=True, capture_output=True, text=True,
+        )
+        self.assertEqual(json.loads(with_query.stdout)["contextRef"]["scenarioCodes"], [])
+
     def test_runtime_docs_read_as_a_current_contract(self) -> None:
         forbidden = (
             "ResearchDelta", "ResearchRun", "ClaimSourceLink", "EvidencePackage",
