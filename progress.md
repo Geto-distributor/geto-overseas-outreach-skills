@@ -31,6 +31,7 @@
 | 评分事实锚点 | completed | 六维 components/factAnchors、A/B/C/U evidenceGradeRules 与时效边界 |
 | 能力工件闭环 | completed | selector `--output`、固定 sidecar 路径、validator 逐字段一致性检查 |
 | INFO 汇总视图 | completed | 默认输出分类计数，`--include-infos` 输出逐条明细 |
+| Provider 联系人桥接 | completed | email_only + workEmail.deliverability 证据范围；任职/授权独立补证 |
 
 ## 验证
 

@@ -9,3 +9,5 @@
 - reportFiles 固定使用 fileName、path、format、reportType、language、generatedOn、description。format 使用 `markdown|docx|pdf|html`；reportType 使用 `diligence|assessment|risk|supplement`。
 
 联系人、财务、海关和询盘不能塞入 company.summary 或报告长文本代替结构化字段。注册资本与实缴资本只进入 capitalRecords。
+
+Provider 只验证邮箱存在或可投递时，contact 使用 `verificationStatus=email_only`；对应 Evidence 使用 `relation=context`、`verificationScope=["workEmail.deliverability"]`，note 明示不支持当前任职、职位、授权或 buyingRole。上述字段保持 null，直到公司官网、人员公开职业页或多源一致证据分别支持。
