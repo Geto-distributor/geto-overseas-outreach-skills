@@ -10,41 +10,125 @@
     "C": 0.5,
     "U": 0.0
   },
+  "evidenceGradeRules": {
+    "A": {
+      "rule": "直接且当前的一手依据支持本维事实，无未解决主体或内容冲突。",
+      "examples": ["政府或登记机构", "交易所或审计财报", "招标授标文件", "目标公司官网", "当前客户询盘对其自身需求的直接陈述"]
+    },
+    "B": {
+      "rule": "可信独立媒体、合作方官网或两条可交叉验证资料支持本维事实。",
+      "examples": ["合作方项目页", "可信行业数据库", "两条相互独立且一致的二手资料"]
+    },
+    "C": {
+      "rule": "只有单一二手、间接、部分闭环或时效偏弱的依据。",
+      "examples": ["单一商业目录", "未交叉验证社媒", "只有部分项目或联系人线索"]
+    },
+    "U": {
+      "rule": "未查询、未取到、关键来源冲突、主体不明，或证据不能支持本维观察分。",
+      "examples": ["no_result", "not_queried", "identity_conflict", "仅有名称关键词"]
+    },
+    "scopeRules": [
+      "客户询盘可为需求和触达提供 A 级依据，但不能单独证明法定主体、付款能力或企业规模。",
+      "动态项目、联系人和财务事实超过 24 个月且没有当前信号时最高为 B；超过 36 个月时最高为 C。",
+      "历史项目只支持交付能力，不计入未来项目需求。",
+      "注册资本不能作为收入、现金、授信或付款能力证据。"
+    ]
+  },
   "dimensions": [
     {
       "dimensionCode": "project_city_value",
       "name": "项目与城市价值",
       "maxScore": 15,
+      "components": [
+        {"name": "项目所在城市经济体量", "maxScore": 8},
+        {"name": "建设投入及落地确定性", "maxScore": 7}
+      ],
+      "factAnchors": [
+        {"score": 0, "rule": "没有可识别项目地点。"},
+        {"scoreRange": [1, 5], "rule": "只有注册地址、交付城市或未核验项目地点；本维最高 5。"},
+        {"scoreRange": [6, 10], "rule": "项目地点明确，城市与建设投入有部分证据，但项目规模或落地确定性有限。"},
+        {"scoreRange": [11, 15], "rule": "具名项目位于高价值城市，且建设投入、规模和落地确定性均有直接证据。"}
+      ],
       "anchors": {"low": [0, 5], "medium": [6, 10], "high": [11, 15]}
     },
     {
       "dimensionCode": "account_scale",
       "name": "客户规模与行业地位",
       "maxScore": 20,
+      "components": [
+        {"name": "财务和资本承载力", "maxScore": 10},
+        {"name": "项目、订单或资本计划规模", "maxScore": 6},
+        {"name": "员工、工厂、区域网络和交付能力", "maxScore": 4}
+      ],
+      "factAnchors": [
+        {"scoreRange": [0, 7], "rule": "只有注册存在、单一历史项目或弱经营信号；注册资本不加付款或规模分。"},
+        {"scoreRange": [8, 14], "rule": "多个当前项目、可核验交付规模、员工/工厂/区域网络中至少两类有证据。"},
+        {"scoreRange": [15, 20], "rule": "当前财务或订单规模、持续交付能力和区域网络均有强证据。"}
+      ],
       "anchors": {"low": [0, 7], "medium": [8, 14], "high": [15, 20]}
     },
     {
       "dimensionCode": "future_project_demand",
       "name": "未来项目与采购需求",
       "maxScore": 20,
+      "components": [
+        {"name": "有效项目数量", "maxScore": 6, "scoreMap": {"0": 0, "1": 2, "2": 3, "3-4": 4, "5-7": 5, "8+": 6}},
+        {"name": "合计潜在需求量", "maxScore": 9},
+        {"name": "项目确定性和采购窗口", "maxScore": 5}
+      ],
+      "factAnchors": [
+        {"scoreRange": [0, 7], "rule": "没有未来项目，或只有单个小型/概念性需求且采购窗口不明。"},
+        {"scoreRange": [8, 14], "rule": "至少一个具名或量化机会，处于批准、招标或可确认跟进阶段。"},
+        {"scoreRange": [15, 20], "rule": "多个去重有效项目或重大量化需求，已授标、在建或进入近期采购窗口。"}
+      ],
       "anchors": {"low": [0, 7], "medium": [8, 14], "high": [15, 20]}
     },
     {
       "dimensionCode": "reachability",
       "name": "决策链与触达可行性",
       "maxScore": 10,
+      "components": [
+        {"name": "项目相关决策人", "maxScore": 5},
+        {"name": "直接联系方式或招采入口", "maxScore": 3},
+        {"name": "当前可介入窗口", "maxScore": 2}
+      ],
+      "factAnchors": [
+        {"scoreRange": [0, 3], "rule": "没有联系人，或只有总机、通用邮箱、未核验社媒账号。"},
+        {"scoreRange": [4, 6], "rule": "有可验证联系人或供应商入口，但职责、项目关联或当前窗口未全部闭环。"},
+        {"scoreRange": [7, 10], "rule": "项目相关采购/估算/商业/工程负责人、直接渠道和当前介入窗口均明确。"}
+      ],
       "anchors": {"low": [0, 3], "medium": [4, 6], "high": [7, 10]}
     },
     {
       "dimensionCode": "payment_capacity",
       "name": "合作与支付能力",
       "maxScore": 15,
+      "components": [
+        {"name": "资金、现金流、融资或已拨预算", "maxScore": 7},
+        {"name": "负债、流动性和重大法律风险", "maxScore": 5},
+        {"name": "合同主体、付款条款、担保或支付机制", "maxScore": 3}
+      ],
+      "factAnchors": [
+        {"scoreRange": [0, 5], "rule": "付款主体和资金来源不明，或存在重大未解决财务/法律风险。"},
+        {"scoreRange": [6, 10], "rule": "经营或资金信号可核验，但签约主体、条款、担保或流动性仍有缺口；签约主体未确认时最高 9。"},
+        {"scoreRange": [11, 15], "rule": "拟签约主体、资金来源、流动性/风险和付款机制均有当前强证据。"}
+      ],
       "anchors": {"low": [0, 5], "medium": [6, 10], "high": [11, 15]}
     },
     {
       "dimensionCode": "multi_product_fit",
       "name": "多产品匹配与复制价值",
       "maxScore": 20,
+      "components": [
+        {"name": "可交易产品族数量", "maxScore": 8, "scoreMap": {"0": 0, "1": 3, "2": 5, "3": 7, "4+": 8}},
+        {"name": "产品与项目结构、工法、阶段和用量相关性", "maxScore": 8},
+        {"name": "直接采购、指定或影响供应商路径", "maxScore": 4}
+      ],
+      "factAnchors": [
+        {"scoreRange": [0, 7], "rule": "仅一个理论产品或弱需求线索，项目场景/采购权未核实；场景未核实时本维最高 8。"},
+        {"scoreRange": [8, 14], "rule": "至少一个产品族与真实项目场景匹配，且采购或影响路径部分明确。"},
+        {"scoreRange": [15, 20], "rule": "多个去重产品族与实际项目强匹配，客户拥有明确采购、指定或影响路径。"}
+      ],
       "anchors": {"low": [0, 7], "medium": [8, 14], "high": [15, 20]}
     }
   ],

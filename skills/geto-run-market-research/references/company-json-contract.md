@@ -91,4 +91,4 @@ confirmed competitor 必须同时有重叠产品/技术、目标市场与商业�
 
 ## 目录和来源
 
-国家目录使用 `<ISO2>-<English-Display-Name>`。每家公司至少有 `company.json` 和 `report.md`。模块目录仅在有原始材料、查询日志或扩展分析时创建。扫描全部内嵌 Evidence，按规范化 URL 去除追踪参数、fragment 和多余尾斜杠；同一 URL 的 locator 聚合在一个来源条目中，客户文件按文档标题聚合为 `Sources/sources.md`。该文件是派生索引，不含 Source ID，也不是第二份权威数据。
+国家目录使用 `<ISO2>-<English-Display-Name>`。每家公司至少有 `company.json` 和 `report.md`。执行评分时，直接 contextRef 固定保存为 `RisksAndAssessment/capability-context.json`，并与 assessment.capabilityContext 完全一致。其他模块目录仅在有原始材料、查询日志或扩展分析时创建。扫描全部内嵌 Evidence，按规范化 URL 去除追踪参数、fragment 和多余尾斜杠；同一 URL 的 locator 聚合在一个来源条目中，客户文件按文档标题聚合为 `Sources/sources.md`。该文件是派生索引，不含 Source ID，也不是第二份权威数据。

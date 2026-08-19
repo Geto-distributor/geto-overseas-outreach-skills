@@ -86,7 +86,7 @@ python scripts/validate_workspace.py --company-dir '<公司目录>'
 python scripts/validate_workspace.py '<国家目录>'
 ```
 
-单公司任务只运行 `--company-dir` 模式；国家主任务运行国家模式。任何 ERROR 必须修复后再交付或上传；WARNING 必须处置或写入 `missingInformation`/`progress.md`，INFO 保留为查询覆盖说明。固定检查点为 `intake`、`discovery`、`arbitration`、`diligence`、`decision`、`validation`、`optional_upload`、`complete`。
+单公司任务只运行 `--company-dir` 模式；国家主任务运行国家模式。任何 ERROR 必须修复后再交付或上传；WARNING 必须处置或写入 `missingInformation`/`progress.md`，INFO 保留为查询覆盖说明。validator 默认输出 INFO 分类计数，使用 `--include-infos` 查看逐条明细。评分任务还会核对标准能力工件与 assessment。固定检查点为 `intake`、`discovery`、`arbitration`、`diligence`、`decision`、`validation`、`optional_upload`、`complete`。
 
 ### 8. 可选 OmniX 上传
 

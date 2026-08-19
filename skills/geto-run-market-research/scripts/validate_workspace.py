@@ -8,7 +8,10 @@ import json
 import re
 from pathlib import Path
 
-from research_bundle import SECRET_PATTERNS, all_evidence, format_result, load_json, validate_company
+from research_bundle import (
+    CAPABILITY_CONTEXT_FIELDS, SECRET_PATTERNS, all_evidence, format_result,
+    load_json, validate_company,
+)
 
 
 def validate(root: Path, company_dir: Path | None = None) -> tuple[list[str], list[str], list[str]]:
@@ -45,6 +48,25 @@ def validate(root: Path, company_dir: Path | None = None) -> tuple[list[str], li
         errors.extend(f"{company_dir.name}: {item}" for item in local_errors)
         warnings.extend(f"{company_dir.name}: {item}" for item in local_warnings)
         infos.extend(f"{company_dir.name}: {item}" for item in local_infos)
+        assessment = value.get("assessment", {})
+        if isinstance(assessment, dict) and assessment.get("status") != "not_requested":
+            context_file = company_dir / "RisksAndAssessment" / "capability-context.json"
+            if not context_file.is_file():
+                errors.append(f"{company_dir.name}: RisksAndAssessment/capability-context.json is required for assessment")
+            else:
+                try:
+                    context_value = load_json(context_file)
+                except (OSError, json.JSONDecodeError) as error:
+                    errors.append(f"{company_dir.name}: {context_file}: {error}")
+                else:
+                    if not isinstance(context_value, dict) or set(context_value) != CAPABILITY_CONTEXT_FIELDS:
+                        errors.append(
+                            f"{company_dir.name}: capability-context.json must contain the direct contextRef fields"
+                        )
+                    if context_value != assessment.get("capabilityContext"):
+                        errors.append(
+                            f"{company_dir.name}: capability-context.json differs from assessment.capabilityContext"
+                        )
         if all_evidence(value) and not (company_dir / "Sources" / "sources.md").is_file():
             errors.append(f"{company_dir.name}/Sources/sources.md is missing")
         for index, report_file in enumerate(value.get("reportFiles", [])):
@@ -74,6 +96,7 @@ def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("country_root", nargs="?")
     parser.add_argument("--company-dir")
+    parser.add_argument("--include-infos", action="store_true")
     args = parser.parse_args()
     if not args.country_root and not args.company_dir:
         parser.error("provide country_root or --company-dir")
@@ -84,7 +107,10 @@ def main() -> int:
         root = Path(args.country_root).expanduser().resolve()
     errors, warnings, infos = validate(root, company_dir)
     mode = "company" if company_dir else "country"
-    print(json.dumps({"mode": mode, "root": str(company_dir or root), **format_result(errors, warnings, infos)}, ensure_ascii=False, indent=2))
+    print(json.dumps({
+        "mode": mode, "root": str(company_dir or root),
+        **format_result(errors, warnings, infos, args.include_infos),
+    }, ensure_ascii=False, indent=2))
     return 0 if not errors else 1
 
 

@@ -6,7 +6,9 @@ from __future__ import annotations
 import argparse
 import hashlib
 import json
+import os
 import re
+import tempfile
 from pathlib import Path
 from typing import Any
 
@@ -35,6 +37,24 @@ def text_score(item: dict[str, Any], query_terms: set[str]) -> int:
     return sum(1 for term in query_terms if term.lower() in text)
 
 
+def atomic_write(path: Path, value: dict[str, Any]) -> None:
+    path.parent.mkdir(parents=True, exist_ok=True)
+    descriptor, temporary_name = tempfile.mkstemp(prefix=f".{path.name}.", suffix=".tmp", dir=path.parent)
+    try:
+        with os.fdopen(descriptor, "w", encoding="utf-8") as handle:
+            json.dump(value, handle, ensure_ascii=False, indent=2)
+            handle.write("\n")
+            handle.flush()
+            os.fsync(handle.fileno())
+        os.replace(temporary_name, path)
+    except Exception:
+        try:
+            os.unlink(temporary_name)
+        except FileNotFoundError:
+            pass
+        raise
+
+
 def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--query", default="")
@@ -42,6 +62,7 @@ def main() -> int:
     parser.add_argument("--product-code", action="append", default=[])
     parser.add_argument("--scenario-code", action="append", default=[])
     parser.add_argument("--role-code", action="append", default=[])
+    parser.add_argument("--output", help="Write the direct contextRef object to capability-context.json")
     args = parser.parse_args()
 
     manifest = load("foundation-manifest.json")
@@ -154,6 +175,8 @@ def main() -> int:
         "caseKeys": sorted(item["caseKey"] for item in selected_cases),
         "gapCodes": result["gaps"],
     }
+    if args.output:
+        atomic_write(Path(args.output).expanduser().resolve(), result["contextRef"])
     print(json.dumps(result, ensure_ascii=False, indent=2))
     return 0
 

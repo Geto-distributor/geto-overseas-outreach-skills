@@ -238,6 +238,47 @@ class ResearchBundleValidationTests(unittest.TestCase):
         self.assertEqual(assessment["overallScore"], 100)
         self.assertEqual(assessment["grade"], "verified_high_value")
 
+    def test_workspace_requires_direct_matching_capability_artifact(self) -> None:
+        company = base_company()
+        model = json.loads((ROOT / "skills/geto-diligence-company/references/lead-value-model.json").read_text())
+        company["assessment"] = {"dimensions": [
+            {"dimensionCode": item["dimensionCode"], "observedScore": item["maxScore"],
+             "evidenceGrade": "A", "rationale": "Verified", "evidence": [evidence()],
+             "gapCodes": [], "capCodes": []}
+            for item in model["dimensions"]
+        ], "capCodes": [], "gapCodes": [], "overallConclusion": "Verified lead"}
+        capability = {
+            "foundationKey": "geto:capability-foundation", "foundationVersion": "2026-08-11",
+            "asOf": "2026-08-11", "status": "available", "contentHash": "sha256:test",
+            "productCodes": ["aluminum_formwork"], "scenarioCodes": [], "roleCodes": [],
+            "caseKeys": [], "gapCodes": [],
+        }
+        company["assessment"] = ASSESSMENT_CALCULATOR.calculate(company, model, capability, "2026-08-19")
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory) / "AU-Australia"
+            company_dir = root / "companies" / "Example"
+            context_dir = company_dir / "RisksAndAssessment"
+            context_dir.mkdir(parents=True)
+            (company_dir / "company.json").write_text(json.dumps(company), encoding="utf-8")
+            (company_dir / "report.md").write_text("# report", encoding="utf-8")
+            SOURCE_BUILDER.build(company_dir / "company.json")
+            context_file = context_dir / "capability-context.json"
+            context_file.write_text(json.dumps({"contextRef": capability}), encoding="utf-8")
+            errors, _, _ = WORKSPACE_VALIDATOR.validate(root, company_dir)
+            self.assertTrue(any("direct contextRef fields" in item for item in errors))
+            context_file.write_text(json.dumps(capability), encoding="utf-8")
+            errors, _, _ = WORKSPACE_VALIDATOR.validate(root, company_dir)
+        self.assertEqual(errors, [])
+
+    def test_info_summary_hides_details_by_default(self) -> None:
+        result = RESEARCH_BUNDLE.format_result([], [], [
+            "$.researchQueries[0]: not_queried",
+            "$.researchQueries[1]: checked with no result",
+        ])
+        self.assertEqual(result["infos"], [])
+        self.assertEqual(result["infoSummary"], {"notQueried": 1, "noResult": 1, "other": 0})
+        self.assertEqual(result["infoDetailsOmitted"], 2)
+
 
 class SearchLexiconTests(unittest.TestCase):
     def test_lexicon_and_required_regressions_validate(self) -> None:
@@ -246,15 +287,21 @@ class SearchLexiconTests(unittest.TestCase):
         self.assertEqual(errors, [])
 
     def test_explicit_capability_codes_do_not_expand_to_related_products(self) -> None:
-        completed = subprocess.run(
-            ["python3", str(CAPABILITY_SCRIPTS / "select_context.py"),
-             "--country", "MX", "--product-code", "aluminum_formwork"],
-            check=True, capture_output=True, text=True,
-        )
-        result = json.loads(completed.stdout)
+        with tempfile.TemporaryDirectory() as directory:
+            output = Path(directory) / "RisksAndAssessment" / "capability-context.json"
+            completed = subprocess.run(
+                ["python3", str(CAPABILITY_SCRIPTS / "select_context.py"),
+                 "--country", "MX", "--product-code", "aluminum_formwork",
+                 "--output", str(output)],
+                check=True, capture_output=True, text=True,
+            )
+            result = json.loads(completed.stdout)
+            artifact = json.loads(output.read_text(encoding="utf-8"))
         self.assertEqual(result["contextRef"]["productCodes"], ["aluminum_formwork"])
         self.assertEqual(result["contextRef"]["scenarioCodes"], [])
         self.assertEqual(result["contextRef"]["status"], "available")
+        self.assertEqual(artifact, result["contextRef"])
+        self.assertNotIn("contextRef", artifact)
 
         with_query = subprocess.run(
             ["python3", str(CAPABILITY_SCRIPTS / "select_context.py"),

@@ -29,6 +29,17 @@
 5. `payment_capacity` 合作与支付能力，15 分。
 6. `multi_product_fit` 多产品匹配与复制价值，20 分。
 
+每个 observedScore 按模型中的 `components` 逐项相加，并用 `factAnchors` 检查所属区间。evidenceGrade 按 `evidenceGradeRules` 判断来源直接性、独立性、时效性和冲突；等级评价的是该维判断依据，不是网站类型本身。客户询盘可以直接证明其当前需求，不能单独证明主体、规模或付款能力。无法落到事实锚点时使用 U 和 null，不给保守猜分。
+
+先生成标准能力工件：
+
+```bash
+python '<geto-capability-foundation-dir>/scripts/select_context.py' \
+  --country '<ISO2>' --product-code '<productCode>' \
+  --scenario-code '<已证实场景，可省略>' --role-code '<roleCode>' \
+  --output '<公司目录>/RisksAndAssessment/capability-context.json'
+```
+
 先在 `assessment.dimensions[]` 填写 observedScore、evidenceGrade、rationale、evidence、gapCodes 和 capCodes，再运行：
 
 ```bash
@@ -38,3 +49,5 @@ python '<geto-diligence-company-dir>/scripts/calculate_lead_assessment.py' \
 ```
 
 脚本写入严格的 assessment 结构并原子替换 company.json。capCodes 只使用模型文件定义的代码；不能用注册资本推断支付能力，也不能为缺失维度补猜分。
+
+单公司 validator 会要求 `RisksAndAssessment/capability-context.json`，并逐字段核对它与 `assessment.capabilityContext`。

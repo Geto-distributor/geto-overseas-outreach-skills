@@ -483,13 +483,26 @@ def validate_company(value: Any) -> tuple[list[str], list[str], list[str]]:
     return sorted(set(errors)), sorted(set(warnings)), sorted(set(infos))
 
 
-def format_result(errors: list[str], warnings: list[str], infos: list[str] | None = None) -> dict[str, Any]:
+def _info_summary(infos: list[str]) -> dict[str, int]:
+    return {
+        "notQueried": sum("not_queried" in item for item in infos),
+        "noResult": sum("no result" in item for item in infos),
+        "other": sum("not_queried" not in item and "no result" not in item for item in infos),
+    }
+
+
+def format_result(
+    errors: list[str], warnings: list[str], infos: list[str] | None = None,
+    include_infos: bool = False,
+) -> dict[str, Any]:
     infos = infos or []
     return {
         "valid": not errors,
         "errors": errors,
         "warnings": warnings,
-        "infos": infos,
+        "infos": infos if include_infos else [],
+        "infoSummary": _info_summary(infos),
+        "infoDetailsOmitted": 0 if include_infos else len(infos),
         "errorCount": len(errors),
         "warningCount": len(warnings),
         "infoCount": len(infos),
