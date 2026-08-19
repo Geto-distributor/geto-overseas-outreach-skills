@@ -52,6 +52,9 @@
 - 询盘当前规则：四条询盘使用 `geto-diligence-inquiry` 的固定 readiness 口径单独评分，不等待 cohort。
 - 第三轮契约工件烟测：四份标准 sidecar 均位于 `RisksAndAssessment/capability-context.json`，与 assessment 逐字段一致且无重复/空目录；四份 company.json 哈希未变。
 - INFO 汇总烟测：四家公司默认均 `infos=[]` 且分类计数正确；Proas 使用 `--include-infos` 完整展开 16 条，开关通过。
+- 询盘时序终验：四条 inquiry readiness 分别为 43、42、40、46，均为 nurture_or_verify；四个长期价值 cohort 各 1 家，全部 pending_cohort_baseline 且无临时总分。
+- 深度报告终验：四份报告均 18 个 H2、157–173 行；项目数 3/1/2/0，项目不足 3 个的报告均包含完整项目检索覆盖表。
+- Provider 载荷终验：TradeWind 根层 people[5] 与嵌套 meta 分页矛盾已输出 not_exhaustive + pagination_metadata_inconsistent。
 - credential/private artifact scan：passed。
 - `git diff --check`：passed。
 
