@@ -65,18 +65,20 @@ def main() -> int:
     scenario_scores = {item["scenarioCode"]: text_score(item, query_terms) for item in scenarios}
     max_scenario_score = max(scenario_scores.values(), default=0)
     scenario_threshold = 1 if max_scenario_score <= 1 else max(2, max_scenario_score // 2)
-    selected_scenarios = [
-        item for item in scenarios
-        if item["scenarioCode"] in requested_scenarios
-        or requested_products.intersection(item.get("productCodes", []))
-        or requested_roles.intersection(item.get("targetRoleCodes", []))
-        or scenario_scores[item["scenarioCode"]] >= scenario_threshold
-    ]
+    if requested_scenarios:
+        selected_scenarios = [item for item in scenarios if item["scenarioCode"] in requested_scenarios]
+    else:
+        selected_scenarios = [
+            item for item in scenarios
+            if requested_products.intersection(item.get("productCodes", []))
+            or requested_roles.intersection(item.get("targetRoleCodes", []))
+            or scenario_scores[item["scenarioCode"]] >= scenario_threshold
+        ]
     scenario_codes = {item["scenarioCode"] for item in selected_scenarios}
-    product_codes = requested_products | {
+    product_codes = requested_products or {
         code for item in selected_scenarios for code in item.get("productCodes", [])
     }
-    role_codes = requested_roles | {
+    role_codes = requested_roles or {
         code for item in selected_scenarios for code in item.get("targetRoleCodes", [])
     }
     if not selected_scenarios and not requested_products and query_terms:

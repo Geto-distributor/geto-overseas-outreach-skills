@@ -27,6 +27,7 @@
 | 国家与 CapabilityContext | completed | `<ISO2>-<English-Display-Name>`、`contextRef` 固定合同 |
 | 来源和内容单一事实源 | completed | 同 URL 聚合 locators；company.json 权威，report/module 为派生或扩展内容 |
 | 跨 Skill 脚本定位 | completed | 单公司文档显式使用 `<geto-run-market-research-dir>/scripts/...` |
+| 显式能力切片与报告枚举 | completed | 显式 product/scenario/role codes 优先；reportFiles 枚举写入合同 |
 
 ## 验证
 

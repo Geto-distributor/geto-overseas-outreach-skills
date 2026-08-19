@@ -245,6 +245,16 @@ class SearchLexiconTests(unittest.TestCase):
         errors = LEXICON_VALIDATOR.validate(json.loads(path.read_text(encoding="utf-8")))
         self.assertEqual(errors, [])
 
+    def test_explicit_capability_codes_do_not_expand_to_related_products(self) -> None:
+        completed = subprocess.run(
+            ["python3", str(CAPABILITY_SCRIPTS / "select_context.py"),
+             "--country", "MX", "--product-code", "aluminum_formwork"],
+            check=True, capture_output=True, text=True,
+        )
+        result = json.loads(completed.stdout)
+        self.assertEqual(result["contextRef"]["productCodes"], ["aluminum_formwork"])
+        self.assertEqual(result["contextRef"]["status"], "available")
+
     def test_runtime_docs_read_as_a_current_contract(self) -> None:
         forbidden = (
             "ResearchDelta", "ResearchRun", "ClaimSourceLink", "EvidencePackage",

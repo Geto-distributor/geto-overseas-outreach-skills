@@ -73,7 +73,7 @@
 
 researchQueries 固定包含 topic、channel、query、scope、status、checkedOn、resultCount、evidence。status 使用 `found|no_result|partial|failed|not_queried`。
 
-reportFiles 固定包含 `fileName/path/format/reportType/language/generatedOn/description`。assessment 的严格字段和评分规则由 `$geto-diligence-company` 的 lead-assessment-contract 定义。
+reportFiles 固定包含 `fileName/path/format/reportType/language/generatedOn/description`。format 使用 `markdown|docx|pdf|html`；reportType 使用 `diligence|assessment|risk|supplement`。assessment 的严格字段和评分规则由 `$geto-diligence-company` 的 lead-assessment-contract 定义。
 
 ## 分类与角色
 
