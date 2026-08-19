@@ -1,6 +1,6 @@
 ---
 name: geto-map-relationships
-description: 将 GETO 海外市场中已归一的公司、项目、产品与商业协作写入 company.json 的有证据 relationships[]，区分公司角色和关系类型，记录采购方、实际使用方、合作方式、时态、限制与切入点。用于竞对客户关系、项目参与、供应经销、租赁销售、设计协同和联合投标；不创建技术 Key、ResearchDelta、OmniX Draft，也不把 lead、competitor 或 project 当 relationshipType。
+description: 将 GETO 海外市场中已归一的公司、项目、产品与商业协作写入 company.json 的有证据 relationships[]，区分公司角色和关系类型，记录采购方、实际使用方、合作方式、时态、限制与切入点。用于竞对客户关系、项目参与、供应经销、租赁销售、设计协同和联合投标；relationshipType 只表达关系边。
 ---
 
 # GETO 商业关系网梳理

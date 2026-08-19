@@ -4,4 +4,4 @@
 
 每个需确认的竞对指向独立公司目录。客户反查结果只作为主任务的新候选；主任务决定创建背调任务、关联已有 Company 或拒绝。
 
-不得输出本地技术 Key、ResearchDelta、ThreatScore、Draft/Approval 状态或直接 OmniX 写入操作。
+成果以公司自然名称、业务分类、Evidence 和文件路径衔接主任务。

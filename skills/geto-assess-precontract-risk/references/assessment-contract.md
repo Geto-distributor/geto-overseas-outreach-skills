@@ -2,7 +2,7 @@
 
 ## 模型门槛
 
-评估对象是一次明确交易，而不是泛化 Company。请求必须携带批准的 `assessmentModelCode`、`modelVersion` 与 `asOf`。模型缺失或评分规则内部不一致时，状态为 `assessment_draft`，只保存事实、候选分和缺口，不发布总分或等级。
+评估对象是一次明确交易，而不是泛化 Company。请求必须携带批准的 `assessmentModelCode`、`modelVersion` 与 `asOf`。模型缺失或评分规则内部不一致时，只保存事实、候选分和缺口，`overallScore` 与 `grade` 保持空值。
 
 请求还必须携带本次使用的 GETO `capabilityFoundation` 摘要。状态不是 available 时，可继续对手方事实复核，但产品范围、项目经济和最终 decision 保持待复核。
 

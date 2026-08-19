@@ -36,4 +36,4 @@
 }
 ```
 
-每个维度只使用内嵌 Evidence；不得引用 Claim/Source 技术 Key。未完成评分通过 missingInformation 明示原因。
+每个维度使用内嵌 Evidence；未完成评分通过 missingInformation 明示原因。

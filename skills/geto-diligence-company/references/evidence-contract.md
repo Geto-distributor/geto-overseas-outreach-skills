@@ -23,6 +23,4 @@
 
 `companyRoles[]` 只表达开发商、总包、分包、代理顾问项目管理、经销贸易和其他设计咨询监理角色。
 
-## 禁止字段
-
-不得生成 runId、taskId、companyKey、claimKey、sourceKey、ClaimSourceLink、EvidencePackage、ResearchDelta、ownerUserId、identityKey、visibility、deletedAt 或 businessActivities。
+结构化事实以 company.json 为准；`Sources/sources.md` 是从内嵌 Evidence 生成的来源索引。

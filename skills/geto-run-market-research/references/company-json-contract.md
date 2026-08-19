@@ -45,9 +45,7 @@
 }
 ```
 
-本地文件不得包含 `runId`、`taskId`、`companyKey`、`claimKey`、`sourceKey` 或平台管理字段。`businessActivities` 不存在。
-
-`company` 包含 `companyName`、`entityType`、`country`、`status`、`summary`、`researchConclusion` 和 `evidence`。
+`company.json` 只包含上述研究业务字段。`company` 包含 `companyName`、`entityType`、`country`、`status`、`summary`、`researchConclusion` 和 `evidence`。
 
 ## Evidence
 

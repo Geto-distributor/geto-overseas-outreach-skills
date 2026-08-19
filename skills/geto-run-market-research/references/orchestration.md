@@ -13,7 +13,7 @@
 
 `intake → discovery → arbitration → diligence → decision → validation → optional_upload → complete`
 
-主任务在 `progress.md` 为每个检查点记录状态、任务标题、成果路径、接受/拒绝理由、缺口和下一步。不记录内部 thread ID、runId 或 taskId；任务 trace 留在 Codex 自身。
+主任务在 `progress.md` 为每个检查点记录状态、任务标题、成果路径、接受/拒绝理由、缺口和下一步；完整任务 trace 留在 Codex 任务自身。
 
 ## 统一回传
 

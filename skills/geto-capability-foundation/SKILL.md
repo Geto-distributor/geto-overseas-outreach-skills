@@ -41,10 +41,10 @@ python scripts/validate_search_lexicon.py references/search-lexicon.json
 - `$geto-find-leads` 使用关键词做单轨召回，不得据此确认 lead。
 - `$geto-mine-competitor-customers` 使用 competitionSurface 和角色词召回，必须另查官网 Products/Services、商业控制与履约模式。
 - `$geto-diligence-company` 在产品适配和评分时引用本次 CapabilityContext；底座缺失不阻断客观事实背调。
-- `$geto-run-market-research` 在 `progress.md` 记录使用的产品、场景和 SearchLexicon 版本，不生成 ResearchRun 或技术 ID。
+- `$geto-run-market-research` 在 `progress.md` 记录使用的产品、场景和 SearchLexicon 版本。
 
-## 禁止事项
+## 职责边界
 
-- 不调用 Web、TradeWind、网易外贸通或 OmniX。
-- 不直接创建 Company、Project、Relationship、researchClassifications 或 Assessment。
-- 不因关键词命中猜测制造状态、商业控制、竞对资格或客户价值。
+- 本 Skill 只读取本地能力与关键词资产；Web、Provider 和 OmniX 操作由下游研究 Skills 执行。
+- Company、Project、Relationship、researchClassifications 和 Assessment 由相应领域 Skill 创建。
+- 关键词命中只形成召回候选，制造状态、商业控制、竞对资格和客户价值由目标公司 Evidence 决定。

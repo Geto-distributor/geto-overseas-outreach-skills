@@ -1,6 +1,6 @@
 ---
 name: geto-run-market-research
-description: 编排 GETO 海外市场的一次完整或定向调研，以当前用户任务为主任务，按公司角色、Provider 和单公司背调创建用户可见任务，维护国家 progress.md 与本地 ResearchBundle，并在验证通过后可选上传 OmniX。用于国家/地区市场调研、销售线索池、竞对客户挖掘或多模块研究；不使用 ResearchDelta、OmniX Draft/Approval 或跨公司的 subagent 一级编排。
+description: 编排 GETO 海外市场的一次完整或定向调研，以当前用户任务为主任务，按公司角色、Provider 和单公司背调创建用户可见任务，维护国家 progress.md 与本地 ResearchBundle，并在验证通过后可选上传 OmniX。用于国家/地区市场调研、销售线索池、竞对客户挖掘或多模块研究。
 ---
 
 # GETO 海外市场情报总编排
@@ -30,7 +30,7 @@ description: 编排 GETO 海外市场的一次完整或定向调研，以当前�
 python scripts/init_company_workspace.py --country-root '<国家目录>'
 ```
 
-在 `<国家>/progress.md` 记录研究范围、固定检查点和待创建任务。若用户尚未明确授权创建用户可见任务，先征求一次授权；不要用 subagent 替代这些一级任务。
+在 `<国家>/progress.md` 记录研究范围、固定检查点和待创建任务。若用户尚未明确授权创建用户可见任务，先征求一次授权。一级工作使用用户可见任务，subagent 仅用于单任务内部并行。
 
 ### 2. 创建用户可见发现任务
 
@@ -43,7 +43,7 @@ python scripts/init_company_workspace.py --country-root '<国家目录>'
 5. `distributor_trading`
 6. `design_consulting_supervision_other`
 
-竞对发现按产品/技术面和商业角色另行拆分。TradeWind 与网易外贸通启用时各创建一个独立任务，不与 Web 发现混用 trace。使用 Codex 的任务创建、等待、读取和追问能力协调；保留任务自身 trace，不生成 SessionManifest、SessionHandoff 或本地技术 ID。
+竞对发现按产品/技术面和商业角色另行拆分。TradeWind 与网易外贸通启用时各创建一个独立任务。使用 Codex 的任务创建、等待、读取和追问能力协调；`progress.md` 保存业务进度，完整 trace 保留在各自任务中。
 
 ### 3. 收集统一任务回传
 

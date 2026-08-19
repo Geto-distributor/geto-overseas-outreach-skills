@@ -1,6 +1,6 @@
 # GETO Overseas Outreach Skills
 
-GETO 海外市场调研 Skill 家族。V2 以用户可见任务和本地 ResearchBundle 为主：当前国家调研任务负责协调，六类角色、TradeWind、网易外贸通和单公司背调分别使用独立任务；subagent 只在单个任务内部并行。
+GETO 海外市场调研 Skill 家族。当前国家调研任务负责协调，六类角色、TradeWind、网易外贸通和单公司背调分别使用独立任务；subagent 只在单个任务内部并行。研究成果保存在本地 ResearchBundle。
 
 本地交付结构：
 

@@ -1,11 +1,11 @@
 ---
 name: geto-assess-precontract-risk
-description: 对已进入具体合作或签约准备阶段的 GETO 海外客户执行合作前风险评估，把主体、财务、信用诉讼、交易条款、项目经济、硬阻断和缓释条件写入该公司的本地 ResearchBundle。用于报价、授信、合同申请、签约审批或项目成交前复核；不用于前期线索评分，不创建 OmniX Draft/Approval 或 ResearchDelta。
+description: 对已进入具体合作或签约准备阶段的 GETO 海外客户执行合作前风险评估，把主体、财务、信用诉讼、交易条款、项目经济、硬阻断和缓释条件写入该公司的本地 ResearchBundle。用于报价、授信、合同申请、签约审批或项目成交前复核；前期线索价值由公司背调评估。
 ---
 
 # GETO 签约前风险评估
 
-本 Skill 回答“这一明确交易能否按当前条件继续”。评估精确的法定签约主体、具体机会和拟议条款，不再次判断公司是否值得开发。
+本 Skill 回答“这一明确交易能否按当前条件继续”。范围限定为精确的法定签约主体、具体机会和拟议条款。
 
 强依赖 `$geto-diligence-company`。缺少唯一签约主体、具体机会或当前条款时先补证。读取 `$geto-capability-foundation` 核对产品、服务与项目场景；读取 [assessment-contract.md](references/assessment-contract.md) 和 [output-contract.md](references/output-contract.md)。
 

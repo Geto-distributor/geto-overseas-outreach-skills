@@ -149,12 +149,15 @@ class SearchLexiconTests(unittest.TestCase):
         errors = LEXICON_VALIDATOR.validate(json.loads(path.read_text(encoding="utf-8")))
         self.assertEqual(errors, [])
 
-    def test_runtime_contract_has_no_operational_legacy_api(self) -> None:
+    def test_runtime_docs_read_as_a_current_contract(self) -> None:
         forbidden = (
-            "/api/market-intelligence/v1", "/api/market-intelligence/v2",
-            "draftOperations", "deliveryStatus=blocked_market_unavailable",
+            "ResearchDelta", "ResearchRun", "ClaimSourceLink", "EvidencePackage",
+            "runId", "taskId", "claimKey", "sourceKey", "OmniX Draft",
+            "Draft/Approval", "blocked_market_unavailable", "旧接口", "fallback",
+            "不再", "取代", "迁移",
         )
-        documents = list((ROOT / "skills").glob("geto-*/SKILL.md"))
+        documents = [ROOT / "README.md"]
+        documents.extend((ROOT / "skills").glob("geto-*/SKILL.md"))
         documents.extend((ROOT / "skills").glob("geto-*/references/*.md"))
         for document in documents:
             if document.name.endswith(" 2.md"):

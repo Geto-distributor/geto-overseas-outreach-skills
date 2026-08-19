@@ -44,7 +44,7 @@ TradeWind 和网易外贸通只作为独立 Provider 任务返回的 ExternalObs
 
 ### 5. 写入内嵌 Evidence
 
-把事实写入 `company.json` 对应 item，每个主要列表 item 自带 `evidence[]`。Evidence 关系只用 `supports|refutes|context`；冲突来源全部保留，不以数量投票。不生成 Claim、Source、ClaimSourceLink、EvidencePackage、companyKey、claimKey 或 sourceKey。
+把事实写入 `company.json` 对应 item，每个主要列表 item 自带 `evidence[]`。Evidence 关系只用 `supports|refutes|context`；冲突来源全部保留，不以数量投票。最终从全部内嵌 Evidence 生成 `Sources/sources.md`。
 
 ### 6. 产品商业角色与竞对事实
 
@@ -69,4 +69,4 @@ TradeWind 和网易外贸通只作为独立 Provider 任务返回的 ExternalObs
 
 ## 任务回传
 
-结束时向主任务回传：做了什么、主要发现、公司目录与报告路径、lead/competitor 接受或拒绝理由、身份/证据冲突、未完成缺口、建议下一步。不要直接写 OmniX，也不要把上传失败当成背调失败。
+结束时向主任务回传：做了什么、主要发现、公司目录与报告路径、lead/competitor 接受或拒绝理由、身份/证据冲突、未完成缺口、建议下一步。主任务在本地验证后决定是否上传 OmniX。
