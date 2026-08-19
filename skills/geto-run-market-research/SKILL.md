@@ -71,7 +71,8 @@ python scripts/init_company_workspace.py --workspace-root '<ResearchBundle>' \
 
 ### 6. 评分、关系与风险
 
-- `$geto-find-leads` 聚合已完成单公司背调后的六维评分，不重新计算单公司结果。
+- `$geto-find-leads` 在主任务收齐单公司 observedScore/Evidence 后，按国家×同类型角色生成 cohort baseline，并以同一 baselineVersion 批量计算或重算长期客户价值。
+- 有明确原始询盘时使用 `$geto-diligence-inquiry` 生成不依赖 cohort 的询盘准备度；它不替代长期客户价值。
 - `$geto-map-relationships` 只对已归一公司/项目建立 typed Relationship。
 - `$geto-assess-precontract-risk` 仅在具体交易、签约主体和条款已明确时运行。
 

@@ -37,6 +37,7 @@
   "risks": [],
   "researchQueries": [],
   "assessment": {"status": "not_requested"},
+  "inquiryAssessment": {"status": "not_requested"},
   "missingInformation": [],
   "recommendedActions": [],
   "additionalInformation": [],
@@ -73,7 +74,7 @@
 
 researchQueries 固定包含 topic、channel、query、scope、status、checkedOn、resultCount、evidence。status 使用 `found|no_result|partial|failed|not_queried`。
 
-reportFiles 固定包含 `fileName/path/format/reportType/language/generatedOn/description`。format 使用 `markdown|docx|pdf|html`；reportType 使用 `diligence|assessment|risk|supplement`。assessment 的严格字段和评分规则由 `$geto-diligence-company` 的 lead-assessment-contract 定义。
+reportFiles 固定包含 `fileName/path/format/reportType/language/generatedOn/description`。format 使用 `markdown|docx|pdf|html`；reportType 使用 `diligence|assessment|risk|supplement`。长期价值 assessment 的两阶段评分由 `$geto-diligence-company` 和 `$geto-find-leads` 定义；询盘准备度 inquiryAssessment 由 `$geto-diligence-inquiry` 定义。
 
 ## 分类与角色
 

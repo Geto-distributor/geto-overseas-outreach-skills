@@ -43,17 +43,18 @@ SECRET_PATTERNS = (
 )
 ASSESSMENT_STATUSES = {
     "not_requested", "pending_model", "pending_capability_foundation",
-    "incomplete_evidence", "completed",
+    "incomplete_evidence", "pending_cohort_baseline", "completed",
 }
 ASSESSMENT_FIELDS = {
     "assessmentType", "status", "modelCode", "modelVersion", "ratingScaleVersion",
     "capabilityContext", "grade", "overallScore", "informationCompleteness",
     "overallConclusion", "assessedOn", "dimensions", "capCodes", "gapCodes",
+    "cohortKey", "cohortBaselineVersion", "cohortAsOf",
 }
 DIMENSION_FIELDS = {
     "dimensionCode", "name", "observedScore", "finalDimensionScore", "maxScore",
     "evidenceGrade", "evidenceWeight", "level", "rationale", "evidence",
-    "gapCodes", "capCodes",
+    "gapCodes", "capCodes", "baselineScore", "baselinePolicy",
 }
 CAPABILITY_CONTEXT_FIELDS = {
     "foundationKey", "foundationVersion", "asOf", "status", "contentHash",
@@ -64,6 +65,23 @@ REPORT_FILE_FIELDS = {
 }
 RESEARCH_QUERY_FIELDS = {
     "topic", "channel", "query", "scope", "status", "checkedOn", "resultCount", "evidence",
+}
+INQUIRY_ASSESSMENT_STATUSES = {"not_requested", "incomplete_inquiry", "completed"}
+INQUIRY_ASSESSMENT_FIELDS = {
+    "assessmentType", "status", "modelCode", "modelVersion", "inquiryRef",
+    "grade", "overallScore", "overallConclusion", "assessedOn", "dimensions",
+    "hardBlockCodes", "gapCodes",
+}
+INQUIRY_DIMENSION_FIELDS = {
+    "dimensionCode", "name", "score", "maxScore", "rationale", "evidence", "gapCodes",
+}
+INQUIRY_DIMENSIONS = {
+    "identity_confidence": 15,
+    "requirement_specificity": 20,
+    "project_readiness": 20,
+    "reachability_authority": 15,
+    "commercial_payment_readiness": 15,
+    "technical_product_fit": 15,
 }
 LEAD_DIMENSIONS = {
     "project_city_value": 15,
@@ -95,6 +113,7 @@ def empty_company(company_name: str = "", country: str = "", country_code: str =
     }
     value.update({field: [] for field in ARRAY_FIELDS})
     value["assessment"] = {"status": "not_requested"}
+    value["inquiryAssessment"] = {"status": "not_requested"}
     value["researchStatus"] = "completed_with_gaps"
     value["lastResearchedOn"] = date.today().isoformat()
     return value
@@ -197,6 +216,8 @@ def _validate_assessment(assessment: Any) -> list[str]:
         errors.append("$.assessment.modelVersion must be 2026-07-29")
     if assessment.get("ratingScaleVersion") != "value-status-2026-07-29":
         errors.append("$.assessment.ratingScaleVersion must be value-status-2026-07-29")
+    if not assessment.get("cohortKey"):
+        errors.append("$.assessment.cohortKey is required")
     for field in ("modelVersion", "ratingScaleVersion", "overallConclusion", "assessedOn"):
         if not assessment.get(field):
             errors.append(f"$.assessment.{field} is required")
@@ -260,6 +281,8 @@ def _validate_assessment(assessment: Any) -> list[str]:
             evidence = []
         if dimension.get("finalDimensionScore") is not None and not evidence:
             errors.append(f"{path}: a scored dimension requires Evidence")
+        if not dimension.get("baselinePolicy"):
+            errors.append(f"{path}.baselinePolicy is required")
         for evidence_index, source in enumerate(evidence):
             _validate_evidence_item(source, f"{path}.evidence[{evidence_index}]", errors)
         for field in ("gapCodes", "capCodes"):
@@ -273,6 +296,8 @@ def _validate_assessment(assessment: Any) -> list[str]:
             errors.append("$.assessment: completed assessment requires overallScore and grade")
         if assessment.get("informationCompleteness") is None:
             errors.append("$.assessment: completed assessment requires informationCompleteness")
+        if not assessment.get("cohortBaselineVersion") or not assessment.get("cohortAsOf"):
+            errors.append("$.assessment: completed assessment requires cohortBaselineVersion and cohortAsOf")
         if assessment.get("grade") not in {
             "verified_high_value", "high_potential_needs_evidence", "routine_follow_up", "watch"
         }:
@@ -284,6 +309,96 @@ def _validate_assessment(assessment: Any) -> list[str]:
     else:
         if assessment.get("overallScore") is not None or assessment.get("grade") is not None:
             errors.append("$.assessment: non-completed assessment cannot contain overallScore or grade")
+        if assessment.get("cohortBaselineVersion") is not None or assessment.get("cohortAsOf") is not None:
+            errors.append("$.assessment: non-completed assessment cannot contain cohort baseline metadata")
+    return errors
+
+
+def _validate_inquiry_assessment(assessment: Any) -> list[str]:
+    errors: list[str] = []
+    if not isinstance(assessment, dict):
+        return ["$.inquiryAssessment must be an object"]
+    status = assessment.get("status")
+    if status not in INQUIRY_ASSESSMENT_STATUSES:
+        return ["$.inquiryAssessment.status has an invalid value"]
+    if status == "not_requested":
+        if set(assessment) != {"status"}:
+            errors.append("$.inquiryAssessment: not_requested permits only the status field")
+        return errors
+    unknown = sorted(set(assessment) - INQUIRY_ASSESSMENT_FIELDS)
+    missing = sorted(INQUIRY_ASSESSMENT_FIELDS - set(assessment))
+    if unknown:
+        errors.append(f"$.inquiryAssessment has unsupported fields: {', '.join(unknown)}")
+    if missing:
+        errors.append(f"$.inquiryAssessment is missing required fields: {', '.join(missing)}")
+    if assessment.get("assessmentType") != "inquiry_readiness":
+        errors.append("$.inquiryAssessment.assessmentType must be inquiry_readiness")
+    if assessment.get("modelCode") != "GETO_INQUIRY_READINESS":
+        errors.append("$.inquiryAssessment.modelCode must be GETO_INQUIRY_READINESS")
+    if assessment.get("modelVersion") != "2026-08-19":
+        errors.append("$.inquiryAssessment.modelVersion must be 2026-08-19")
+    if not assessment.get("inquiryRef"):
+        errors.append("$.inquiryAssessment.inquiryRef is required")
+    if not _validate_date(assessment.get("assessedOn")):
+        errors.append("$.inquiryAssessment.assessedOn must use YYYY-MM-DD")
+    for field in ("hardBlockCodes", "gapCodes"):
+        if not isinstance(assessment.get(field), list):
+            errors.append(f"$.inquiryAssessment.{field} must be an array")
+    dimensions = assessment.get("dimensions")
+    if not isinstance(dimensions, list):
+        errors.append("$.inquiryAssessment.dimensions must be an array")
+        dimensions = []
+    seen: set[str] = set()
+    total = 0.0
+    for index, dimension in enumerate(dimensions):
+        path = f"$.inquiryAssessment.dimensions[{index}]"
+        if not isinstance(dimension, dict):
+            errors.append(f"{path} must be an object")
+            continue
+        unknown_dimension = sorted(set(dimension) - INQUIRY_DIMENSION_FIELDS)
+        missing_dimension = sorted(INQUIRY_DIMENSION_FIELDS - set(dimension))
+        if unknown_dimension:
+            errors.append(f"{path} has unsupported fields: {', '.join(unknown_dimension)}")
+        if missing_dimension:
+            errors.append(f"{path} is missing fields: {', '.join(missing_dimension)}")
+        code = dimension.get("dimensionCode")
+        if code not in INQUIRY_DIMENSIONS:
+            errors.append(f"{path}.dimensionCode has an invalid value")
+        elif dimension.get("maxScore") != INQUIRY_DIMENSIONS[code]:
+            errors.append(f"{path}.maxScore does not match the inquiry model")
+        if code in seen:
+            errors.append(f"{path}.dimensionCode is duplicated")
+        seen.add(str(code))
+        score = dimension.get("score")
+        if score is not None and (
+            not isinstance(score, (int, float)) or isinstance(score, bool)
+            or not 0 <= score <= INQUIRY_DIMENSIONS.get(code, 0)
+        ):
+            errors.append(f"{path}.score is outside the inquiry model range")
+        if isinstance(score, (int, float)) and not isinstance(score, bool):
+            total += float(score)
+        evidence = dimension.get("evidence")
+        if not isinstance(evidence, list):
+            errors.append(f"{path}.evidence must be an array")
+            evidence = []
+        if isinstance(score, (int, float)) and score > 0 and not evidence:
+            errors.append(f"{path}: positive readiness score requires Evidence")
+        for evidence_index, source in enumerate(evidence):
+            _validate_evidence_item(source, f"{path}.evidence[{evidence_index}]", errors)
+        if not isinstance(dimension.get("gapCodes"), list):
+            errors.append(f"{path}.gapCodes must be an array")
+    if status == "completed":
+        if seen != set(INQUIRY_DIMENSIONS):
+            errors.append("$.inquiryAssessment: completed assessment requires the approved six dimensions")
+        if assessment.get("overallScore") is None or assessment.get("grade") not in {
+            "ready_for_quotation", "qualified_needs_clarification",
+            "nurture_or_verify", "high_risk_or_unqualified",
+        }:
+            errors.append("$.inquiryAssessment: completed assessment requires a valid score and grade")
+        if isinstance(assessment.get("overallScore"), (int, float)) and assessment["overallScore"] > total:
+            errors.append("$.inquiryAssessment.overallScore cannot exceed the dimension total")
+    elif assessment.get("overallScore") is not None or assessment.get("grade") is not None:
+        errors.append("$.inquiryAssessment: incomplete assessment cannot contain overallScore or grade")
     return errors
 
 
@@ -437,6 +552,7 @@ def validate_company(value: Any) -> tuple[list[str], list[str], list[str]]:
             warnings.append(f"$.missingInformation[{index}]: unresolved {item.get('status')}")
 
     errors.extend(_validate_assessment(value.get("assessment")))
+    errors.extend(_validate_inquiry_assessment(value.get("inquiryAssessment")))
 
     for index, report_file in enumerate(value.get("reportFiles", [])):
         path = f"$.reportFiles[{index}]"

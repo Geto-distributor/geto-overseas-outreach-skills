@@ -10,15 +10,15 @@
 - 证据等级：`A=1.0`、`B=0.75`、`C=0.5`、`U=0`
 - 六维满分依次为 15、20、20、10、15、20，总分 100。
 
-`finalDimensionScore=min(observedScore, dimensionCap)×evidenceWeight`。信息完整度是六维 `maxScore×evidenceWeight` 的合计百分比。总分再应用模型中的整体 cap；等级由 `ratingRules` 顺序判定。
+单公司任务不生成最终分。它提交 observedScore、evidenceWeight 和 cohortKey；国家主任务形成同类型中位数 P 后统一执行 `Fᵢ=qᵢOᵢ+(1-qᵢ)Pᵢ`。信息完整度仍是六维 `maxScore×evidenceWeight` 的合计百分比。
 
 ## 门禁
 
 - `assessmentMode=lead_value`。
 - `researchStatus=completed|completed_with_gaps`，主体身份稳定。
 - `$geto-capability-foundation` 返回的 `contextRef.status=available`，并把 `contextRef` 原样写入 `assessment.capabilityContext`。
-- 每个计分维度都有 observedScore、A/B/C 证据等级、判断理由和内嵌 Evidence。
-- 未满足门禁时使用 `pending_capability_foundation|incomplete_evidence`，overallScore 与 grade 为 null。
+- 每个维度写 observedScore、A/B/C/U 证据等级、判断理由和内嵌 Evidence；未知使用 U/null，确认不存在使用有证据的 0。
+- 使用 `cohortKey=<ISO2>:<companyRole>`，单公司状态为 `pending_cohort_baseline`，baselineScore、finalDimensionScore、overallScore 和 grade 为 null。
 
 ## 六维
 
@@ -45,9 +45,12 @@ python '<geto-capability-foundation-dir>/scripts/select_context.py' \
 ```bash
 python '<geto-diligence-company-dir>/scripts/calculate_lead_assessment.py' \
   '<公司目录>/company.json' \
-  --capability-context '<context.json>' --assessed-on 'YYYY-MM-DD'
+  --capability-context '<context.json>' --cohort-key '<ISO2>:<companyRole>' \
+  --assessed-on 'YYYY-MM-DD'
 ```
 
-脚本写入严格的 assessment 结构并原子替换 company.json。capCodes 只使用模型文件定义的代码；不能用注册资本推断支付能力，也不能为缺失维度补猜分。
+脚本写入严格的单公司评分输入并原子替换 company.json。capCodes 只使用模型文件定义的代码；不能用注册资本推断支付能力，也不能在单公司任务中查找或猜测同类型基线。
+
+最终分由主会话使用 `$geto-find-leads` 的 cohort 脚本批量生成。任何 cohort 维度少于 5 家合格观察时，该 cohort 全部保持 pending，不能使用不同时点的临时分排序。
 
 单公司 validator 会要求 `RisksAndAssessment/capability-context.json`，并逐字段核对它与 `assessment.capabilityContext`。

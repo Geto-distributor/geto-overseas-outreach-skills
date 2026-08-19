@@ -1,6 +1,6 @@
 ---
 name: geto-diligence-company
-description: 对 GETO 海外市场中的单一目标公司执行深度背调，输出自然公司名目录、company.json、内嵌 Evidence、按需模块资料与 report.md，并可在背调后按 assessmentMode 生成六维客户价值评估。用于一家公司一个独立任务的线索或竞对背调、主体冲突和询盘核查；不负责广泛找公司、跨公司排名或直接上传 OmniX。
+description: 对 GETO 海外市场中的单一目标公司执行深度背调，输出自然公司名目录、company.json、内嵌 Evidence、按需模块资料与 report.md，并可准备长期客户价值的六维观察输入。用于一家公司一个独立任务的线索或竞对背调与主体冲突核查；明确原始询盘使用 geto-diligence-inquiry，不负责广泛找公司、跨公司最终评分或直接上传 OmniX。
 ---
 
 # GETO 单公司背调
@@ -68,7 +68,7 @@ TradeWind 和网易外贸通只作为独立 Provider 任务返回的 ExternalObs
 
 ### 8. 可选评分与报告
 
-`assessmentMode=lead_value` 时，使用 [lead-value-model.json](references/lead-value-model.json) 的 components、factAnchors 和 evidenceGradeRules，并把能力底座直接 contextRef 保存到 `RisksAndAssessment/capability-context.json`。先填写六维观察分、证据等级与 Evidence，再运行 `<geto-diligence-company-dir>/scripts/calculate_lead_assessment.py`；脚本按门禁生成明确状态、总分和等级。评分不改变 competitor 分类。
+`assessmentMode=lead_value` 时，使用 [lead-value-model.json](references/lead-value-model.json) 的 components、factAnchors 和 evidenceGradeRules，并把能力底座直接 contextRef 保存到 `RisksAndAssessment/capability-context.json`。填写六维观察分、证据等级与 Evidence，再运行 `<geto-diligence-company-dir>/scripts/calculate_lead_assessment.py`，输出 pending_cohort_baseline 输入。总分和等级由国家主任务收齐同类型公司后统一计算。评分不改变 competitor 分类。
 
 `company.json` 是事实与评估的唯一权威结构化来源；`report.md` 是由它组织的可读结论。模块 Markdown 仅保存原始材料、查询日志或扩展分析，按实际内容创建，不手工维护第二份事实表。
 

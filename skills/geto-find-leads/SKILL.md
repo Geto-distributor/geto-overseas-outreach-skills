@@ -23,7 +23,7 @@ description: 为 GETO 在指定国家或地区按单一公司角色轨道发现�
 4. 初筛每个候选是否可能采购、使用、影响选型或经销 GETO 产品。目录命中或宽泛行业描述只能标 possible。
 5. 对每个候选记录发现来源、目标角色、目标产品、接受/拒绝理由、开放问题和推荐背调优先级。
 6. 不在本任务深调全部公司；把入选候选交回主任务，由主任务创建一家公司一个 `$geto-diligence-company` 任务。
-7. 评分时只聚合单公司背调返回的已完成同版本 Assessment；不得重算维度、总分或等级。
+7. 单公司任务返回同版本 observedScore、evidenceGrade、Evidence 和 cohortKey 后，主任务读取 [cohort-assessment-contract.md](references/cohort-assessment-contract.md)。每个 cohort 维度至少 5 家合格观察时运行 `scripts/calculate_lead_cohort.py`，生成版本化中位数基线并批量回写整个 cohort。新成员或观察输入变化时统一重算，不能混排不同 baselineVersion。
 
 输出合同见 [output-contract.md](references/output-contract.md)。
 

@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Create the canonical GETO lead-value assessment from evidenced dimension inputs."""
+"""Prepare one company's evidenced lead-value inputs for main-task cohort scoring."""
 
 from __future__ import annotations
 
@@ -53,7 +53,10 @@ def level(score: float, anchors: dict[str, list[float]]) -> str:
     return "low"
 
 
-def calculate(company: dict[str, Any], model: dict[str, Any], capability: dict[str, Any] | None, assessed_on: str) -> dict[str, Any]:
+def calculate(
+    company: dict[str, Any], model: dict[str, Any], capability: dict[str, Any] | None,
+    assessed_on: str, cohort_key: str | None = None,
+) -> dict[str, Any]:
     if model.get("approvalStatus") != "approved":
         raise ValueError("lead-value model is not approved")
     existing = company.get("assessment") if isinstance(company.get("assessment"), dict) else {}
@@ -65,9 +68,9 @@ def calculate(company: dict[str, Any], model: dict[str, Any], capability: dict[s
     cap_codes = sorted(set(existing.get("capCodes", [])))
     gap_codes = sorted(set(existing.get("gapCodes", [])))
     dimensions: list[dict[str, Any]] = []
-    complete = True
     weighted_completeness = 0.0
-    final_total = 0.0
+    cohort_key = cohort_key or existing.get("cohortKey")
+    cohort_policies = model.get("cohortPolicy", {}).get("dimensionPolicies", {})
 
     for definition in model["dimensions"]:
         item = supplied.get(definition["dimensionCode"], {})
@@ -82,22 +85,24 @@ def calculate(company: dict[str, Any], model: dict[str, Any], capability: dict[s
                 dimension_cap,
                 model.get("dimensionCaps", {}).get(code, {}).get(definition["dimensionCode"], dimension_cap),
             )
-        final = None
         if isinstance(observed, (int, float)) and 0 <= observed <= definition["maxScore"] and grade in {"A", "B", "C"} and evidence:
-            final = round(min(float(observed), float(dimension_cap)) * weight, 2)
             weighted_completeness += definition["maxScore"] * weight
-            final_total += final
         else:
-            complete = False
+            observed = None
+            grade = "U"
+            weight = 0.0
+        policy = cohort_policies.get(definition["dimensionCode"], {})
         dimensions.append({
             "dimensionCode": definition["dimensionCode"],
             "name": definition["name"],
             "observedScore": observed if isinstance(observed, (int, float)) else None,
-            "finalDimensionScore": final,
+            "baselineScore": None,
+            "baselinePolicy": str(policy.get("mode") or "median_capped"),
+            "finalDimensionScore": None,
             "maxScore": definition["maxScore"],
             "evidenceGrade": grade if grade in model["evidenceWeights"] else "U",
             "evidenceWeight": weight,
-            "level": level(final, definition["anchors"]) if final is not None else "unknown",
+            "level": level(float(observed), definition["anchors"]) if observed is not None else "unknown",
             "rationale": str(item.get("rationale") or "待补充本维度证据与判断。"),
             "evidence": evidence,
             "gapCodes": sorted(set(item.get("gapCodes", []))),
@@ -105,32 +110,12 @@ def calculate(company: dict[str, Any], model: dict[str, Any], capability: dict[s
         })
 
     capability_available = bool(capability and capability.get("status") == "available")
-    status = "completed" if capability_available and complete else (
+    status = "pending_cohort_baseline" if capability_available and cohort_key else (
         "pending_capability_foundation" if not capability_available else "incomplete_evidence"
     )
     completeness = round(weighted_completeness, 2)
-    overall = None
-    grade = None
-    if status == "completed":
-        overall = round(final_total, 2)
-        for code in cap_codes:
-            if code in model.get("caps", {}):
-                overall = min(overall, float(model["caps"][code]))
-        by_code = {item["dimensionCode"]: item["finalDimensionScore"] for item in dimensions}
-        for rule in model["ratingRules"]:
-            if overall < rule["minimumScore"]:
-                continue
-            if completeness < rule.get("minimumCompleteness", 0):
-                continue
-            if completeness >= rule.get("maximumCompletenessExclusive", 101):
-                continue
-            if any(by_code.get(code, 0) < floor for code, floor in rule.get("dimensionFloors", {}).items()):
-                continue
-            if set(cap_codes).intersection(rule.get("forbiddenCapCodes", [])):
-                continue
-            grade = rule["grade"]
-            break
-        grade = grade or "watch"
+    if status == "pending_cohort_baseline":
+        gap_codes = sorted(set(gap_codes + ["cohort_baseline_required"]))
 
     return {
         "assessmentType": "lead_value",
@@ -144,11 +129,15 @@ def calculate(company: dict[str, Any], model: dict[str, Any], capability: dict[s
             "productCodes": [], "scenarioCodes": [], "roleCodes": [], "caseKeys": [],
             "gapCodes": ["capability_context_unavailable"],
         },
-        "grade": grade,
-        "overallScore": overall,
+        "cohortKey": cohort_key,
+        "cohortBaselineVersion": None,
+        "cohortAsOf": None,
+        "grade": None,
+        "overallScore": None,
         "informationCompleteness": completeness,
         "overallConclusion": str(existing.get("overallConclusion") or (
-            "六维证据与能力底座满足评分门禁。" if status == "completed" else "评分门禁尚未满足，按 gapCodes 补证。"
+            "单公司观察输入已完成，等待主任务生成同类型 cohort baseline 并统一评分。"
+            if status == "pending_cohort_baseline" else "评分输入门禁尚未满足，按 gapCodes 补证。"
         )),
         "assessedOn": assessed_on,
         "dimensions": dimensions,
@@ -163,13 +152,14 @@ def main() -> int:
     parser.add_argument("--capability-context")
     parser.add_argument("--model", default=str(DEFAULT_MODEL))
     parser.add_argument("--assessed-on", default=date.today().isoformat())
+    parser.add_argument("--cohort-key", required=True, help="Canonical countryCode:companyRole cohort key")
     args = parser.parse_args()
 
     company_path = Path(args.company_json).expanduser().resolve()
     model = load_json(Path(args.model).expanduser().resolve())
     capability = context_ref(load_json(Path(args.capability_context).expanduser().resolve())) if args.capability_context else None
     company = load_json(company_path)
-    company["assessment"] = calculate(company, model, capability, args.assessed_on)
+    company["assessment"] = calculate(company, model, capability, args.assessed_on, args.cohort_key)
     atomic_write(company_path, company)
     print(json.dumps({"companyJson": str(company_path), "assessment": company["assessment"]}, ensure_ascii=False, indent=2))
     return 0

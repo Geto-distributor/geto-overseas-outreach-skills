@@ -125,6 +125,7 @@
   ],
   "risks": [],
   "assessment": {"status": "not_requested"},
+  "inquiryAssessment": {"status": "not_requested"},
   "missingInformation": [
     {
       "topic": "contracting and paying entities",

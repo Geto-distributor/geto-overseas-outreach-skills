@@ -32,19 +32,22 @@
 | 能力工件闭环 | completed | selector `--output`、固定 sidecar 路径、validator 逐字段一致性检查 |
 | INFO 汇总视图 | completed | 默认输出分类计数，`--include-infos` 输出逐条明细 |
 | Provider 联系人桥接 | completed | email_only + workEmail.deliverability 证据范围；任职/授权独立补证 |
+| 长期价值评分时序 | completed | 单公司观察输入 → 主会话同类型 cohort 中位数 → 同版本批量回写 |
+| 独立询盘背调 | completed | `geto-diligence-inquiry` 固定准备度评分，不使用 cohort 插补 |
 
 ## 验证
 
-- GETO 仓库 validator：7 Skills passed。
-- skill-creator quick_validate：7 个 GETO Skills、omnix-market、netease-waimao、tradewind-api 均 passed。
-- GETO ResearchBundle/SearchLexicon/评分/并发/能力工件回归：19 tests passed。
+- GETO 仓库 validator：8 Skills passed。
+- skill-creator quick_validate：8 个 GETO Skills、omnix-market、netease-waimao、tradewind-api 均 passed。
+- GETO ResearchBundle/SearchLexicon/cohort/询盘/并发/能力工件回归：21 tests passed。
 - OmniX unversioned API 合同回归：9 tests passed。
 - 网易外贸通既有安全回归：11 tests passed。
 - Freecity、Electron company.json：均 0 ERROR / 0 WARNING。
 - ResearchBundle 端到端 smoke：规范国家目录 init → 单公司 validate → 国家 validate，均 0 ERROR / 0 WARNING / 0 INFO。
 - CapabilityContext：真实产品 code 切片返回 available contextRef，固定版本与 codes 完整。
 - 四家公司第二轮当前合同产物：合计 0 ERROR / 2 真实 WARNING / 59 INFO；国家目录、严格 assessment/reportFiles、精确 contextRef、Sources 与并发 progress 全部通过。
-- 第二轮评分：Estudio 28.5/watch；Proas incomplete_evidence、score/grade=null；Arnold's House 25.75/watch；沙特客户 12.5/watch。
+- 长期价值当前规则：四家公司单独背调只保留 observedScore/Evidence；同类型 cohort 每个维度达到 5 家后，由主任务统一生成可比较的最终分。
+- 询盘当前规则：四条询盘使用 `geto-diligence-inquiry` 的固定 readiness 口径单独评分，不等待 cohort。
 - 第三轮契约工件烟测：四份标准 sidecar 均位于 `RisksAndAssessment/capability-context.json`，与 assessment 逐字段一致且无重复/空目录；四份 company.json 哈希未变。
 - INFO 汇总烟测：四家公司默认均 `infos=[]` 且分类计数正确；Proas 使用 `--include-infos` 完整展开 16 条，开关通过。
 - credential/private artifact scan：passed。

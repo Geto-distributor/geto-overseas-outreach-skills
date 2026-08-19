@@ -12,6 +12,8 @@ ROOT = Path(__file__).resolve().parents[1]
 RUN_SCRIPTS = ROOT / "skills/geto-run-market-research/scripts"
 CAPABILITY_SCRIPTS = ROOT / "skills/geto-capability-foundation/scripts"
 DILIGENCE_SCRIPTS = ROOT / "skills/geto-diligence-company/scripts"
+FIND_LEADS_SCRIPTS = ROOT / "skills/geto-find-leads/scripts"
+INQUIRY_SCRIPTS = ROOT / "skills/geto-diligence-inquiry/scripts"
 
 
 def load_module(name: str, path: Path):
@@ -30,6 +32,8 @@ SOURCE_BUILDER = load_module("build_deduplicated_sources", RUN_SCRIPTS / "build_
 WORKSPACE_VALIDATOR = load_module("validate_workspace", RUN_SCRIPTS / "validate_workspace.py")
 LEXICON_VALIDATOR = load_module("validate_search_lexicon", CAPABILITY_SCRIPTS / "validate_search_lexicon.py")
 ASSESSMENT_CALCULATOR = load_module("calculate_lead_assessment", DILIGENCE_SCRIPTS / "calculate_lead_assessment.py")
+COHORT_CALCULATOR = load_module("calculate_lead_cohort", FIND_LEADS_SCRIPTS / "calculate_lead_cohort.py")
+INQUIRY_CALCULATOR = load_module("calculate_inquiry_readiness", INQUIRY_SCRIPTS / "calculate_inquiry_readiness.py")
 
 
 def evidence(url: str = "https://example.com/product") -> dict[str, object]:
@@ -216,7 +220,7 @@ class ResearchBundleValidationTests(unittest.TestCase):
         self.assertIn("task:company_a:start", text)
         self.assertIn("task:company_b:start", text)
 
-    def test_approved_model_calculates_six_dimensions(self) -> None:
+    def test_single_company_prepares_inputs_without_final_score(self) -> None:
         company = base_company()
         model = json.loads((ROOT / "skills/geto-diligence-company/references/lead-value-model.json").read_text())
         company["assessment"] = {"dimensions": [
@@ -231,12 +235,16 @@ class ResearchBundleValidationTests(unittest.TestCase):
             "productCodes": ["FORMWORK"], "scenarioCodes": [], "roleCodes": [],
             "caseKeys": [], "gapCodes": [],
         }
-        assessment = ASSESSMENT_CALCULATOR.calculate(company, model, capability, "2026-08-19")
+        assessment = ASSESSMENT_CALCULATOR.calculate(
+            company, model, capability, "2026-08-19", "AU:main_contractor"
+        )
         company["assessment"] = assessment
         errors, _, _ = RESEARCH_BUNDLE.validate_company(company)
         self.assertEqual(errors, [])
-        self.assertEqual(assessment["overallScore"], 100)
-        self.assertEqual(assessment["grade"], "verified_high_value")
+        self.assertEqual(assessment["status"], "pending_cohort_baseline")
+        self.assertIsNone(assessment["overallScore"])
+        self.assertIsNone(assessment["grade"])
+        self.assertTrue(all(item["baselineScore"] is None for item in assessment["dimensions"]))
 
     def test_workspace_requires_direct_matching_capability_artifact(self) -> None:
         company = base_company()
@@ -253,7 +261,9 @@ class ResearchBundleValidationTests(unittest.TestCase):
             "productCodes": ["aluminum_formwork"], "scenarioCodes": [], "roleCodes": [],
             "caseKeys": [], "gapCodes": [],
         }
-        company["assessment"] = ASSESSMENT_CALCULATOR.calculate(company, model, capability, "2026-08-19")
+        company["assessment"] = ASSESSMENT_CALCULATOR.calculate(
+            company, model, capability, "2026-08-19", "AU:main_contractor"
+        )
         with tempfile.TemporaryDirectory() as directory:
             root = Path(directory) / "AU-Australia"
             company_dir = root / "companies" / "Example"
@@ -269,6 +279,83 @@ class ResearchBundleValidationTests(unittest.TestCase):
             context_file.write_text(json.dumps(capability), encoding="utf-8")
             errors, _, _ = WORKSPACE_VALIDATOR.validate(root, company_dir)
         self.assertEqual(errors, [])
+
+    def test_main_task_requires_five_peers_then_batch_scores_one_version(self) -> None:
+        model = json.loads((ROOT / "skills/geto-diligence-company/references/lead-value-model.json").read_text())
+        capability = {
+            "foundationKey": "geto:capability-foundation", "foundationVersion": "2026-08-11",
+            "asOf": "2026-08-11", "status": "available", "contentHash": "sha256:test",
+            "productCodes": ["aluminum_formwork"], "scenarioCodes": [], "roleCodes": [],
+            "caseKeys": [], "gapCodes": [],
+        }
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory) / "AU-Australia"
+            for index in range(6):
+                company = RESEARCH_BUNDLE.empty_company(f"Company {index}", "Australia", "AU")
+                company["assessment"] = {"dimensions": [
+                    {
+                        "dimensionCode": item["dimensionCode"],
+                        "observedScore": (
+                            None if index == 5 and item["dimensionCode"] in {"account_scale", "payment_capacity"}
+                            else item["maxScore"]
+                        ),
+                        "evidenceGrade": (
+                            "U" if index == 5 and item["dimensionCode"] in {"account_scale", "payment_capacity"}
+                            else "A"
+                        ),
+                        "rationale": "Verified", "evidence": [evidence()],
+                        "gapCodes": [], "capCodes": [],
+                    }
+                    for item in model["dimensions"]
+                ], "capCodes": [], "gapCodes": [], "overallConclusion": "Prepared"}
+                company["assessment"] = ASSESSMENT_CALCULATOR.calculate(
+                    company, model, capability, "2026-08-19", "AU:main_contractor"
+                )
+                company_dir = root / "companies" / f"Company {index}"
+                company_dir.mkdir(parents=True)
+                (company_dir / "company.json").write_text(json.dumps(company), encoding="utf-8")
+                if index == 3:
+                    pending_result = COHORT_CALCULATOR.score_country(root, model, "2026-08-19")
+
+            result = COHORT_CALCULATOR.score_country(root, model, "2026-08-19")
+            scored = [
+                json.loads(path.read_text(encoding="utf-8"))
+                for path in sorted((root / "companies").glob("*/company.json"))
+            ]
+            versions = {item["assessment"]["cohortBaselineVersion"] for item in scored}
+            sixth = next(item for item in scored if item["company"]["companyName"] == "Company 5")
+        self.assertEqual(len(pending_result["pendingCompanyFiles"]), 4)
+        self.assertEqual(len(result["updatedCompanyFiles"]), 6)
+        self.assertEqual(len(versions), 1)
+        self.assertTrue(all(item["assessment"]["status"] == "completed" for item in scored))
+        for item in scored:
+            errors, _, _ = RESEARCH_BUNDLE.validate_company(item)
+            self.assertEqual(errors, [])
+        account = next(
+            item for item in sixth["assessment"]["dimensions"]
+            if item["dimensionCode"] == "account_scale"
+        )
+        self.assertEqual(account["baselineScore"], 10)
+        self.assertEqual(account["finalDimensionScore"], 10)
+
+    def test_inquiry_readiness_scores_without_cohort(self) -> None:
+        company = base_company()
+        model = json.loads((ROOT / "skills/geto-diligence-inquiry/references/inquiry-readiness-model.json").read_text())
+        company["inquiryAssessment"] = {"dimensions": [
+            {
+                "dimensionCode": item["dimensionCode"], "score": item["maxScore"],
+                "rationale": "Verified inquiry input", "evidence": [evidence()], "gapCodes": [],
+            }
+            for item in model["dimensions"]
+        ], "hardBlockCodes": [], "gapCodes": [], "overallConclusion": "Ready"}
+        company["inquiryAssessment"] = INQUIRY_CALCULATOR.calculate(
+            company, model, "inquiry:fixture-1", "2026-08-19"
+        )
+        errors, _, _ = RESEARCH_BUNDLE.validate_company(company)
+        self.assertEqual(errors, [])
+        self.assertEqual(company["assessment"], {"status": "not_requested"})
+        self.assertEqual(company["inquiryAssessment"]["overallScore"], 100)
+        self.assertEqual(company["inquiryAssessment"]["grade"], "ready_for_quotation")
 
     def test_info_summary_hides_details_by_default(self) -> None:
         result = RESEARCH_BUNDLE.format_result([], [], [

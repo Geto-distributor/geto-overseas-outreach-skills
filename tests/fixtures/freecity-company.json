@@ -125,6 +125,7 @@
   "inquiries": [],
   "risks": [],
   "assessment": {"status": "not_requested"},
+  "inquiryAssessment": {"status": "not_requested"},
   "missingInformation": [],
   "recommendedActions": [],
   "additionalInformation": [],

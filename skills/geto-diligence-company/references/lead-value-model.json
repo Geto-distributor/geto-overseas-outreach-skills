@@ -10,6 +10,21 @@
     "C": 0.5,
     "U": 0.0
   },
+  "cohortPolicy": {
+    "minimumComparableCompanies": 5,
+    "cohortKey": "countryCode:companyRole",
+    "eligibleBaselineEvidenceGrades": ["A", "B", "C"],
+    "formula": "fairScore = evidenceWeight * observedScore + (1 - evidenceWeight) * baselineScore",
+    "recalculationRule": "The main research task regenerates one baseline version and recalculates every company in the cohort whenever membership or observed inputs change.",
+    "dimensionPolicies": {
+      "project_city_value": {"mode": "median_capped", "maximumBaselineFraction": 0.333333},
+      "account_scale": {"mode": "median_capped", "maximumBaselineFraction": 0.5},
+      "future_project_demand": {"mode": "median_capped", "maximumBaselineFraction": 0.4},
+      "reachability": {"mode": "median_capped", "maximumBaselineFraction": 0.2},
+      "payment_capacity": {"mode": "median_capped", "maximumBaselineFraction": 0.5},
+      "multi_product_fit": {"mode": "median_capped", "maximumBaselineFraction": 0.4}
+    }
+  },
   "evidenceGradeRules": {
     "A": {
       "rule": "直接且当前的一手依据支持本维事实，无未解决主体或内容冲突。",

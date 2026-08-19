@@ -67,6 +67,24 @@ def validate(root: Path, company_dir: Path | None = None) -> tuple[list[str], li
                         errors.append(
                             f"{company_dir.name}: capability-context.json differs from assessment.capabilityContext"
                         )
+            if assessment.get("status") == "completed":
+                baseline_file = root / "Scoring" / "lead-value-cohort.json"
+                if not baseline_file.is_file():
+                    errors.append(f"{company_dir.name}: Scoring/lead-value-cohort.json is required for completed lead assessment")
+                else:
+                    try:
+                        baseline_value = load_json(baseline_file)
+                    except (OSError, json.JSONDecodeError) as error:
+                        errors.append(f"{company_dir.name}: {baseline_file}: {error}")
+                    else:
+                        if baseline_value.get("baselineVersion") != assessment.get("cohortBaselineVersion"):
+                            errors.append(f"{company_dir.name}: cohort baseline version differs from country artifact")
+                        cohort_keys = {
+                            item.get("cohortKey") for item in baseline_value.get("cohorts", [])
+                            if isinstance(item, dict)
+                        }
+                        if assessment.get("cohortKey") not in cohort_keys:
+                            errors.append(f"{company_dir.name}: cohortKey is missing from country baseline artifact")
         if all_evidence(value) and not (company_dir / "Sources" / "sources.md").is_file():
             errors.append(f"{company_dir.name}/Sources/sources.md is missing")
         for index, report_file in enumerate(value.get("reportFiles", [])):

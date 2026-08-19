@@ -18,6 +18,7 @@ EXPECTED = {
     "geto-capability-foundation",
     "geto-find-leads",
     "geto-diligence-company",
+    "geto-diligence-inquiry",
     "geto-mine-competitor-customers",
     "geto-map-relationships",
     "geto-assess-precontract-risk",

@@ -20,10 +20,13 @@ Skills：
 - `geto-run-market-research`：用户可见任务编排与国家 progress.md。
 - `geto-find-leads`：单公司角色轨道发现。
 - `geto-diligence-company`：一家公司一个任务的 ResearchBundle。
+- `geto-diligence-inquiry`：一条询盘一个任务的主体核验与交易准备度，不使用 cohort 插补。
 - `geto-mine-competitor-customers`：竞对判定与官方案例客户反查。
 - `geto-map-relationships`：有证据的 typed relationships[]。
 - `geto-assess-precontract-risk`：成熟交易的签约前风险。
 - `geto-capability-foundation`：产品、场景、ICP 与 SearchLexicon。
+
+长期客户价值采用两阶段评分：单公司任务提交六维观察输入，国家主任务在同类型样本满足门槛后生成版本化中位数基线并批量评分。询盘准备度使用独立固定口径，可在单条询盘背调完成后立即生成。
 
 验证：
 

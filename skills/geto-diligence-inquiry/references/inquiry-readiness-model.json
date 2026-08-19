@@ -1,0 +1,87 @@
+{
+  "modelCode": "GETO_INQUIRY_READINESS",
+  "modelVersion": "2026-08-19",
+  "approvalStatus": "approved",
+  "scoreRange": [0, 100],
+  "dimensions": [
+    {
+      "dimensionCode": "identity_confidence",
+      "name": "主体与询盘身份可信度",
+      "maxScore": 15,
+      "components": [
+        {"name": "公司强身份与目标主体一致", "maxScore": 8},
+        {"name": "询盘人和公司关系可验证", "maxScore": 4},
+        {"name": "国家、域名和联系信息一致", "maxScore": 3}
+      ]
+    },
+    {
+      "dimensionCode": "requirement_specificity",
+      "name": "需求完整度",
+      "maxScore": 20,
+      "components": [
+        {"name": "产品/系统明确", "maxScore": 5},
+        {"name": "数量、面积或工程量明确", "maxScore": 5},
+        {"name": "图纸、规格和关键参数完整", "maxScore": 5},
+        {"name": "交付地或港口明确", "maxScore": 3},
+        {"name": "用途或项目场景明确", "maxScore": 2}
+      ]
+    },
+    {
+      "dimensionCode": "project_readiness",
+      "name": "项目真实性与采购窗口",
+      "maxScore": 20,
+      "components": [
+        {"name": "项目、业主和地点可识别", "maxScore": 6},
+        {"name": "阶段、开工和采购时间明确", "maxScore": 6},
+        {"name": "预算或采购程序明确", "maxScore": 4},
+        {"name": "许可、决策或招采状态可验证", "maxScore": 4}
+      ]
+    },
+    {
+      "dimensionCode": "reachability_authority",
+      "name": "触达与决策授权",
+      "maxScore": 15,
+      "components": [
+        {"name": "存在直接且当前的沟通", "maxScore": 4},
+        {"name": "任职和职位可验证", "maxScore": 4},
+        {"name": "采购、技术或决策权限可验证", "maxScore": 4},
+        {"name": "可持续触达渠道有效", "maxScore": 3}
+      ]
+    },
+    {
+      "dimensionCode": "commercial_payment_readiness",
+      "name": "商务与付款准备度",
+      "maxScore": 15,
+      "components": [
+        {"name": "签约主体和付款方明确", "maxScore": 5},
+        {"name": "预算、价格预期或付款条款明确", "maxScore": 4},
+        {"name": "交付、物流和目的地明确", "maxScore": 3},
+        {"name": "合规、资质或文件要求明确", "maxScore": 3}
+      ]
+    },
+    {
+      "dimensionCode": "technical_product_fit",
+      "name": "技术与产品匹配度",
+      "maxScore": 15,
+      "components": [
+        {"name": "真实场景与 GETO 产品匹配", "maxScore": 5},
+        {"name": "结构、工法和输入足以初步选型", "maxScore": 5},
+        {"name": "解决方案和供应范围可界定", "maxScore": 3},
+        {"name": "关键限制和排除条件明确", "maxScore": 2}
+      ]
+    }
+  ],
+  "grades": [
+    {"grade": "ready_for_quotation", "minimumScore": 75, "dimensionFloors": {"identity_confidence": 9, "requirement_specificity": 12, "technical_product_fit": 9}},
+    {"grade": "qualified_needs_clarification", "minimumScore": 50},
+    {"grade": "nurture_or_verify", "minimumScore": 25},
+    {"grade": "high_risk_or_unqualified", "minimumScore": 0}
+  ],
+  "caps": {
+    "identity_conflict": 24,
+    "fraud_or_impersonation_signal": 24,
+    "unverified_signing_and_payer": 74,
+    "product_requirement_unresolved": 49
+  },
+  "scoringRule": "Award only component points supported by inquiry or target-company Evidence. Missing information receives zero readiness points and a gapCode; no cohort baseline or peer imputation is used."
+}
