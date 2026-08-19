@@ -34,6 +34,7 @@
 | Provider 联系人桥接 | completed | email_only + workEmail.deliverability 证据范围；任职/授权独立补证 |
 | 长期价值评分时序 | completed | 单公司观察输入 → 主会话同类型 cohort 中位数 → 同版本批量回写 |
 | 独立询盘背调 | completed | `geto-diligence-inquiry` 固定准备度评分，不使用 cohort 插补 |
+| 询盘字段自包含 | completed | inquiry Skill 自带完整 Company 子资源合同，并与公司 Skill 做逐字一致性回归 |
 
 ## 验证
 

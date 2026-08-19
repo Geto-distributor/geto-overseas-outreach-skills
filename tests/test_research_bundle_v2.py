@@ -368,6 +368,21 @@ class ResearchBundleValidationTests(unittest.TestCase):
 
 
 class SearchLexiconTests(unittest.TestCase):
+    def test_inquiry_skill_bundles_the_complete_company_resource_contract(self) -> None:
+        company_contract = (
+            ROOT / "skills/geto-diligence-company/references/child-resources.md"
+        ).read_text(encoding="utf-8")
+        inquiry_contract = (
+            ROOT / "skills/geto-diligence-inquiry/references/child-resources.md"
+        ).read_text(encoding="utf-8")
+        self.assertEqual(inquiry_contract, company_contract)
+        for resource in (
+            "contacts[]", "inquiries[]", "projects[]", "relationships[]",
+            "financialRecords[]", "customsTransactions[]", "lawsuitsAndCompliance[]",
+            "researchQueries[]", "reportFiles[]",
+        ):
+            self.assertIn(resource, inquiry_contract)
+
     def test_lexicon_and_required_regressions_validate(self) -> None:
         path = ROOT / "skills/geto-capability-foundation/references/search-lexicon.json"
         errors = LEXICON_VALIDATOR.validate(json.loads(path.read_text(encoding="utf-8")))

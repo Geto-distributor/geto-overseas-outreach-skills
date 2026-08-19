@@ -7,7 +7,7 @@ description: 对单条 GETO 海外询盘执行主体核验、需求还原、项�
 
 一次只处理一条询盘及其目标 Company。询盘准备度回答当前能否报价和推进，不替代客户长期价值评分。
 
-开始前读取 [inquiry-contract.md](references/inquiry-contract.md) 和 [inquiry-readiness-model.json](references/inquiry-readiness-model.json)。公司事实使用 `$geto-diligence-company` 的 Evidence 与子资源合同，assessmentMode 固定为 none。
+开始前完整读取 [child-resources.md](references/child-resources.md)、[inquiry-contract.md](references/inquiry-contract.md) 和 [inquiry-readiness-model.json](references/inquiry-readiness-model.json)。本 Skill 自带 Company、Evidence、inquiries、contacts、projects、financial、customs、risk 和报告字段合同；调用 `$geto-diligence-company` 时只复用其公司研究流程，assessmentMode 固定为 none。
 
 ## 输入
 
