@@ -29,6 +29,8 @@ description: 对 GETO 海外市场中的单一竞对公司执行深度背调，�
 8. 生成详细 report.md，并将路径写入固定字段的 `reportFiles[]`。
 9. 使用 `$geto-run-market-research` 的 `write_company_json.py`、`build_deduplicated_sources.py` 和 `validate_workspace.py --company-dir` 完成原子写入、来源聚合和单公司验证。
 
+confirmed competitor 的 OmniX 共享投影在 `$geto-mine-competitor-customers` 生成 competitorCustomerPortfolio 后执行。
+
 ## Provider 与上传
 
 TradeWind 与网易外贸通各自在独立用户可见任务中返回 ExternalObservation。本任务只在强身份和字段证据门槛满足后采纳。OmniX 上传由主任务在本地验证通过后另行询问用户。

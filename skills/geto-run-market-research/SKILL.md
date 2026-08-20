@@ -94,7 +94,7 @@ python scripts/validate_workspace.py '<国家目录>'
 
 仅在本地验证通过后询问用户：是否上传、Base URL/API Key 是否已安全配置、上传为 `private` 还是 `public`。用户同意后调用 `$omnix-market` 的单一无版本 Company Aggregate API。没有 OmniX 或用户不上传不阻断研究完成。
 
-private/public 均要求注册号或已确认稳定官网域名等强身份。上传投影保留 competitorCustomerPortfolio、assessment.capabilityContext、projects[].participants、relationships[].exclusivity 和内嵌 Evidence；inquiryAssessment、researchQueries、reportFiles、报告和工作空间路径保存在本地。public 以整个 Aggregate 为可见单元。lead 的 scoring criteria hash 由 `$omnix-market` 自动读取并注入。
+private/public 均要求注册号或已确认稳定官网域名等强身份。上传投影保留 competitorCustomerPortfolio、assessment.capabilityContext、projects[].participants、relationships[].exclusivity 和内嵌 Evidence；inquiryAssessment、researchQueries、reportFiles、报告和工作空间路径保存在本地。public 以整个 Aggregate 为可见单元。lead 在同类型 cohort 完成评分后上传，scoring criteria hash 由 `$omnix-market` 自动读取并注入；confirmed competitor 在客户组合聚合完成后上传。
 
 创建或更新后可在 `progress.md` 记录 `uploadStatus=not_requested|not_configured|uploaded_private|uploaded_public|blocked_public_duplicate|failed` 和平台返回的 detailRoute；不得记录 API Key。软删除与恢复只在当前任务回传结果中说明。
 

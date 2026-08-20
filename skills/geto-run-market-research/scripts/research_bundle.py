@@ -38,7 +38,7 @@ PROJECT_PARTICIPANT_ROLES = {
 }
 PROJECT_PARTICIPANT_STATUSES = {"confirmed", "possible", "conflicting", "historical"}
 EXCLUSIVITY_STATUSES = {"exclusive", "non_exclusive", "unknown", "conflicting"}
-LISTING_STATUSES = {"direct_listed", "parent_listed", "not_listed", "unknown"}
+LISTING_STATUSES = {"self_listed", "parent_listed", "not_listed", "unknown"}
 CAPITAL_TYPES = {"registered_capital", "paid_in_capital"}
 CONTROL_ROLES = {
     "manufacturer", "system_owner", "brand_owner", "distributor", "reseller",
@@ -60,7 +60,7 @@ ASSESSMENT_FIELDS = {
     "assessmentType", "status", "modelCode", "modelVersion", "ratingScaleVersion",
     "capabilityContext", "grade", "overallScore", "informationCompleteness",
     "overallConclusion", "assessedOn", "dimensions", "capCodes", "gapCodes",
-    "cohortKey", "cohortBaselineVersion", "cohortAsOf",
+    "cohortKey", "cohortBaselineVersion", "cohortAsOf", "evidence",
 }
 DIMENSION_FIELDS = {
     "dimensionCode", "name", "observedScore", "finalDimensionScore", "maxScore",
@@ -361,7 +361,7 @@ def _validate_exclusivity(relationship: dict[str, Any], path: str) -> list[str]:
         errors.append(f"{path}.limitations must be an array of strings")
     exclusivity = relationship.get("exclusivity")
     if exclusivity is None:
-        return errors
+        return errors + [f"{path}.exclusivity is required"]
     if not isinstance(exclusivity, dict):
         return errors + [f"{path}.exclusivity must be an object"]
     allowed = {"status", "scope", "description", "lastVerifiedOn", "evidence"}
@@ -428,6 +428,14 @@ def _validate_assessment(assessment: Any) -> list[str]:
     for field in ("capCodes", "gapCodes"):
         if not isinstance(assessment.get(field), list):
             errors.append(f"$.assessment.{field} must be an array")
+    evidence = assessment.get("evidence")
+    if not isinstance(evidence, list):
+        errors.append("$.assessment.evidence must be an array")
+    else:
+        for evidence_index, source in enumerate(evidence):
+            _validate_evidence_item(source, f"$.assessment.evidence[{evidence_index}]", errors)
+        if status == "completed" and not evidence:
+            errors.append("$.assessment: completed score requires top-level Evidence")
 
     context = assessment.get("capabilityContext")
     if not isinstance(context, dict):
@@ -441,6 +449,15 @@ def _validate_assessment(assessment: Any) -> list[str]:
             errors.append(f"$.assessment.capabilityContext is missing fields: {', '.join(missing_context)}")
         if context.get("status") not in {"available", "partial", "unavailable"}:
             errors.append("$.assessment.capabilityContext.status has an invalid value")
+        if context.get("foundationKey") != "geto:capability-foundation":
+            errors.append("$.assessment.capabilityContext.foundationKey must be geto:capability-foundation")
+        if context.get("status") in {"available", "partial"}:
+            if not context.get("foundationVersion"):
+                errors.append("$.assessment.capabilityContext.foundationVersion is required")
+            if not _validate_date(context.get("asOf")):
+                errors.append("$.assessment.capabilityContext.asOf must use YYYY-MM-DD")
+            if not re.fullmatch(r"sha256:[0-9a-f]{64}", str(context.get("contentHash") or "")):
+                errors.append("$.assessment.capabilityContext.contentHash must be a sha256 hash")
         for field in ("productCodes", "scenarioCodes", "roleCodes", "caseKeys", "gapCodes"):
             if not isinstance(context.get(field), list):
                 errors.append(f"$.assessment.capabilityContext.{field} must be an array")
@@ -685,7 +702,7 @@ def _validate_relationship_entry(relationship: dict[str, Any], path: str) -> lis
     return errors
 
 
-def _validate_competitor_portfolio(portfolio: Any) -> list[str]:
+def _validate_competitor_portfolio(portfolio: Any, relationships: Any = None) -> list[str]:
     errors: list[str] = []
     if portfolio is None:
         return errors
@@ -719,7 +736,7 @@ def _validate_competitor_portfolio(portfolio: Any) -> list[str]:
         errors.append("$.competitorCustomerPortfolio.customers must be an array")
         customers = []
     scores: list[float] = []
-    seen: set[str] = set()
+    seen: set[tuple[str, str]] = set()
     for index, customer in enumerate(customers):
         path = f"$.competitorCustomerPortfolio.customers[{index}]"
         if not isinstance(customer, dict):
@@ -734,9 +751,11 @@ def _validate_competitor_portfolio(portfolio: Any) -> list[str]:
         name = str(customer.get("companyName") or "").strip()
         if not name:
             errors.append(f"{path}.companyName is required")
-        elif name.casefold() in seen:
-            errors.append(f"{path}.companyName is duplicated")
-        seen.add(name.casefold())
+        else:
+            customer_key = (name.casefold(), str(customer.get("country") or "").strip().casefold())
+            if customer_key in seen:
+                errors.append(f"{path}.companyName and country are duplicated")
+            seen.add(customer_key)
         if not isinstance(customer.get("relationshipCount"), int) or customer.get("relationshipCount", 0) < 1:
             errors.append(f"{path}.relationshipCount must be a positive integer")
         evidence = customer.get("evidence")
@@ -782,6 +801,20 @@ def _validate_competitor_portfolio(portfolio: Any) -> list[str]:
     )
     if status != expected_status:
         errors.append("$.competitorCustomerPortfolio.status is inconsistent with coverage")
+    if isinstance(relationships, list):
+        verified_keys = {
+            (
+                str(item.get("counterpartyName") or "").strip().casefold(),
+                str(item.get("country") or "").strip().casefold(),
+            )
+            for item in relationships
+            if isinstance(item, dict) and item.get("reviewDecision") == "verified_customer"
+        }
+        verified_keys.discard(("", ""))
+        if seen != verified_keys:
+            errors.append(
+                "$.competitorCustomerPortfolio.customers must match deduplicated verified_customer relationships"
+            )
     return errors
 
 
@@ -962,7 +995,9 @@ def validate_company(value: Any) -> tuple[list[str], list[str], list[str]]:
 
     errors.extend(_validate_assessment(value.get("assessment")))
     errors.extend(_validate_inquiry_assessment(value.get("inquiryAssessment")))
-    errors.extend(_validate_competitor_portfolio(value.get("competitorCustomerPortfolio")))
+    errors.extend(_validate_competitor_portfolio(
+        value.get("competitorCustomerPortfolio"), value.get("relationships")
+    ))
 
     for index, report_file in enumerate(value.get("reportFiles", [])):
         path = f"$.reportFiles[{index}]"

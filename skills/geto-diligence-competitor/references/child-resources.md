@@ -10,7 +10,7 @@
 
 ## 主体与身份
 
-- company：companyName、entityType、country、countryCode、status、summary、researchConclusion、foundedOn、companyScale、headcount、listingStatus、listingDetails、marketPosition、priority、procurementBoundary、evidence。listingStatus 使用 direct_listed|parent_listed|not_listed|unknown。
+- company：companyName、entityType、country、countryCode、status、summary、researchConclusion、foundedOn、companyScale、headcount、listingStatus、listingDetails、marketPosition、priority、procurementBoundary、evidence。listingStatus 使用 self_listed|parent_listed|not_listed|unknown。
 - aliases[]：name、aliasType、status、description、note、evidence。
 - registrations[]：registrationType、registrationNumber、legalName、entityKind、jurisdiction、issuingAuthority、registeredOn、issueDateRaw、status、verificationStatus、description、evidence。
 - capitalRecords[]：capitalType、amount、currency、asOf、status、description、evidence。capitalType 使用 registered_capital|paid_in_capital；注册资本与实缴资本不能解释为现金、收入、净资产、授信或付款能力。

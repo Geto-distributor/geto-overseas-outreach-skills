@@ -81,8 +81,8 @@ def aggregate(country_root: Path, competitor_dir: Path, as_of: str) -> dict[str,
     if not confirmed_competitor(competitor):
         raise ValueError("competitor company requires a confirmed competitor classification")
 
-    grouped: dict[str, list[dict[str, Any]]] = {}
-    display_names: dict[str, str] = {}
+    grouped: dict[tuple[str, str], list[dict[str, Any]]] = {}
+    display_names: dict[tuple[str, str], str] = {}
     for relationship in competitor.get("relationships", []):
         if not isinstance(relationship, dict) or relationship.get("reviewDecision") != "verified_customer":
             continue
@@ -91,15 +91,15 @@ def aggregate(country_root: Path, competitor_dir: Path, as_of: str) -> dict[str,
         name = str(relationship.get("counterpartyName") or "").strip()
         if not name:
             raise ValueError("verified_customer relationship requires counterpartyName")
-        key = name.casefold()
+        key = (name.casefold(), str(relationship.get("country") or "").strip().casefold())
         display_names.setdefault(key, name)
         grouped.setdefault(key, []).append(relationship)
 
     index = customer_index(country_root)
     customers: list[dict[str, Any]] = []
     scores: list[float] = []
-    for key in sorted(grouped, key=lambda item: display_names[item].casefold()):
-        matches = index.get(key, [])
+    for key in sorted(grouped, key=lambda item: (display_names[item].casefold(), item[1])):
+        matches = index.get(key[0], [])
         if len(matches) != 1:
             raise ValueError(
                 f"verified customer {display_names[key]!r} must resolve to exactly one company.json; found {len(matches)}"

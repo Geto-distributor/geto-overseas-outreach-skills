@@ -54,3 +54,5 @@ python '<geto-diligence-company-dir>/scripts/calculate_lead_assessment.py' \
 最终分由主会话使用 `$geto-find-leads` 的 cohort 脚本批量生成。任何 cohort 维度少于 5 家合格观察时，该 cohort 全部保持 pending，不能使用不同时点的临时分排序。
 
 单公司 validator 会要求 `RisksAndAssessment/capability-context.json`，并逐字段核对它与 `assessment.capabilityContext`。
+
+assessment.evidence 聚合六个维度中实际使用的去重 Evidence。主任务完成 cohort 评分后保留该数组，使评分在本地报告和 OmniX 共享投影中都能回溯。

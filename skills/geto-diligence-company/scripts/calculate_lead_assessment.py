@@ -53,6 +53,24 @@ def level(score: float, anchors: dict[str, list[float]]) -> str:
     return "low"
 
 
+def unique_evidence(dimensions: list[dict[str, Any]]) -> list[dict[str, Any]]:
+    result: list[dict[str, Any]] = []
+    seen: set[tuple[str, str, str]] = set()
+    for dimension in dimensions:
+        for item in dimension.get("evidence", []):
+            if not isinstance(item, dict):
+                continue
+            key = (
+                str(item.get("sourceUrl") or "").strip().casefold(),
+                str(item.get("sourceTitle") or "").strip().casefold(),
+                str(item.get("locator") or "").strip().casefold(),
+            )
+            if key not in seen:
+                seen.add(key)
+                result.append(item)
+    return result
+
+
 def calculate(
     company: dict[str, Any], model: dict[str, Any], capability: dict[str, Any] | None,
     assessed_on: str, cohort_key: str | None = None,
@@ -141,6 +159,7 @@ def calculate(
         )),
         "assessedOn": assessed_on,
         "dimensions": dimensions,
+        "evidence": unique_evidence(dimensions),
         "capCodes": cap_codes,
         "gapCodes": gap_codes,
     }

@@ -48,7 +48,7 @@
 }
 ```
 
-`company.json` 只包含上述研究业务字段。`company` 包含 `companyName`、`entityType`、`country`、`countryCode`、`status`、`summary`、`researchConclusion`、`foundedOn`、`companyScale`、`headcount`、`listingStatus`、`listingDetails`、`marketPosition`、`priority`、`procurementBoundary` 和 `evidence`。countryCode 使用 ISO2，country 使用统一英文展示名；listingStatus 使用 `direct_listed|parent_listed|not_listed|unknown`。
+`company.json` 只包含上述研究业务字段。`company` 包含 `companyName`、`entityType`、`country`、`countryCode`、`status`、`summary`、`researchConclusion`、`foundedOn`、`companyScale`、`headcount`、`listingStatus`、`listingDetails`、`marketPosition`、`priority`、`procurementBoundary` 和 `evidence`。countryCode 使用 ISO2，country 使用统一英文展示名；listingStatus 使用 `self_listed|parent_listed|not_listed|unknown`。
 
 ## Evidence
 

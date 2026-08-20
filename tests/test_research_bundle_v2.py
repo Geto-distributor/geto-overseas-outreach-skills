@@ -104,6 +104,24 @@ class ResearchBundleValidationTests(unittest.TestCase):
         errors, _, _ = RESEARCH_BUNDLE.validate_company(value)
         self.assertTrue(any("unsupported relationship fields: isExclusive" in item for item in errors))
 
+    def test_every_relationship_requires_exclusivity(self) -> None:
+        value = base_company()
+        value["relationships"] = [{
+            "relationshipType": "supplier", "counterpartyName": "Supplier A",
+            "status": "possible", "limitations": [], "evidence": [evidence()],
+        }]
+        errors, _, _ = RESEARCH_BUNDLE.validate_company(value)
+        self.assertTrue(any("exclusivity is required" in item for item in errors))
+
+    def test_listing_status_matches_market_contract(self) -> None:
+        value = base_company()
+        value["company"]["listingStatus"] = "self_listed"
+        errors, _, _ = RESEARCH_BUNDLE.validate_company(value)
+        self.assertEqual(errors, [])
+        value["company"]["listingStatus"] = "direct_listed"
+        errors, _, _ = RESEARCH_BUNDLE.validate_company(value)
+        self.assertTrue(any("listingStatus" in item for item in errors))
+
     def test_installer_only_cannot_be_confirmed_competitor(self) -> None:
         value = base_company()
         value["researchClassifications"] = [{
@@ -195,6 +213,11 @@ class ResearchBundleValidationTests(unittest.TestCase):
                     "counterpartyRole": "developer", "companyRole": "supplier",
                     "projectName": f"{name} Project", "country": "Australia", "status": "confirmed",
                     "description": "Official named project supply", "reviewDecision": "verified_customer",
+                    "limitations": [],
+                    "exclusivity": {
+                        "status": "unknown", "scope": None, "description": None,
+                        "lastVerifiedOn": None, "evidence": [],
+                    },
                     "evidence": [evidence(f"https://example.com/{name[-1].lower()}")],
                 }
                 for name in ("Customer A", "Customer B")
@@ -221,6 +244,9 @@ class ResearchBundleValidationTests(unittest.TestCase):
         self.assertEqual(portfolio["scoredCustomerCount"], 1)
         self.assertEqual(portfolio["customerScoreCoverage"], 0.5)
         self.assertEqual(portfolio["averageCustomerValueScore"], 80.0)
+        updated["competitorCustomerPortfolio"]["customers"] = updated["competitorCustomerPortfolio"]["customers"][:1]
+        errors, _, _ = RESEARCH_BUNDLE.validate_company(updated)
+        self.assertTrue(any("must match deduplicated verified_customer" in item for item in errors))
 
     def test_assessment_total_requires_complete_evidenced_dimensions(self) -> None:
         value = base_company()
@@ -356,7 +382,7 @@ class ResearchBundleValidationTests(unittest.TestCase):
         ], "capCodes": [], "gapCodes": [], "overallConclusion": "Verified lead"}
         capability = {
             "foundationKey": "geto:capability-foundation", "foundationVersion": "2026-08-11",
-            "asOf": "2026-08-11", "status": "available", "contentHash": "sha256:test",
+            "asOf": "2026-08-11", "status": "available", "contentHash": "sha256:" + "a" * 64,
             "productCodes": ["FORMWORK"], "scenarioCodes": [], "roleCodes": [],
             "caseKeys": [], "gapCodes": [],
         }
@@ -369,6 +395,7 @@ class ResearchBundleValidationTests(unittest.TestCase):
         self.assertEqual(assessment["status"], "pending_cohort_baseline")
         self.assertIsNone(assessment["overallScore"])
         self.assertIsNone(assessment["grade"])
+        self.assertTrue(assessment["evidence"])
         self.assertTrue(all(item["baselineScore"] is None for item in assessment["dimensions"]))
 
     def test_workspace_requires_direct_matching_capability_artifact(self) -> None:
@@ -382,7 +409,7 @@ class ResearchBundleValidationTests(unittest.TestCase):
         ], "capCodes": [], "gapCodes": [], "overallConclusion": "Verified lead"}
         capability = {
             "foundationKey": "geto:capability-foundation", "foundationVersion": "2026-08-11",
-            "asOf": "2026-08-11", "status": "available", "contentHash": "sha256:test",
+            "asOf": "2026-08-11", "status": "available", "contentHash": "sha256:" + "a" * 64,
             "productCodes": ["aluminum_formwork"], "scenarioCodes": [], "roleCodes": [],
             "caseKeys": [], "gapCodes": [],
         }
@@ -409,7 +436,7 @@ class ResearchBundleValidationTests(unittest.TestCase):
         model = json.loads((ROOT / "skills/geto-diligence-company/references/lead-value-model.json").read_text())
         capability = {
             "foundationKey": "geto:capability-foundation", "foundationVersion": "2026-08-11",
-            "asOf": "2026-08-11", "status": "available", "contentHash": "sha256:test",
+            "asOf": "2026-08-11", "status": "available", "contentHash": "sha256:" + "a" * 64,
             "productCodes": ["aluminum_formwork"], "scenarioCodes": [], "roleCodes": [],
             "caseKeys": [], "gapCodes": [],
         }
