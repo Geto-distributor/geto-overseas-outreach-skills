@@ -67,6 +67,7 @@
 - 完整示例烟测：通用 company-json example 与询盘 fragment 合并后均 0 ERROR / 0 WARNING；完整本地示例投影为 OmniX request 后 28 个 content 字段且 OpenAPI schemaErrors=[]。
 - credential/private artifact scan：passed。
 - `git diff --check`：passed。
+- GitHub PR checks：workflow 未分配 runner，检查注释为组织账户付款失败或 spending limit 不足；本地等价命令全部 passed，账户恢复后需 rerun checks。
 
 ## 仍需主任务协调
 
