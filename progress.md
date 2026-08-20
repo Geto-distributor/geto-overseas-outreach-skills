@@ -39,7 +39,7 @@
 | 单竞对深度背调 | completed | `skills/geto-diligence-competitor/`；主体、产品商业控制、制造、项目与客户候选独立合同 |
 | 竞对客户组合与切入口径 | completed | `competitorCustomerPortfolio`、`GETO_RELATIONSHIP_ENTRY 1.0`、`aggregate_competitor_customers.py` |
 | ResearchBundle 与 OmniX 投影边界 | completed | 本地为事实主合同；inquiryAssessment、researchQueries、reportFiles 与报告保存在本地 |
-| Company 字段示例 | completed | `references/company-json-example.json`、询盘 `references/inquiry-example.md`、OmniX `references/upload-example.md` |
+| Company 字段示例 | completed | 全字段无空值 `references/company-json-example.json`、确定性生成器、询盘 `references/inquiry-example.md`、OmniX 全字段 Aggregate JSON |
 | Evidence 来源合同 | completed | Evidence 只含来源元数据；业务 item 承载状态、冲突和拒绝理由 |
 | 项目与关系结构 | completed | `projects[].participants[]`、`relationships[].limitations[]`、exclusivity 状态对象 |
 | OmniX 上传门禁 | completed | private/public 强身份、自动 scoring criteria hash、运行时 Aggregate schema capability 检查 |
@@ -49,8 +49,8 @@
 
 - GETO 仓库 validator：9 Skills passed。
 - skill-creator quick_validate：9 个 GETO Skills、omnix-market、netease-waimao、tradewind-api 均 passed。
-- GETO ResearchBundle/SearchLexicon/cohort/询盘/竞对客户组合/关系切入/字段与报告合同/并发/能力工件回归：33 tests passed。
-- OmniX unversioned API 合同、强身份、显式字段投影、评分 hash 与 capability 回归：20 tests passed。
+- GETO ResearchBundle/SearchLexicon/cohort/询盘/竞对客户组合/关系切入/字段与报告合同/并发/能力工件回归：34 tests passed。
+- OmniX unversioned API 合同、强身份、显式字段投影、评分 hash、Capability Context 与完整 Aggregate 示例回归：21 tests passed。
 - 网易外贸通既有安全回归：11 tests passed。
 - Freecity、Electron company.json：均 0 ERROR / 0 WARNING。
 - ResearchBundle 端到端 smoke：规范国家目录 init → 单公司 validate → 国家 validate，均 0 ERROR / 0 WARNING / 0 INFO。
@@ -65,7 +65,7 @@
 - Provider 载荷终验：TradeWind 根层 people[5] 与嵌套 meta 分页矛盾已输出 not_exhaustive + pagination_metadata_inconsistent。
 - 竞对职责终验：单竞对 Skill 只输出竞对事实与分类；竞对客户 Skill 复用客户六维 cohort 分，按去重客户聚合平均分和覆盖率，并在关系层单列 0–5 切入分。
 - 竞对组合烟测：2 个 verified_customer 中 1 个具有 completed 客户价值分时，输出 partial_coverage、覆盖率 0.5、均分仅取已评分客户；缺分客户未补零。
-- 完整示例烟测：通用 company-json example 与询盘 fragment 合并后均 0 ERROR / 0 WARNING；完整本地示例投影为 OmniX request 后 27 个 content 字段，registration/project/relationship 均使用最终 API 字段且 schemaErrors=[]。
+- 完整示例烟测：本地 `company-json-example.json` 的所有顶层资源和三个评估对象均有合成实例，递归扫描无 null、空字符串、空数组或空对象，validator 为 0 ERROR / 0 WARNING / 0 INFO；投影后的 `company-aggregate-example.json` 同样无空值且 OpenAPI schemaErrors=[]。
 - credential/private artifact scan：passed。
 - `git diff --check`：passed。
 - GitHub PR checks：workflow 未分配 runner，检查注释为组织账户付款失败或 spending limit 不足；本地等价命令全部 passed，账户恢复后需 rerun checks。

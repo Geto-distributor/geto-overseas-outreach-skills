@@ -39,6 +39,10 @@ COMPETITOR_CUSTOMER_AGGREGATOR = load_module(
     "aggregate_competitor_customers",
     COMPETITOR_CUSTOMER_SCRIPTS / "aggregate_competitor_customers.py",
 )
+COMPANY_EXAMPLE_GENERATOR = load_module(
+    "generate_company_json_example",
+    RUN_SCRIPTS / "generate_company_json_example.py",
+)
 
 
 def evidence(url: str = "https://example.com/product") -> dict[str, object]:
@@ -55,6 +59,32 @@ def base_company() -> dict[str, object]:
 
 
 class ResearchBundleValidationTests(unittest.TestCase):
+    def test_complete_company_example_is_deterministic_valid_and_nonempty(self) -> None:
+        path = ROOT / "skills/geto-run-market-research/references/company-json-example.json"
+        committed = json.loads(path.read_text(encoding="utf-8"))
+        self.assertEqual(committed, COMPANY_EXAMPLE_GENERATOR.build_example())
+        errors, warnings, infos = RESEARCH_BUNDLE.validate_company(committed)
+        self.assertEqual((errors, warnings, infos), ([], [], []))
+
+        def empty_paths(value: object, path: str = "$") -> list[str]:
+            if value is None or value == "" or value == [] or value == {}:
+                return [path]
+            if isinstance(value, dict):
+                return [
+                    item
+                    for key, child in value.items()
+                    for item in empty_paths(child, f"{path}.{key}")
+                ]
+            if isinstance(value, list):
+                return [
+                    item
+                    for index, child in enumerate(value)
+                    for item in empty_paths(child, f"{path}[{index}]")
+                ]
+            return []
+
+        self.assertEqual(empty_paths(committed), [])
+
     def test_freecity_and_electron_fixtures_validate(self) -> None:
         for name in ("freecity-company.json", "electron-company.json"):
             with self.subTest(name=name):

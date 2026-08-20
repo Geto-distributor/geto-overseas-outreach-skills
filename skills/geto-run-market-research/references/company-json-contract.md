@@ -100,4 +100,4 @@ confirmed competitor 必须同时有重叠产品/技术、目标市场与商业�
 
 国家目录使用 `<ISO2>-<English-Display-Name>`。每家公司至少有 `company.json` 和 `report.md`。执行评分时，直接 contextRef 固定保存为 `RisksAndAssessment/capability-context.json`，并与 assessment.capabilityContext 完全一致。其他模块目录仅在有原始材料、查询日志或扩展分析时创建。扫描全部内嵌 Evidence，按规范化 URL 去除追踪参数、fragment 和多余尾斜杠；同一 URL 的 locator 聚合在一个来源条目中，客户文件按文档标题聚合为 `Sources/sources.md`。该文件是派生索引，不含 Source ID，也不是第二份权威数据。
 
-首次生成或复核结构时读取 [company-json-example.json](company-json-example.json)。示例展示完整顶层结构、纯来源 Evidence、项目 participants、关系 exclusivity 和本地评估字段的放置方式。
+首次生成或复核结构时读取 [company-json-example.json](company-json-example.json)。该文件是全字段、无空值的合成参考工件：每个顶层业务列表都有实例，三个评估对象也展示完成态；它只用于理解字段放置、Evidence 嵌套、项目 participants、关系 exclusivity 和阶段间连接。实际任务仍按当前已取得事实和所属 Skill 的时序合同写入，不能为了复刻示例而补造数据或提前生成 cohort 结果。维护者可运行 `scripts/generate_company_json_example.py --output references/company-json-example.json` 重建示例。
