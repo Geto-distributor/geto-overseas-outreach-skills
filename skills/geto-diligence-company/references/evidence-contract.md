@@ -13,7 +13,7 @@
 
 ## Evidence
 
-主要列表 item 内嵌 `evidence[]`，每条包含 sourceTitle、sourceUrl、publisher、sourceType、publishedOn、retrievedOn、relation、locator、excerpt、note。relation 只用 supports、refutes、context。客户附件没有公开 URL 时可用空 sourceUrl，但必须填写 sourceTitle、sourceType=customer_document 和 locator。
+主要列表 item 内嵌 `evidence[]`，每条包含 sourceTitle、sourceUrl、publisher、sourceType、publishedOn、retrievedOn、locator、excerpt、note；Provider 字段级验证可增加 verificationScope[]。Evidence 表达来源本身，所属业务 item、status、verificationStatus、reason 和 researchConclusion 表达事实成立、待核、冲突或拒绝。客户附件没有公开 URL 时可用空 sourceUrl，但必须填写 sourceTitle、sourceType=customer_document 和 locator。
 
 冲突来源分别保留。查询动作写入 `researchQueries[]`：`not_queried` 与 `no_result` 是信息状态，`failed` 是需处理状态。对研究结论有实质影响的冲突、过期、Provider 失败或证据缺口写入 `missingInformation[]`；不得写占位事实。
 

@@ -5,15 +5,15 @@
 - 一个 company.json 只表达一个 legal_entity、operating_company 或 corporate_group。
 - 事实进入对应结构化字段，不用 summary、report.md 或 additionalInformation 代替。
 - 字段未知时使用 null、空数组或省略可选字段，不编造占位值。
-- 所有主要列表 item 包含 evidence[]。Evidence 固定使用 sourceTitle、sourceUrl、publisher、sourceType、publishedOn、retrievedOn、relation、locator、excerpt、note；字段级 Provider 证据可增加 verificationScope[]。
-- relation 只用 supports|refutes|context。sourceType 只用 official_website|registry|government|court|financial_report|media|social_media|provider|customer_document|other。
+- 所有主要列表 item 包含 evidence[]。Evidence 固定使用 sourceTitle、sourceUrl、publisher、sourceType、publishedOn、retrievedOn、locator、excerpt、note；字段级 Provider 证据可增加 verificationScope[]。
+- sourceType 只用 official_website|registry|government|court|financial_report|media|social_media|provider|customer_document|other。事实成立、待核、冲突或拒绝由所属 item 的 status、verificationStatus、reason 和 researchConclusion 表达。
 
 ## 主体与身份
 
-- company：companyName、entityType、country、countryCode、status、summary、researchConclusion、evidence。
+- company：companyName、entityType、country、countryCode、status、summary、researchConclusion、foundedOn、companyScale、headcount、listingStatus、listingDetails、marketPosition、priority、procurementBoundary、evidence。listingStatus 使用 direct_listed|parent_listed|not_listed|unknown。
 - aliases[]：name、aliasType、status、description、note、evidence。
 - registrations[]：registrationType、registrationNumber、legalName、entityKind、jurisdiction、issuingAuthority、registeredOn、issueDateRaw、status、verificationStatus、description、evidence。
-- capitalRecords[]：capitalType、amount、currency、asOf、status、description、evidence。注册资本与实缴资本不能解释为现金、收入、净资产、授信或付款能力。
+- capitalRecords[]：capitalType、amount、currency、asOf、status、description、evidence。capitalType 使用 registered_capital|paid_in_capital；注册资本与实缴资本不能解释为现金、收入、净资产、授信或付款能力。
 - websites[]：url、websiteType、status、verificationStatus、lastCheckedOn、evidence。
 - addresses[]：addressType、fullAddress/addressLine、street、city、state/province/region、postalCode、country、status、note、evidence。
 - marketPresence[]：presenceType、country、region、city、status、description、evidence。
@@ -23,19 +23,20 @@
 
 - researchClassifications[]：classification、status、country、productScope[]、reason、evidence。classification 只用 lead|competitor。
 - companyRoles[]：role、scope、country、projectName、status、rationale、evidence。
-- productsAndServices[]：name、type、category、description、technologyTerms[]、applications[]、targetCustomers[]、markets[]、commercialRoles[]、manufacturingStatus、manufacturingDescription、factoryLocations[]、status、getoRelevance、evidence。
+- productsAndServices[]：name、type、category、description、technologyTerms[]、applications[]、targetCustomers[]、markets[]、commercialRoles[]、manufacturingStatus、manufacturingDescription、factoryLocations[]、media[]、representativeProject、status、getoRelevance、evidence。media[] 使用 url、mediaType=image|video|document、caption、lastVerifiedOn、evidence；representativeProject 使用 projects[] 中的自然项目名。
 
 ## 项目与关系
 
-- projects[]：projectName、aliases[]、projectType、country、region、city/location、address、owner、developer、consultant、mainContractor、targetCompanyRole、contractScope、contractNumber、contractValue、currency、scale、buildingArea、storeys、units、status、procurementStage、startedOn、endedOn、currentOrHistorical、inquiryMatchStatus、roleVerificationStatus、getoOpportunity、description、evidence。
+- projects[]：projectName、aliases[]、projectType、country、region、city/location、address、participants[]、targetCompanyRole、contractScope、contractNumber、contractValue、currency、scale、buildingArea、storeys、units、status、procurementStage、startedOn、endedOn、currentOrHistorical、inquiryMatchStatus、roleVerificationStatus、productsOrTechnologies[]、potentialProducts[]、demandJudgement、entryWindow、opportunity、procurementBoundary、knownRelationship、getoRelevance、verificationStatus、lastVerifiedOn、description、evidence。
+- participants[] 每项使用 name、role、identity、status、lastVerifiedOn、evidence。role 使用 owner|developer|main_contractor|subcontractor|consultant|designer|supervisor|partner|other；status 使用 confirmed|possible|conflicting|historical。
 - relationships[] 通用字段：relationshipType、counterpartyName、counterpartyRole、companyRole、projectName、country、status、startedOn、endedOn、description、evidence。
-- 竞对客户关系扩展字段：relationshipRole、productOrService、cooperationModeCode、cooperationDepthCode、relationshipStatusCode、buyer、payer、actualUser、isExclusive、firstEvidenceOn、lastVerifiedOn、reviewDecision、entryPoint、limitation、entrySignalCode、entryAssessment。详细枚举与 0–5 切入评估结构由 geto-mine-competitor-customers 的 competitor-customer-contract 定义。
+- 竞对客户关系扩展字段：relationshipRole、productOrService、cooperationModeCode、cooperationDepthCode、relationshipStatusCode、buyer、payer、actualUser、exclusivity、firstEvidenceOn、lastVerifiedOn、reviewDecision、entryPoint、limitations[]、entrySignalCode、entryAssessment。exclusivity 使用 status、scope、description、lastVerifiedOn、evidence；status 使用 exclusive|non_exclusive|unknown|conflicting。详细枚举与 0–5 切入评估结构由 geto-mine-competitor-customers 的 competitor-customer-contract 定义。
 - licensesAndCertifications[]：licenseType、licenseNumber、authority、jurisdiction、issuedOn、expiresOn、status、description、evidence。
 
 ## 联系人
 
 - contacts[]：contactType、name、jobTitle、department、seniority、responsibilities、buyingRole、location、workEmail、workPhone、linkedinUrl、otherProfileUrl、verificationStatus、lastVerifiedOn、evidence。
-- Provider 只验证邮箱存在或可投递时，verificationStatus=email_only；Evidence 使用 relation=context、verificationScope=["workEmail.deliverability"]，note 明示不支持当前任职、职位、授权或 buyingRole。上述字段保持 null，直到公司官网、人员公开职业页或多源一致证据分别支持。
+- Provider 只验证邮箱存在或可投递时，verificationStatus=email_only；Evidence 使用 verificationScope=["workEmail.deliverability"]，note 只陈述邮箱验证范围。任职、职位、授权和 buyingRole 分别依据公司官网、人员公开职业页或多源一致证据填写。
 
 ## 财务、海关与合规
 

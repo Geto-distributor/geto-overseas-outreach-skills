@@ -45,7 +45,7 @@ def evidence(url: str = "https://example.com/product") -> dict[str, object]:
     return {
         "sourceTitle": "Official product page", "sourceUrl": url,
         "publisher": "Example", "sourceType": "official_website",
-        "publishedOn": None, "retrievedOn": "2026-08-19", "relation": "supports",
+        "publishedOn": None, "retrievedOn": "2026-08-19",
         "locator": "Products", "excerpt": "Product system", "note": "Fixture",
     }
 
@@ -61,6 +61,48 @@ class ResearchBundleValidationTests(unittest.TestCase):
                 value = json.loads((ROOT / "tests/fixtures" / name).read_text(encoding="utf-8"))
                 errors, _, _ = RESEARCH_BUNDLE.validate_company(value)
                 self.assertEqual(errors, [])
+
+    def test_evidence_uses_source_metadata_only(self) -> None:
+        value = base_company()
+        source = evidence()
+        source["relation"] = "supports"
+        value["websites"] = [{"url": "https://example.com", "evidence": [source]}]
+        errors, _, _ = RESEARCH_BUNDLE.validate_company(value)
+        self.assertTrue(any("unsupported fields: relation" in item for item in errors))
+
+    def test_project_participants_are_typed_and_evidence_backed(self) -> None:
+        value = base_company()
+        value["projects"] = [{
+            "projectName": "Example Tower", "status": "active",
+            "participants": [{
+                "name": "Example Developer", "role": "developer", "identity": None,
+                "status": "confirmed", "lastVerifiedOn": "2026-08-19",
+                "evidence": [evidence()],
+            }],
+            "evidence": [evidence()],
+        }]
+        errors, _, _ = RESEARCH_BUNDLE.validate_company(value)
+        self.assertEqual(errors, [])
+        value["projects"][0]["developer"] = "Example Developer"
+        errors, _, _ = RESEARCH_BUNDLE.validate_company(value)
+        self.assertTrue(any("unsupported participant fields: developer" in item for item in errors))
+
+    def test_exclusivity_is_a_status_object(self) -> None:
+        value = base_company()
+        value["relationships"] = [{
+            "relationshipType": "customer", "counterpartyName": "Customer A",
+            "status": "possible", "limitations": ["Current continuity is unverified"],
+            "exclusivity": {
+                "status": "unknown", "scope": None, "description": None,
+                "lastVerifiedOn": None, "evidence": [],
+            },
+            "evidence": [evidence()],
+        }]
+        errors, _, _ = RESEARCH_BUNDLE.validate_company(value)
+        self.assertEqual(errors, [])
+        value["relationships"][0]["isExclusive"] = False
+        errors, _, _ = RESEARCH_BUNDLE.validate_company(value)
+        self.assertTrue(any("unsupported relationship fields: isExclusive" in item for item in errors))
 
     def test_installer_only_cannot_be_confirmed_competitor(self) -> None:
         value = base_company()
@@ -110,7 +152,12 @@ class ResearchBundleValidationTests(unittest.TestCase):
             "projectName": "Project A", "country": "Australia", "status": "confirmed",
             "description": "Single-project product supply", "reviewDecision": "verified_customer",
             "cooperationDepthCode": "single_project", "relationshipStatusCode": "current",
-            "entrySignalCode": None, "isExclusive": None,
+            "entrySignalCode": None,
+            "limitations": [],
+            "exclusivity": {
+                "status": "unknown", "scope": None, "description": None,
+                "lastVerifiedOn": None, "evidence": [],
+            },
             "entryAssessment": {
                 "assessmentType": "relationship_entry", "status": "completed",
                 "modelCode": "GETO_RELATIONSHIP_ENTRY", "modelVersion": "1.0",
@@ -482,6 +529,25 @@ class SearchLexiconTests(unittest.TestCase):
         ):
             self.assertIn(resource, inquiry_contract)
         self.assertIn("competitorCustomerPortfolio", company_contract)
+
+    def test_company_json_reference_example_validates(self) -> None:
+        example = json.loads((
+            ROOT / "skills/geto-run-market-research/references/company-json-example.json"
+        ).read_text(encoding="utf-8"))
+        errors, warnings, _ = RESEARCH_BUNDLE.validate_company(example)
+        self.assertEqual(errors, [])
+        self.assertEqual(warnings, [])
+
+    def test_inquiry_reference_example_merges_into_company_contract(self) -> None:
+        example = json.loads((
+            ROOT / "skills/geto-run-market-research/references/company-json-example.json"
+        ).read_text(encoding="utf-8"))
+        text = (ROOT / "skills/geto-diligence-inquiry/references/inquiry-example.md").read_text(encoding="utf-8")
+        fragment = json.loads(text.split("```json\n", 1)[1].split("\n```", 1)[0])
+        example.update(fragment)
+        errors, warnings, _ = RESEARCH_BUNDLE.validate_company(example)
+        self.assertEqual(errors, [])
+        self.assertEqual(warnings, [])
 
     def test_competitor_skills_separate_company_facts_from_customer_portfolio(self) -> None:
         diligence = (ROOT / "skills/geto-diligence-competitor/SKILL.md").read_text(encoding="utf-8")

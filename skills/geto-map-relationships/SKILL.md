@@ -19,9 +19,9 @@ description: 将 GETO 海外市场中已归一的公司、项目、产品与商�
 2. 把“谁与谁、在哪个项目、用什么产品、如何合作”拆成一条一事实关系。
 3. 只有双方可识别、关系类型有直接证据、合作语境可定位、时态明确且反证已记录时建边。
 4. 从受控关系类型选择：parent、subsidiary、shareholder、controlled_by、brand_operator、customer、supplier、distributor、agent、consultant、developer、contractor、subcontractor、joint_venture、strategic_partner、other。
-5. 只有证据明确披露时才填写采购方、实际使用方、付款方、sale/rental、exclusive、strength、location 和 timeWindow；未知保持空值或 unknown。
-6. 每个 relationships[] item 内嵌 supports/refutes/context Evidence。反证不能只删除不留痕。
-7. entryPoint 和 limitation 是关系层分析，必须同时引用关系事实和 GETO 能力；不得进入竞对客户价值平均分。
+5. 只有证据明确披露时才填写采购方、实际使用方、付款方、sale/rental、exclusivity、strength、location 和 timeWindow；未知保持空值或 unknown。
+6. 每个 relationships[] item 内嵌 Evidence。关系事实、待核和冲突状态写在关系 item 中。
+7. entryPoint 和 limitations 是关系层分析，必须同时引用关系事实和 GETO 能力；不得进入竞对客户价值平均分。
 
 竞对官网具名案例在明确客户/伙伴、项目或产品和合作内容时足以建边，但不能自动证明买方、付款方、排他或持续合作。
 

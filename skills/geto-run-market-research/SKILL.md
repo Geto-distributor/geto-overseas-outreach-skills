@@ -9,7 +9,7 @@ description: 编排 GETO 海外市场的一次完整或定向调研，以当前�
 
 把当前国家调研任务作为主任务。用用户可见的独立任务承载角色发现、Provider 查询和逐公司背调；subagent 只允许在单个任务内部并行。主任务维护人可直接浏览的 ResearchBundle，不依赖 OmniX 完成研究。
 
-开始前读取 [orchestration.md](references/orchestration.md) 与 [company-json-contract.md](references/company-json-contract.md)。需要初始化或验证本地成果时使用本 Skill 的 `scripts/`。
+开始前读取 [orchestration.md](references/orchestration.md) 与 [company-json-contract.md](references/company-json-contract.md)。首次生成或复核 Company 结构时再读取 [company-json-example.json](references/company-json-example.json)。需要初始化或验证本地成果时使用本 Skill 的 `scripts/`。
 
 ## 输入
 
@@ -94,7 +94,9 @@ python scripts/validate_workspace.py '<国家目录>'
 
 仅在本地验证通过后询问用户：是否上传、Base URL/API Key 是否已安全配置、上传为 `private` 还是 `public`。用户同意后调用 `$omnix-market` 的单一无版本 Company Aggregate API。没有 OmniX 或用户不上传不阻断研究完成。
 
-在 `progress.md` 记录 `uploadStatus=not_requested|not_configured|uploaded_private|uploaded_public|blocked_public_duplicate|failed` 和平台返回的 detailRoute；不得记录 API Key。
+private/public 均要求注册号或已确认稳定官网域名等强身份。上传投影保留 competitorCustomerPortfolio、assessment.capabilityContext、projects[].participants、relationships[].exclusivity 和内嵌 Evidence；inquiryAssessment、researchQueries、reportFiles、报告和工作空间路径保存在本地。public 以整个 Aggregate 为可见单元。lead 的 scoring criteria hash 由 `$omnix-market` 自动读取并注入。
+
+创建或更新后可在 `progress.md` 记录 `uploadStatus=not_requested|not_configured|uploaded_private|uploaded_public|blocked_public_duplicate|failed` 和平台返回的 detailRoute；不得记录 API Key。软删除与恢复只在当前任务回传结果中说明。
 
 ## 完成条件
 

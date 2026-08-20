@@ -38,13 +38,18 @@
 | 深度报告与项目深挖 | completed | 18 类报告主题、项目发现瀑布流、项目角色三层证明与稀疏项目覆盖校验 |
 | 单竞对深度背调 | completed | `skills/geto-diligence-competitor/`；主体、产品商业控制、制造、项目与客户候选独立合同 |
 | 竞对客户组合与切入口径 | completed | `competitorCustomerPortfolio`、`GETO_RELATIONSHIP_ENTRY 1.0`、`aggregate_competitor_customers.py` |
+| ResearchBundle 与 OmniX 投影边界 | completed | 本地为事实主合同；inquiryAssessment、researchQueries、reportFiles 与报告保存在本地 |
+| Company 字段示例 | completed | `references/company-json-example.json`、询盘 `references/inquiry-example.md`、OmniX `references/upload-example.md` |
+| Evidence 来源合同 | completed | Evidence 只含来源元数据；业务 item 承载状态、冲突和拒绝理由 |
+| 项目与关系结构 | completed | `projects[].participants[]`、`relationships[].limitations[]`、exclusivity 状态对象 |
+| OmniX 上传门禁 | completed | private/public 强身份、自动 scoring criteria hash、运行时 Aggregate schema capability 检查 |
 
 ## 验证
 
 - GETO 仓库 validator：9 Skills passed。
 - skill-creator quick_validate：9 个 GETO Skills、omnix-market、netease-waimao、tradewind-api 均 passed。
-- GETO ResearchBundle/SearchLexicon/cohort/询盘/竞对客户组合/关系切入/字段与报告合同/并发/能力工件回归：26 tests passed。
-- OmniX unversioned API 合同回归：9 tests passed。
+- GETO ResearchBundle/SearchLexicon/cohort/询盘/竞对客户组合/关系切入/字段与报告合同/并发/能力工件回归：31 tests passed。
+- OmniX unversioned API 合同、强身份、投影、评分 hash 与 capability 回归：17 tests passed。
 - 网易外贸通既有安全回归：11 tests passed。
 - Freecity、Electron company.json：均 0 ERROR / 0 WARNING。
 - ResearchBundle 端到端 smoke：规范国家目录 init → 单公司 validate → 国家 validate，均 0 ERROR / 0 WARNING / 0 INFO。
@@ -59,6 +64,7 @@
 - Provider 载荷终验：TradeWind 根层 people[5] 与嵌套 meta 分页矛盾已输出 not_exhaustive + pagination_metadata_inconsistent。
 - 竞对职责终验：单竞对 Skill 只输出竞对事实与分类；竞对客户 Skill 复用客户六维 cohort 分，按去重客户聚合平均分和覆盖率，并在关系层单列 0–5 切入分。
 - 竞对组合烟测：2 个 verified_customer 中 1 个具有 completed 客户价值分时，输出 partial_coverage、覆盖率 0.5、均分仅取已评分客户；缺分客户未补零。
+- 完整示例烟测：通用 company-json example 与询盘 fragment 合并后均 0 ERROR / 0 WARNING；完整本地示例投影为 OmniX request 后 28 个 content 字段且 OpenAPI schemaErrors=[]。
 - credential/private artifact scan：passed。
 - `git diff --check`：passed。
 
@@ -66,4 +72,7 @@
 
 - GET-158 新 API 部署后，用实际 OpenAPI/Base URL/API Key 执行联调；当前只完成 Skill 与冻结 OpenAPI fixture 合同验证。
 - GET-160/GET-161 需要 API/UI 主任务验证 detailRoute、public 强身份冲突、软删除/恢复和双用户可见性。
+- API CompanyContent 需增加 competitorCustomerPortfolio，Assessment 需增加 capabilityContext。
+- API Project 需使用 participants[]；Relationship 需使用 exclusivity 状态对象与 limitations[]。
+- API create/update 对 private/public 都需强身份；marketCode 使用 ISO2，scopeCode 当前使用 construction_formwork。
 - 源仓库已有未跟踪文件 `skills/geto-find-leads/references/lead-assessment-contract 2.md`，本次未修改；安装目录未包含该旧副本。

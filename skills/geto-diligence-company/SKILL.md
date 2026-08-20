@@ -7,7 +7,7 @@ description: 对 GETO 海外市场中的单一线索或普通目标公司执行�
 
 一次只研究一个 Company。法定主体、经营公司和企业集团分别建模；CommercialAccount 不另建重复主体。
 
-开始前读取 [evidence-contract.md](references/evidence-contract.md) 与 [child-resources.md](references/child-resources.md)。需要六维评分时再读 [lead-assessment-contract.md](references/lead-assessment-contract.md)。
+开始前读取 [evidence-contract.md](references/evidence-contract.md) 与 [child-resources.md](references/child-resources.md)。首次构造完整 company.json 时读取 `$geto-run-market-research` 的 `references/company-json-example.json`；需要六维评分时再读 [lead-assessment-contract.md](references/lead-assessment-contract.md)。
 
 ## 输入
 
@@ -49,7 +49,7 @@ TradeWind 和网易外贸通只作为独立 Provider 任务返回的 ExternalObs
 
 ### 5. 写入内嵌 Evidence
 
-把事实写入 `company.json` 对应 item，每个主要列表 item 自带 `evidence[]`。Evidence 关系只用 `supports|refutes|context`；冲突来源全部保留，不以数量投票。最终从全部内嵌 Evidence 生成 `Sources/sources.md`。
+把事实写入 `company.json` 对应 item，每个主要列表 item 自带 `evidence[]`。Evidence 保存来源信息；事实状态、冲突与拒绝理由写在所属业务 item。冲突来源全部保留，不以数量投票。最终从全部内嵌 Evidence 生成 `Sources/sources.md`。
 
 ### 6. 产品商业角色与分类事实
 

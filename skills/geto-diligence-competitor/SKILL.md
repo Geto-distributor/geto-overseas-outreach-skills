@@ -7,7 +7,7 @@ description: 对 GETO 海外市场中的单一竞对公司执行深度背调，�
 
 一次只研究一个竞对 Company。主体事实、产品竞争面、制造深度和客户关系分别取证；公司名含 framework、formwork、modular 或相似产品词只用于召回。
 
-开始前读取 [child-resources.md](references/child-resources.md)、[competitor-contract.md](references/competitor-contract.md) 与 [report-contract.md](references/report-contract.md)。Evidence 通用结构读取 `$geto-diligence-company` 的 evidence-contract.md。
+开始前读取 [child-resources.md](references/child-resources.md)、[competitor-contract.md](references/competitor-contract.md) 与 [report-contract.md](references/report-contract.md)。首次构造完整 company.json 时读取 `$geto-run-market-research` 的 `references/company-json-example.json`；Evidence 通用结构读取 `$geto-diligence-company` 的 evidence-contract.md。
 
 ## 输入
 

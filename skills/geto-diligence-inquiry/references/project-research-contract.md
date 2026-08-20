@@ -24,11 +24,11 @@
 每个 material project 尽量写入：
 
 - 名称/别名、地点、类型、规模、层数/面积/单位数；
-- 业主、开发商、顾问、主包和其他已确认参与方；
+- participants[] 中的业主、开发商、主包、分包、顾问、设计、监理和合作方；每个参与方分别保存角色、状态与 Evidence；
 - 状态、采购阶段、开竣工或审批时间线；
 - 公开金额及其口径；
 - 目标 Company 的角色、合同范围、角色验证状态；
-- 与询盘及 GETO 产品的相关性；
+- productsOrTechnologies[]、potentialProducts[]、demandJudgement、entryWindow、opportunity、procurementBoundary、knownRelationship 与 getoRelevance；
 - 支持、反证、冲突和仍缺字段。
 
 ## 深度要求

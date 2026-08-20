@@ -20,12 +20,14 @@
 - counterpartyName、counterpartyRole、companyRole、relationshipRole；
 - projectName、productOrService、country、description；
 - cooperationModeCode、cooperationDepthCode、relationshipStatusCode；
-- buyer、payer、actualUser、isExclusive；
+- buyer、payer、actualUser、exclusivity；
 - startedOn、endedOn、firstEvidenceOn、lastVerifiedOn；
-- reviewDecision、entryPoint、limitation、entrySignalCode；
+- reviewDecision、entryPoint、limitations[]、entrySignalCode；
 - entryAssessment、evidence。
 
 cooperationDepthCode 使用 trial|single_project|repeat_business|framework_designated|exclusive_closed|null。relationshipStatusCode 使用 current|historical|ended|unknown。entrySignalCode 使用 open_supplier_window|supplier_termination|product_gap|new_procurement_window|null。
+
+exclusivity 使用对象：status=exclusive|non_exclusive|unknown|conflicting，并包含 scope、description、lastVerifiedOn、evidence。limitations[] 保存地区、产品、项目、时间、资格和证据边界。
 
 未知交易字段使用 null。一个客户与同一竞对存在多个项目或产品时可保留多条关系，组合客户数按 counterpartyName 强身份归一后去重。
 
@@ -69,5 +71,7 @@ completed 要求 0–5 整数、直接 Evidence 与对应事实锚点。pending_
 customers[] 使用 companyName、country、relationshipCount、customerAssessmentStatus、customerValueScore、customerValueModelVersion、cohortBaselineVersion、assessedOn、evidence。
 
 averageCustomerValueScore 是已核实且具有当前 completed 客户价值 assessment 的去重客户 overallScore 算术平均值，保留一位小数。客户分缺失时不进入平均分分母；customerScoreCoverage=scoredCustomerCount/verifiedCustomerCount。
+
+competitorCustomerPortfolio 进入 OmniX Company Aggregate 共享投影；customers[] 只上传逐客评分摘要和关系 Evidence。客户完整六维 assessment 保存在客户自己的 company.json 和 Aggregate。
 
 组合状态：客户数为 0 时 no_verified_customers；客户存在且评分数为 0 时 pending_customer_scores；覆盖率介于 0 和 1 时 partial_coverage；覆盖率为 1 时 completed。

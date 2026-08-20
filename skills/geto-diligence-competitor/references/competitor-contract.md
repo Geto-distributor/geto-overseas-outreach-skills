@@ -19,7 +19,7 @@
 - commercialRoles[]；
 - manufacturingStatus、manufacturingDescription、factoryLocations[]；
 - 与 GETO competitionSurface 的重叠、相邻替代或互补边界；
-- supports、refutes、context Evidence。
+- 可定位的 Evidence，以及产品 item 的 status、reason 和 verificationStatus。
 
 官网只展示产品时可证明产品存在，制造主体、工厂控制、产能和自产比例分别取证。
 

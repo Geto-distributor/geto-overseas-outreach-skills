@@ -1,0 +1,412 @@
+{
+  "company": {
+    "companyName": "Example Build Systems Ltd.",
+    "entityType": "operating_company",
+    "country": "Australia",
+    "countryCode": "AU",
+    "status": "active",
+    "summary": "Australian construction contractor with a verified official domain.",
+    "researchConclusion": "Strong identity is verified; project procurement authority remains under review.",
+    "foundedOn": "2012-04-18",
+    "companyScale": "medium",
+    "headcount": 180,
+    "listingStatus": "not_listed",
+    "listingDetails": null,
+    "marketPosition": "Regional contractor",
+    "priority": "medium",
+    "procurementBoundary": "Project teams select temporary-works suppliers subject to head-office approval.",
+    "evidence": [
+      {
+        "sourceTitle": "Example Build Systems - About",
+        "sourceUrl": "https://example.com/about",
+        "publisher": "Example Build Systems Ltd.",
+        "sourceType": "official_website",
+        "publishedOn": null,
+        "retrievedOn": "2026-08-20",
+        "locator": "About",
+        "excerpt": "Company profile and operating history.",
+        "note": "Supports the operating-company profile and founding date."
+      }
+    ]
+  },
+  "aliases": [],
+  "registrations": [
+    {
+      "registrationType": "company_number",
+      "registrationNumber": "123456789",
+      "legalName": "Example Build Systems Ltd.",
+      "entityKind": "operating_company",
+      "jurisdiction": "AU",
+      "issuingAuthority": "Example Registry",
+      "registeredOn": "2012-04-18",
+      "issueDateRaw": "18 April 2012",
+      "status": "active",
+      "verificationStatus": "verified",
+      "description": "Primary registration identity.",
+      "evidence": [
+        {
+          "sourceTitle": "Example Registry extract",
+          "sourceUrl": "https://registry.example/123456789",
+          "publisher": "Example Registry",
+          "sourceType": "registry",
+          "publishedOn": null,
+          "retrievedOn": "2026-08-20",
+          "locator": "Registration 123456789",
+          "excerpt": "Active registration for Example Build Systems Ltd.",
+          "note": "Primary strong identity anchor."
+        }
+      ]
+    }
+  ],
+  "capitalRecords": [],
+  "websites": [
+    {
+      "url": "https://example.com",
+      "websiteType": "official",
+      "status": "active",
+      "verificationStatus": "verified",
+      "lastCheckedOn": "2026-08-20",
+      "evidence": [
+        {
+          "sourceTitle": "Example Build Systems home page",
+          "sourceUrl": "https://example.com",
+          "publisher": "Example Build Systems Ltd.",
+          "sourceType": "official_website",
+          "publishedOn": null,
+          "retrievedOn": "2026-08-20",
+          "locator": "Home",
+          "excerpt": "Official company website.",
+          "note": "Primary stable domain."
+        }
+      ]
+    }
+  ],
+  "addresses": [],
+  "marketPresence": [],
+  "socialChannels": [],
+  "researchClassifications": [
+    {
+      "classification": "lead",
+      "status": "confirmed",
+      "country": "Australia",
+      "productScope": ["aluminum_formwork"],
+      "reason": "Verified contractor with relevant concrete projects.",
+      "evidence": [
+        {
+          "sourceTitle": "Example Build Systems projects",
+          "sourceUrl": "https://example.com/projects",
+          "publisher": "Example Build Systems Ltd.",
+          "sourceType": "official_website",
+          "publishedOn": null,
+          "retrievedOn": "2026-08-20",
+          "locator": "Residential projects",
+          "excerpt": "Concrete residential project portfolio.",
+          "note": "Lead qualification evidence."
+        }
+      ]
+    },
+    {
+      "classification": "competitor",
+      "status": "rejected",
+      "country": "Australia",
+      "productScope": ["aluminum_formwork"],
+      "reason": "The company uses construction systems but does not market an owned, manufactured, distributed or rented competing system.",
+      "evidence": [
+        {
+          "sourceTitle": "Example Build Systems services",
+          "sourceUrl": "https://example.com/services",
+          "publisher": "Example Build Systems Ltd.",
+          "sourceType": "official_website",
+          "publishedOn": null,
+          "retrievedOn": "2026-08-20",
+          "locator": "Services",
+          "excerpt": "Construction delivery services.",
+          "note": "Commercial-control boundary."
+        }
+      ]
+    }
+  ],
+  "companyRoles": [
+    {
+      "role": "main_contractor",
+      "scope": "Residential construction",
+      "country": "Australia",
+      "projectName": "Harbour Residence",
+      "status": "confirmed",
+      "rationale": "Official project page names the company as main contractor.",
+      "evidence": [
+        {
+          "sourceTitle": "Harbour Residence project page",
+          "sourceUrl": "https://example.com/projects/harbour-residence",
+          "publisher": "Example Build Systems Ltd.",
+          "sourceType": "official_website",
+          "publishedOn": null,
+          "retrievedOn": "2026-08-20",
+          "locator": "Project team",
+          "excerpt": "Example Build Systems served as main contractor.",
+          "note": "Company-role evidence."
+        }
+      ]
+    }
+  ],
+  "productsAndServices": [
+    {
+      "name": "Design and construct",
+      "type": "service",
+      "category": "construction_delivery",
+      "description": "Main-contracting and project delivery service.",
+      "technologyTerms": ["reinforced concrete"],
+      "applications": ["residential towers"],
+      "targetCustomers": ["developers"],
+      "markets": ["Australia"],
+      "commercialRoles": ["service_contractor"],
+      "manufacturingStatus": "not_found",
+      "manufacturingDescription": null,
+      "factoryLocations": [],
+      "media": [],
+      "representativeProject": "Harbour Residence",
+      "status": "confirmed",
+      "getoRelevance": "high",
+      "evidence": [
+        {
+          "sourceTitle": "Example Build Systems services",
+          "sourceUrl": "https://example.com/services",
+          "publisher": "Example Build Systems Ltd.",
+          "sourceType": "official_website",
+          "publishedOn": null,
+          "retrievedOn": "2026-08-20",
+          "locator": "Design and construct",
+          "excerpt": "Design and construct service description.",
+          "note": "Service and market evidence."
+        }
+      ]
+    }
+  ],
+  "projects": [
+    {
+      "projectName": "Harbour Residence",
+      "aliases": [],
+      "projectType": "high_rise_residential",
+      "country": "Australia",
+      "region": "New South Wales",
+      "city": "Sydney",
+      "location": "Sydney CBD",
+      "address": null,
+      "participants": [
+        {
+          "name": "Example Developments Pty Ltd.",
+          "role": "developer",
+          "identity": {"primaryDomain": "example-developments.test"},
+          "status": "confirmed",
+          "lastVerifiedOn": "2026-08-20",
+          "evidence": [
+            {
+              "sourceTitle": "Harbour Residence project page",
+              "sourceUrl": "https://example.com/projects/harbour-residence",
+              "publisher": "Example Build Systems Ltd.",
+              "sourceType": "official_website",
+              "publishedOn": null,
+              "retrievedOn": "2026-08-20",
+              "locator": "Project team",
+              "excerpt": "Developer: Example Developments Pty Ltd.",
+              "note": "Developer-role evidence."
+            }
+          ]
+        },
+        {
+          "name": "Example Build Systems Ltd.",
+          "role": "main_contractor",
+          "identity": {"registrationNumber": "123456789", "jurisdiction": "AU"},
+          "status": "confirmed",
+          "lastVerifiedOn": "2026-08-20",
+          "evidence": [
+            {
+              "sourceTitle": "Harbour Residence project page",
+              "sourceUrl": "https://example.com/projects/harbour-residence",
+              "publisher": "Example Build Systems Ltd.",
+              "sourceType": "official_website",
+              "publishedOn": null,
+              "retrievedOn": "2026-08-20",
+              "locator": "Project team",
+              "excerpt": "Main contractor: Example Build Systems Ltd.",
+              "note": "Target-company role evidence."
+            }
+          ]
+        }
+      ],
+      "targetCompanyRole": "main_contractor",
+      "contractScope": "Main construction contract",
+      "contractNumber": null,
+      "contractValue": null,
+      "currency": "AUD",
+      "scale": "28-storey residential tower",
+      "buildingArea": null,
+      "storeys": 28,
+      "units": 210,
+      "status": "active",
+      "procurementStage": "construction",
+      "startedOn": "2025-02-01",
+      "endedOn": null,
+      "currentOrHistorical": "current",
+      "inquiryMatchStatus": "possible",
+      "roleVerificationStatus": "verified",
+      "productsOrTechnologies": ["reinforced concrete"],
+      "potentialProducts": [
+        {
+          "productName": "aluminum_formwork",
+          "usageSummary": "Potential fit for repeated residential floors.",
+          "evidence": [
+            {
+              "sourceTitle": "Harbour Residence project page",
+              "sourceUrl": "https://example.com/projects/harbour-residence",
+              "publisher": "Example Build Systems Ltd.",
+              "sourceType": "official_website",
+              "publishedOn": null,
+              "retrievedOn": "2026-08-20",
+              "locator": "Project overview",
+              "excerpt": "28-storey reinforced-concrete residential tower.",
+              "note": "Project geometry supports product-fit review."
+            }
+          ]
+        }
+      ],
+      "demandJudgement": "possible",
+      "entryWindow": "Verify the temporary-works package before structural procurement closes.",
+      "opportunity": "Potential aluminum-formwork proposal for repeated floors.",
+      "procurementBoundary": "Temporary-works supplier approval requires project and head-office review.",
+      "knownRelationship": "No current GETO relationship was identified.",
+      "getoRelevance": "high",
+      "verificationStatus": "partially_verified",
+      "lastVerifiedOn": "2026-08-20",
+      "description": "Material active project for inquiry and product-fit analysis.",
+      "evidence": [
+        {
+          "sourceTitle": "Harbour Residence project page",
+          "sourceUrl": "https://example.com/projects/harbour-residence",
+          "publisher": "Example Build Systems Ltd.",
+          "sourceType": "official_website",
+          "publishedOn": null,
+          "retrievedOn": "2026-08-20",
+          "locator": "Project overview",
+          "excerpt": "Project description, location and scale.",
+          "note": "Project existence and target-company participation."
+        }
+      ]
+    }
+  ],
+  "relationships": [
+    {
+      "counterpartyName": "Example Developments Pty Ltd.",
+      "relatedPartyType": "company",
+      "relationshipType": "customer",
+      "direction": "from_company",
+      "projectName": "Harbour Residence",
+      "country": "Australia",
+      "description": "Main-contractor relationship on Harbour Residence.",
+      "status": "confirmed",
+      "startedOn": "2025-02-01",
+      "endedOn": null,
+      "limitations": ["Buyer and payer roles remain unverified."],
+      "exclusivity": {
+        "status": "unknown",
+        "scope": null,
+        "description": "The available project page does not state exclusivity.",
+        "lastVerifiedOn": "2026-08-20",
+        "evidence": []
+      },
+      "evidence": [
+        {
+          "sourceTitle": "Harbour Residence project page",
+          "sourceUrl": "https://example.com/projects/harbour-residence",
+          "publisher": "Example Build Systems Ltd.",
+          "sourceType": "official_website",
+          "publishedOn": null,
+          "retrievedOn": "2026-08-20",
+          "locator": "Project team",
+          "excerpt": "Developer and main contractor are named.",
+          "note": "Relationship evidence."
+        }
+      ]
+    }
+  ],
+  "contacts": [],
+  "licensesAndCertifications": [],
+  "financialRecords": [],
+  "newsAndSocialMedia": [],
+  "customsTransactions": [],
+  "lawsuitsAndCompliance": [],
+  "inquiries": [],
+  "risks": [],
+  "researchQueries": [
+    {
+      "topic": "official_projects",
+      "channel": "web",
+      "query": "site:example.com/projects Example Build Systems",
+      "scope": "Official project portfolio",
+      "status": "found",
+      "checkedOn": "2026-08-20",
+      "resultCount": 1,
+      "evidence": [
+        {
+          "sourceTitle": "Example Build Systems projects",
+          "sourceUrl": "https://example.com/projects",
+          "publisher": "Example Build Systems Ltd.",
+          "sourceType": "official_website",
+          "publishedOn": null,
+          "retrievedOn": "2026-08-20",
+          "locator": "Projects index",
+          "excerpt": "Official project portfolio.",
+          "note": "Query result."
+        }
+      ]
+    }
+  ],
+  "assessment": {"status": "not_requested"},
+  "inquiryAssessment": {"status": "not_requested"},
+  "competitorCustomerPortfolio": {"status": "not_requested"},
+  "missingInformation": [
+    {
+      "topic": "project_procurement_contact",
+      "status": "not_queried",
+      "description": "Named temporary-works procurement contact is not available.",
+      "impact": "Direct outreach route remains incomplete.",
+      "evidence": []
+    }
+  ],
+  "recommendedActions": [
+    {
+      "action": "Confirm the temporary-works package owner.",
+      "priority": "high",
+      "owner": "sales",
+      "timing": "Before quotation",
+      "reason": "The project is active and the procurement boundary is only partially verified.",
+      "evidence": [
+        {
+          "sourceTitle": "Harbour Residence project page",
+          "sourceUrl": "https://example.com/projects/harbour-residence",
+          "publisher": "Example Build Systems Ltd.",
+          "sourceType": "official_website",
+          "publishedOn": null,
+          "retrievedOn": "2026-08-20",
+          "locator": "Project overview",
+          "excerpt": "Active construction project.",
+          "note": "Timing basis for the recommended action."
+        }
+      ]
+    }
+  ],
+  "additionalInformation": [],
+  "reportFiles": [
+    {
+      "fileName": "report.md",
+      "path": "report.md",
+      "format": "markdown",
+      "reportType": "diligence",
+      "language": "zh-CN",
+      "generatedOn": "2026-08-20",
+      "description": "Detailed company diligence report."
+    }
+  ],
+  "researchStatus": "completed_with_gaps",
+  "lastResearchedOn": "2026-08-20"
+}

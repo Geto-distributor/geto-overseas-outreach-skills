@@ -30,12 +30,9 @@ def build(company_json: Path) -> Path:
         if locators:
             lines.append(f"- Locators: {'; '.join(locators)}")
         publishers = sorted({str(item.get("publisher") or "") for item in items if item.get("publisher")})
-        relations = sorted({str(item.get("relation") or "") for item in items if item.get("relation")})
         retrieved = sorted({str(item.get("retrievedOn") or "") for item in items if item.get("retrievedOn")})
         if publishers:
             lines.append(f"- Publisher: {', '.join(publishers)}")
-        if relations:
-            lines.append(f"- Relations: {', '.join(relations)}")
         if retrieved:
             lines.append(f"- Retrieved: {', '.join(retrieved)}")
         lines.append(f"- Evidence occurrences: {len(items)}")

@@ -28,7 +28,6 @@
           "sourceType": "customer_document",
           "publishedOn": null,
           "retrievedOn": "2026-08-19",
-          "relation": "supports",
           "locator": "registration.pdf page 1",
           "excerpt": "Registered in UAE",
           "note": "Fixture"
@@ -56,7 +55,6 @@
           "sourceType": "customer_document",
           "publishedOn": "2026-08-18",
           "retrievedOn": "2026-08-19",
-          "relation": "supports",
           "locator": "inquiry.eml",
           "excerpt": "Aluminium formwork request for Saudi project",
           "note": "Fixture"
@@ -103,7 +101,6 @@
           "sourceType": "customer_document",
           "publishedOn": "2026-08-18",
           "retrievedOn": "2026-08-19",
-          "relation": "supports",
           "locator": "inquiry.eml",
           "excerpt": "Saudi Arabia project",
           "note": "Fixture"
@@ -115,7 +112,6 @@
           "sourceType": "customer_document",
           "publishedOn": null,
           "retrievedOn": "2026-08-19",
-          "relation": "context",
           "locator": "registration.pdf page 1",
           "excerpt": "United Arab Emirates registration",
           "note": "Registration country is not project country"
@@ -142,7 +138,6 @@
           "sourceType": "customer_document",
           "publishedOn": "2026-08-18",
           "retrievedOn": "2026-08-19",
-          "relation": "context",
           "locator": "inquiry.eml",
           "excerpt": "Saudi project",
           "note": "Fixture"

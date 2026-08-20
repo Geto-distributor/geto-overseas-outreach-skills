@@ -24,11 +24,22 @@ FORBIDDEN_LOCAL_KEYS = {
     "runId", "taskId", "companyKey", "claimKey", "sourceKey", "claimSourceLinks",
     "ownerUserId", "identityKey", "visibility", "deletedAt", "businessActivities",
 }
-ALLOWED_RELATIONS = {"supports", "refutes", "context"}
 ALLOWED_SOURCE_TYPES = {
     "official_website", "registry", "government", "court", "financial_report",
     "media", "social_media", "provider", "customer_document", "other",
 }
+EVIDENCE_ITEM_FIELDS = {
+    "sourceTitle", "sourceUrl", "publisher", "sourceType", "publishedOn",
+    "retrievedOn", "locator", "excerpt", "note", "verificationScope",
+}
+PROJECT_PARTICIPANT_ROLES = {
+    "owner", "developer", "main_contractor", "subcontractor", "consultant",
+    "designer", "supervisor", "partner", "other",
+}
+PROJECT_PARTICIPANT_STATUSES = {"confirmed", "possible", "conflicting", "historical"}
+EXCLUSIVITY_STATUSES = {"exclusive", "non_exclusive", "unknown", "conflicting"}
+LISTING_STATUSES = {"direct_listed", "parent_listed", "not_listed", "unknown"}
+CAPITAL_TYPES = {"registered_capital", "paid_in_capital"}
 CONTROL_ROLES = {
     "manufacturer", "system_owner", "brand_owner", "distributor", "reseller",
     "rental_provider",
@@ -129,6 +140,14 @@ def empty_company(company_name: str = "", country: str = "", country_code: str =
             "status": "unknown",
             "summary": "",
             "researchConclusion": "",
+            "foundedOn": None,
+            "companyScale": None,
+            "headcount": None,
+            "listingStatus": "unknown",
+            "listingDetails": None,
+            "marketPosition": None,
+            "priority": None,
+            "procurementBoundary": None,
             "evidence": [],
         }
     }
@@ -234,8 +253,9 @@ def _validate_evidence_item(source: Any, path: str, errors: list[str]) -> None:
     if not isinstance(source, dict):
         errors.append(f"{path} must be an object")
         return
-    if source.get("relation") not in ALLOWED_RELATIONS:
-        errors.append(f"{path}.relation must be supports, refutes, or context")
+    unknown = sorted(set(source) - EVIDENCE_ITEM_FIELDS)
+    if unknown:
+        errors.append(f"{path} has unsupported fields: {', '.join(unknown)}")
     if source.get("sourceType") not in ALLOWED_SOURCE_TYPES:
         errors.append(f"{path}.sourceType has an invalid value")
     if not source.get("sourceTitle") or not source.get("retrievedOn"):
@@ -244,6 +264,124 @@ def _validate_evidence_item(source: Any, path: str, errors: list[str]) -> None:
         errors.append(f"{path}.retrievedOn must use YYYY-MM-DD")
     if not source.get("sourceUrl") and source.get("sourceType") != "customer_document":
         errors.append(f"{path}.sourceUrl is required except for customer documents")
+    verification_scope = source.get("verificationScope")
+    if verification_scope is not None and (
+        not isinstance(verification_scope, list)
+        or not all(isinstance(item, str) and item.strip() for item in verification_scope)
+    ):
+        errors.append(f"{path}.verificationScope must be an array of non-empty strings")
+
+
+def _validate_project(project: dict[str, Any], path: str) -> list[str]:
+    errors: list[str] = []
+    old_fields = sorted(set(project) & {"owner", "developer", "consultant", "mainContractor"})
+    if old_fields:
+        errors.append(f"{path} has unsupported participant fields: {', '.join(old_fields)}")
+    participants = project.get("participants")
+    if participants is None:
+        return errors
+    if not isinstance(participants, list):
+        return errors + [f"{path}.participants must be an array"]
+    for index, participant in enumerate(participants):
+        participant_path = f"{path}.participants[{index}]"
+        if not isinstance(participant, dict):
+            errors.append(f"{participant_path} must be an object")
+            continue
+        if not str(participant.get("name") or "").strip():
+            errors.append(f"{participant_path}.name is required")
+        if participant.get("role") not in PROJECT_PARTICIPANT_ROLES:
+            errors.append(f"{participant_path}.role has an invalid value")
+        if participant.get("status") not in PROJECT_PARTICIPANT_STATUSES:
+            errors.append(f"{participant_path}.status has an invalid value")
+        if participant.get("identity") is not None and not isinstance(participant.get("identity"), dict):
+            errors.append(f"{participant_path}.identity must be an object or null")
+        if participant.get("lastVerifiedOn") is not None and not _validate_date(participant.get("lastVerifiedOn")):
+            errors.append(f"{participant_path}.lastVerifiedOn must use YYYY-MM-DD")
+        evidence = participant.get("evidence")
+        if not isinstance(evidence, list) or not evidence:
+            errors.append(f"{participant_path}.evidence must contain at least one Evidence item")
+            continue
+        for evidence_index, source in enumerate(evidence):
+            _validate_evidence_item(source, f"{participant_path}.evidence[{evidence_index}]", errors)
+    potential_products = project.get("potentialProducts")
+    if potential_products is not None:
+        if not isinstance(potential_products, list):
+            errors.append(f"{path}.potentialProducts must be an array")
+        else:
+            for index, product in enumerate(potential_products):
+                product_path = f"{path}.potentialProducts[{index}]"
+                if not isinstance(product, dict) or not str(product.get("productName") or "").strip():
+                    errors.append(f"{product_path}.productName is required")
+                    continue
+                evidence = product.get("evidence")
+                if not isinstance(evidence, list) or not evidence:
+                    errors.append(f"{product_path}.evidence must contain at least one Evidence item")
+                    continue
+                for evidence_index, source in enumerate(evidence):
+                    _validate_evidence_item(source, f"{product_path}.evidence[{evidence_index}]", errors)
+    return errors
+
+
+def _validate_product(product: dict[str, Any], path: str) -> list[str]:
+    errors: list[str] = []
+    media = product.get("media")
+    if media is None:
+        return errors
+    if not isinstance(media, list):
+        return [f"{path}.media must be an array"]
+    for index, item in enumerate(media):
+        media_path = f"{path}.media[{index}]"
+        if not isinstance(item, dict):
+            errors.append(f"{media_path} must be an object")
+            continue
+        if not item.get("url"):
+            errors.append(f"{media_path}.url is required")
+        if item.get("mediaType") not in {"image", "video", "document"}:
+            errors.append(f"{media_path}.mediaType has an invalid value")
+        if item.get("lastVerifiedOn") is not None and not _validate_date(item.get("lastVerifiedOn")):
+            errors.append(f"{media_path}.lastVerifiedOn must use YYYY-MM-DD")
+        evidence = item.get("evidence")
+        if not isinstance(evidence, list) or not evidence:
+            errors.append(f"{media_path}.evidence must contain at least one Evidence item")
+            continue
+        for evidence_index, source in enumerate(evidence):
+            _validate_evidence_item(source, f"{media_path}.evidence[{evidence_index}]", errors)
+    return errors
+
+
+def _validate_exclusivity(relationship: dict[str, Any], path: str) -> list[str]:
+    errors: list[str] = []
+    old_fields = sorted(set(relationship) & {"isExclusive", "limitation"})
+    if old_fields:
+        errors.append(f"{path} has unsupported relationship fields: {', '.join(old_fields)}")
+    limitations = relationship.get("limitations")
+    if limitations is not None and (
+        not isinstance(limitations, list) or not all(isinstance(item, str) for item in limitations)
+    ):
+        errors.append(f"{path}.limitations must be an array of strings")
+    exclusivity = relationship.get("exclusivity")
+    if exclusivity is None:
+        return errors
+    if not isinstance(exclusivity, dict):
+        return errors + [f"{path}.exclusivity must be an object"]
+    allowed = {"status", "scope", "description", "lastVerifiedOn", "evidence"}
+    unknown = sorted(set(exclusivity) - allowed)
+    missing = sorted({"status", "scope", "description", "lastVerifiedOn", "evidence"} - set(exclusivity))
+    if unknown:
+        errors.append(f"{path}.exclusivity has unsupported fields: {', '.join(unknown)}")
+    if missing:
+        errors.append(f"{path}.exclusivity is missing fields: {', '.join(missing)}")
+    if exclusivity.get("status") not in EXCLUSIVITY_STATUSES:
+        errors.append(f"{path}.exclusivity.status has an invalid value")
+    if exclusivity.get("lastVerifiedOn") is not None and not _validate_date(exclusivity.get("lastVerifiedOn")):
+        errors.append(f"{path}.exclusivity.lastVerifiedOn must use YYYY-MM-DD")
+    evidence = exclusivity.get("evidence")
+    if not isinstance(evidence, list):
+        errors.append(f"{path}.exclusivity.evidence must be an array")
+    else:
+        for evidence_index, source in enumerate(evidence):
+            _validate_evidence_item(source, f"{path}.exclusivity.evidence[{evidence_index}]", errors)
+    return errors
 
 
 def _validate_date(raw: Any) -> bool:
@@ -467,7 +605,7 @@ def _validate_inquiry_assessment(assessment: Any) -> list[str]:
 
 
 def _validate_relationship_entry(relationship: dict[str, Any], path: str) -> list[str]:
-    errors: list[str] = []
+    errors = _validate_exclusivity(relationship, path)
     decision = relationship.get("reviewDecision")
     if decision is not None and decision not in RELATIONSHIP_REVIEW_DECISIONS:
         errors.append(f"{path}.reviewDecision has an invalid value")
@@ -530,7 +668,10 @@ def _validate_relationship_entry(relationship: dict[str, Any], path: str) -> lis
     relation_status = relationship.get("relationshipStatusCode")
     entry_signal = relationship.get("entrySignalCode")
     anchors = {
-        0: relationship.get("isExclusive") is True or depth == "exclusive_closed",
+        0: (
+            isinstance(relationship.get("exclusivity"), dict)
+            and relationship["exclusivity"].get("status") == "exclusive"
+        ) or depth == "exclusive_closed",
         1: depth == "framework_designated",
         2: depth == "repeat_business",
         3: depth == "single_project",
@@ -662,6 +803,16 @@ def validate_company(value: Any) -> tuple[list[str], list[str], list[str]]:
             errors.append("$.company.countryCode must be ISO 3166-1 alpha-2")
         if company.get("entityType") not in {"legal_entity", "operating_company", "corporate_group"}:
             errors.append("$.company.entityType has an invalid value")
+        if company.get("foundedOn") is not None and not _validate_date(company.get("foundedOn")):
+            errors.append("$.company.foundedOn must use YYYY-MM-DD")
+        if company.get("headcount") is not None and (
+            isinstance(company.get("headcount"), bool)
+            or not isinstance(company.get("headcount"), int)
+            or company.get("headcount") < 0
+        ):
+            errors.append("$.company.headcount must be a non-negative integer or null")
+        if company.get("listingStatus") is not None and company.get("listingStatus") not in LISTING_STATUSES:
+            errors.append("$.company.listingStatus has an invalid value")
         if not isinstance(company.get("evidence"), list):
             errors.append("$.company.evidence must be an array")
         else:
@@ -701,6 +852,14 @@ def validate_company(value: Any) -> tuple[list[str], list[str], list[str]]:
             for evidence_index, source in enumerate(evidence or []):
                 source_path = f"{path}.evidence[{evidence_index}]"
                 _validate_evidence_item(source, source_path, errors)
+
+    for index, item in enumerate(value.get("capitalRecords", [])):
+        if isinstance(item, dict) and item.get("capitalType") not in CAPITAL_TYPES:
+            errors.append(f"$.capitalRecords[{index}].capitalType has an invalid value")
+
+    for index, product in enumerate(value.get("productsAndServices", [])):
+        if isinstance(product, dict):
+            errors.extend(_validate_product(product, f"$.productsAndServices[{index}]"))
 
     for index, item in enumerate(value.get("researchQueries", [])):
         path = f"$.researchQueries[{index}]"
@@ -796,6 +955,10 @@ def validate_company(value: Any) -> tuple[list[str], list[str], list[str]]:
     for index, relationship in enumerate(value.get("relationships", [])):
         if isinstance(relationship, dict):
             errors.extend(_validate_relationship_entry(relationship, f"$.relationships[{index}]"))
+
+    for index, project in enumerate(value.get("projects", [])):
+        if isinstance(project, dict):
+            errors.extend(_validate_project(project, f"$.projects[{index}]"))
 
     errors.extend(_validate_assessment(value.get("assessment")))
     errors.extend(_validate_inquiry_assessment(value.get("inquiryAssessment")))

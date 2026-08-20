@@ -28,7 +28,6 @@
           "sourceType": "official_website",
           "publishedOn": null,
           "retrievedOn": "2026-08-19",
-          "relation": "supports",
           "locator": "About",
           "excerpt": "Australian operations",
           "note": "Fixture"
@@ -52,7 +51,6 @@
           "sourceType": "official_website",
           "publishedOn": null,
           "retrievedOn": "2026-08-19",
-          "relation": "context",
           "locator": "Products",
           "excerpt": "Volumetric modular construction",
           "note": "Fixture"
@@ -73,7 +71,6 @@
           "sourceType": "official_website",
           "publishedOn": null,
           "retrievedOn": "2026-08-19",
-          "relation": "supports",
           "locator": "Systems",
           "excerpt": "Proprietary modular system",
           "note": "Fixture"
@@ -106,7 +103,6 @@
           "sourceType": "official_website",
           "publishedOn": null,
           "retrievedOn": "2026-08-19",
-          "relation": "supports",
           "locator": "Products",
           "excerpt": "Own modular system",
           "note": "Fixture"
