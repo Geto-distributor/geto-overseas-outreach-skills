@@ -7,6 +7,14 @@
     "status": "unknown",
     "summary": "Inquiry fixture with registration-country and project-country distinctions.",
     "researchConclusion": "The opportunity is usable only after signing-entity and payer verification.",
+    "foundedOn": null,
+    "companyScale": null,
+    "headcount": null,
+    "listingStatus": "unknown",
+    "listingDetails": null,
+    "marketPosition": null,
+    "priority": "medium",
+    "procurementBoundary": null,
     "evidence": []
   },
   "aliases": [],
@@ -122,6 +130,8 @@
   "risks": [],
   "assessment": {"status": "not_requested"},
   "inquiryAssessment": {"status": "not_requested"},
+  "competitorCustomerPortfolio": {"status": "not_requested"},
+  "researchQueries": [],
   "missingInformation": [
     {
       "topic": "contracting and paying entities",

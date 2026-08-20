@@ -40,6 +40,7 @@
 | 竞对客户组合与切入口径 | completed | `competitorCustomerPortfolio`、`GETO_RELATIONSHIP_ENTRY 1.0`、`aggregate_competitor_customers.py` |
 | ResearchBundle 与 OmniX 投影边界 | completed | 本地为事实主合同；inquiryAssessment、researchQueries、reportFiles 与报告保存在本地 |
 | Company 字段示例 | completed | 全字段无空值 `references/company-json-example.json`、确定性生成器、询盘 `references/inquiry-example.md`、OmniX 全字段 Aggregate JSON |
+| Company 字段必填性合同 | completed | `references/company-field-requirements.md`；R/S/C/O、全部子资源、评估状态和工作空间条件 |
 | Evidence 来源合同 | completed | Evidence 只含来源元数据；业务 item 承载状态、冲突和拒绝理由 |
 | 项目与关系结构 | completed | `projects[].participants[]`、`relationships[].limitations[]`、exclusivity 状态对象 |
 | OmniX 上传门禁 | completed | private/public 强身份、自动 scoring criteria hash、运行时 Aggregate schema capability 检查 |
@@ -49,7 +50,7 @@
 
 - GETO 仓库 validator：9 Skills passed。
 - skill-creator quick_validate：9 个 GETO Skills、omnix-market、netease-waimao、tradewind-api 均 passed。
-- GETO ResearchBundle/SearchLexicon/cohort/询盘/竞对客户组合/关系切入/字段与报告合同/并发/能力工件回归：34 tests passed。
+- GETO ResearchBundle/SearchLexicon/cohort/询盘/竞对客户组合/关系切入/字段必填性与报告合同/并发/能力工件回归：35 tests passed。
 - OmniX unversioned API 合同、强身份、显式字段投影、评分 hash、Capability Context 与完整 Aggregate 示例回归：21 tests passed。
 - 网易外贸通既有安全回归：11 tests passed。
 - Freecity、Electron company.json：均 0 ERROR / 0 WARNING。

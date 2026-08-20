@@ -100,6 +100,20 @@ class ResearchBundleValidationTests(unittest.TestCase):
         errors, _, _ = RESEARCH_BUNDLE.validate_company(value)
         self.assertTrue(any("unsupported fields: relation" in item for item in errors))
 
+    def test_required_structure_and_evidence_keys_are_enforced(self) -> None:
+        value = base_company()
+        value.pop("researchQueries")
+        value["company"].pop("foundedOn")
+        source = evidence()
+        source.pop("note")
+        source["verificationScope"] = []
+        value["websites"] = [{"url": "https://example.com", "evidence": [source]}]
+        errors, _, _ = RESEARCH_BUNDLE.validate_company(value)
+        self.assertTrue(any("missing top-level fields: researchQueries" in item for item in errors))
+        self.assertTrue(any("$.company is missing fields: foundedOn" in item for item in errors))
+        self.assertTrue(any("missing fields: note" in item for item in errors))
+        self.assertTrue(any("verificationScope must be a non-empty string array" in item for item in errors))
+
     def test_project_participants_are_typed_and_evidence_backed(self) -> None:
         value = base_company()
         value["projects"] = [{
@@ -146,6 +160,7 @@ class ResearchBundleValidationTests(unittest.TestCase):
     def test_listing_status_matches_market_contract(self) -> None:
         value = base_company()
         value["company"]["listingStatus"] = "self_listed"
+        value["company"]["listingDetails"] = "Example Securities Exchange: EXM"
         errors, _, _ = RESEARCH_BUNDLE.validate_company(value)
         self.assertEqual(errors, [])
         value["company"]["listingStatus"] = "direct_listed"

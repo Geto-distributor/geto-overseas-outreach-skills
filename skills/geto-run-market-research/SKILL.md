@@ -9,7 +9,7 @@ description: 编排 GETO 海外市场的一次完整或定向调研，以当前�
 
 把当前国家调研任务作为主任务。用用户可见的独立任务承载角色发现、Provider 查询和逐公司背调；subagent 只允许在单个任务内部并行。主任务维护人可直接浏览的 ResearchBundle，不依赖 OmniX 完成研究。
 
-开始前读取 [orchestration.md](references/orchestration.md) 与 [company-json-contract.md](references/company-json-contract.md)。首次生成或复核 Company 结构时再读取 [company-json-example.json](references/company-json-example.json)。需要初始化或验证本地成果时使用本 Skill 的 `scripts/`。
+开始前读取 [orchestration.md](references/orchestration.md) 与 [company-json-contract.md](references/company-json-contract.md)。构造、复核或校验 Company 字段时读取 [company-field-requirements.md](references/company-field-requirements.md)；首次查看完整形态时再读取 [company-json-example.json](references/company-json-example.json)。需要初始化或验证本地成果时使用本 Skill 的 `scripts/`。
 
 ## 输入
 

@@ -7,7 +7,7 @@ description: 对 GETO 海外市场中的单一线索或普通目标公司执行�
 
 一次只研究一个 Company。法定主体、经营公司和企业集团分别建模；CommercialAccount 不另建重复主体。
 
-开始前读取 [evidence-contract.md](references/evidence-contract.md) 与 [child-resources.md](references/child-resources.md)。首次构造完整 company.json 时读取 `$geto-run-market-research` 的 `references/company-json-example.json`；需要六维评分时再读 [lead-assessment-contract.md](references/lead-assessment-contract.md)。
+开始前读取 [evidence-contract.md](references/evidence-contract.md) 与 [child-resources.md](references/child-resources.md)。构造或复核 company.json 时读取 `$geto-run-market-research` 的 `references/company-field-requirements.md`；首次查看完整形态时读取其 `references/company-json-example.json`。需要六维评分时再读 [lead-assessment-contract.md](references/lead-assessment-contract.md)。
 
 ## 输入
 

@@ -19,6 +19,15 @@ ARRAY_FIELDS = (
     "customsTransactions", "lawsuitsAndCompliance", "inquiries", "risks",
     "researchQueries", "missingInformation", "recommendedActions", "additionalInformation", "reportFiles",
 )
+TOP_LEVEL_FIELDS = set(ARRAY_FIELDS) | {
+    "company", "assessment", "inquiryAssessment", "competitorCustomerPortfolio",
+    "researchStatus", "lastResearchedOn",
+}
+COMPANY_FIELDS = {
+    "companyName", "entityType", "country", "countryCode", "status", "summary",
+    "researchConclusion", "foundedOn", "companyScale", "headcount", "listingStatus",
+    "listingDetails", "marketPosition", "priority", "procurementBoundary", "evidence",
+}
 EVIDENCE_FIELDS = tuple(field for field in ARRAY_FIELDS if field not in {"reportFiles", "researchQueries"})
 FORBIDDEN_LOCAL_KEYS = {
     "runId", "taskId", "companyKey", "claimKey", "sourceKey", "claimSourceLinks",
@@ -32,6 +41,7 @@ EVIDENCE_ITEM_FIELDS = {
     "sourceTitle", "sourceUrl", "publisher", "sourceType", "publishedOn",
     "retrievedOn", "locator", "excerpt", "note", "verificationScope",
 }
+EVIDENCE_BASE_FIELDS = EVIDENCE_ITEM_FIELDS - {"verificationScope"}
 PROJECT_PARTICIPANT_ROLES = {
     "owner", "developer", "main_contractor", "subcontractor", "consultant",
     "designer", "supervisor", "partner", "other",
@@ -254,16 +264,27 @@ def _validate_evidence_item(source: Any, path: str, errors: list[str]) -> None:
         errors.append(f"{path} must be an object")
         return
     unknown = sorted(set(source) - EVIDENCE_ITEM_FIELDS)
+    missing = sorted(EVIDENCE_BASE_FIELDS - set(source))
     if unknown:
         errors.append(f"{path} has unsupported fields: {', '.join(unknown)}")
+    if missing:
+        errors.append(f"{path} is missing fields: {', '.join(missing)}")
     if source.get("sourceType") not in ALLOWED_SOURCE_TYPES:
         errors.append(f"{path}.sourceType has an invalid value")
     if not source.get("sourceTitle") or not source.get("retrievedOn"):
         errors.append(f"{path} requires sourceTitle and retrievedOn")
     if source.get("retrievedOn") and not _validate_date(source.get("retrievedOn")):
         errors.append(f"{path}.retrievedOn must use YYYY-MM-DD")
+    if source.get("publishedOn") and not _validate_date(source.get("publishedOn")):
+        errors.append(f"{path}.publishedOn must use YYYY-MM-DD")
     if not source.get("sourceUrl") and source.get("sourceType") != "customer_document":
         errors.append(f"{path}.sourceUrl is required except for customer documents")
+    if "verificationScope" in source and (
+        not isinstance(source.get("verificationScope"), list)
+        or not source.get("verificationScope")
+        or any(not isinstance(item, str) or not item.strip() for item in source["verificationScope"])
+    ):
+        errors.append(f"{path}.verificationScope must be a non-empty string array when present")
     verification_scope = source.get("verificationScope")
     if verification_scope is not None and (
         not isinstance(verification_scope, list)
@@ -825,10 +846,23 @@ def validate_company(value: Any) -> tuple[list[str], list[str], list[str]]:
     if not isinstance(value, dict):
         return ["$: company.json must be a JSON object"], warnings, infos
 
+    unknown_top_level = sorted(set(value) - TOP_LEVEL_FIELDS)
+    missing_top_level = sorted(TOP_LEVEL_FIELDS - set(value))
+    if unknown_top_level:
+        errors.append(f"$: unsupported top-level fields: {', '.join(unknown_top_level)}")
+    if missing_top_level:
+        errors.append(f"$: missing top-level fields: {', '.join(missing_top_level)}")
+
     company = value.get("company")
     if not isinstance(company, dict):
         errors.append("$.company is required and must be an object")
     else:
+        unknown_company = sorted(set(company) - COMPANY_FIELDS)
+        missing_company = sorted(COMPANY_FIELDS - set(company))
+        if unknown_company:
+            errors.append(f"$.company has unsupported fields: {', '.join(unknown_company)}")
+        if missing_company:
+            errors.append(f"$.company is missing fields: {', '.join(missing_company)}")
         for field in ("companyName", "entityType", "country", "countryCode"):
             if not company.get(field):
                 errors.append(f"$.company.{field} is required")
@@ -846,6 +880,8 @@ def validate_company(value: Any) -> tuple[list[str], list[str], list[str]]:
             errors.append("$.company.headcount must be a non-negative integer or null")
         if company.get("listingStatus") is not None and company.get("listingStatus") not in LISTING_STATUSES:
             errors.append("$.company.listingStatus has an invalid value")
+        if company.get("listingStatus") in {"self_listed", "parent_listed"} and not company.get("listingDetails"):
+            errors.append("$.company.listingDetails is required for a listed company")
         if not isinstance(company.get("evidence"), list):
             errors.append("$.company.evidence must be an array")
         else:
