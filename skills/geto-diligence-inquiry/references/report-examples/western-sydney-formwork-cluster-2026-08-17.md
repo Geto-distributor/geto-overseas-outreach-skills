@@ -1,9 +1,9 @@
 # Western Sydney Formwork 关联企业簇深度背调报告
 
-> 核心对象：Western Sydney Formwork Pty Ltd、Rock Form Group Pty Ltd、Rockcrete Pty Ltd  
-> 关联判断：存在强历史经营与人员关联；当前法定控制、股权和债务承接关系未获公开文件证明  
-> 询盘线索：Danny / Daniel Abdallah；600 mm 宽 × 2.8 m 高铝模板  
-> 调研基准日：2026 年 8 月 17 日  
+> 核心对象：Western Sydney Formwork Pty Ltd、Rock Form Group Pty Ltd、Rockcrete Pty Ltd
+> 关联判断：存在强历史经营与人员关联；当前法定控制、股权和债务承接关系未获公开文件证明
+> 询盘线索：Danny / Daniel Abdallah；600 mm 宽 × 2.8 m 高铝模板
+> 调研基准日：2026 年 8 月 17 日
 > 结论状态：`completed_with_explicit_gaps`
 
 ## 一、执行摘要

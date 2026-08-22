@@ -1,12 +1,12 @@
 # Electron Group / Electron Electro-Mechanical L.L.C. 深度背调报告
 
-> **调研对象：** Electron Group（核心公开主体：Electron Electro-Mechanical L.L.C.）  
-> **官网：** [electronrak.com](https://electronrak.com/)  
-> **询盘邮箱：** `estimation@electronrak.com`  
-> **询盘产品：** 柱用铝合金模板（Aluminium Formwork），500 L.M，多种柱高  
-> **询盘标注市场：** 沙特阿拉伯；公司公开经营主体和项目履历主要位于阿联酋  
-> **调研日期：** 2026年8月18日  
-> **报告状态：** 第一版 / `completed_with_explicit_gaps`  
+> **调研对象：** Electron Group（核心公开主体：Electron Electro-Mechanical L.L.C.）
+> **官网：** [electronrak.com](https://electronrak.com/)
+> **询盘邮箱：** `estimation@electronrak.com`
+> **询盘产品：** 柱用铝合金模板（Aluminium Formwork），500 L.M，多种柱高
+> **询盘标注市场：** 沙特阿拉伯；公司公开经营主体和项目履历主要位于阿联酋
+> **调研日期：** 2026年8月18日
+> **报告状态：** 第一版 / `completed_with_explicit_gaps`
 > **结论口径：** 本报告区分“项目真实存在”“Electron 参与项目”“Electron 担任总包/结构采购方”三个不同层级。
 
 ---

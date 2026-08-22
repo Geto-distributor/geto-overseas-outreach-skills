@@ -1,9 +1,9 @@
 # Freecity Group Holdings Pty Ltd 深度背调报告
 
-> 调研对象：Freecity Group Holdings Pty Ltd / [freecity.com](https://freecity.com/)  
-> 法定主体：FREECITY GROUP HOLDINGS PTY LTD  
-> 调研基准日：2026年8月14日  
-> 调研范围：主体身份、业务模式、全部公开项目、股权与关联主体、管理层、社媒、财务、诉讼监管、海关、外部新闻及合作风险  
+> 调研对象：Freecity Group Holdings Pty Ltd / [freecity.com](https://freecity.com/)
+> 法定主体：FREECITY GROUP HOLDINGS PTY LTD
+> 调研基准日：2026年8月14日
+> 调研范围：主体身份、业务模式、全部公开项目、股权与关联主体、管理层、社媒、财务、诉讼监管、海关、外部新闻及合作风险
 > 结论状态：`completed_with_explicit_gaps`
 
 ## 一、执行摘要

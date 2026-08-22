@@ -1,14 +1,14 @@
 # Freecity—Space Labs—中国 VMC 供应链专项尽调报告
 
-**报告类型：** 跨境模块化制造、合规、物流与责任边界专项尽调  
-**目标主体：** Freecity Group Holdings Pty Ltd / Space Labs Australia Pty Ltd  
-**核心项目：** Herring Road 学生公寓项目，Macquarie Park, NSW  
-**核心中国合作方：** 中建科工绿色科技有限公司（CSCEC Science and Industry Greentech Corporation Limited）  
-**报告日期：** 2026年8月14日  
-**报告状态：** 已完成，保留明确待核缺口（completed with explicit gaps）  
-**用途：** 商务判断、供应链核验、合作谈判及签约前进一步尽调  
+**报告类型：** 跨境模块化制造、合规、物流与责任边界专项尽调
+**目标主体：** Freecity Group Holdings Pty Ltd / Space Labs Australia Pty Ltd
+**核心项目：** Herring Road 学生公寓项目，Macquarie Park, NSW
+**核心中国合作方：** 中建科工绿色科技有限公司（CSCEC Science and Industry Greentech Corporation Limited）
+**报告日期：** 2026年8月14日
+**报告状态：** 已完成，保留明确待核缺口（completed with explicit gaps）
+**用途：** 商务判断、供应链核验、合作谈判及签约前进一步尽调
 
-> **重要声明**  
+> **重要声明**
 > 本报告基于截至报告日可取得的政府登记、项目审批材料、企业官网、合作方官方披露、专业机构及公开社交媒体资料编制。报告不构成法律、审计、估值或工程认证意见。企业官网中的工期、效率、产能、专利和质量等表述均按“企业自述”处理；未取得的合同、股东名册、采购订单、工厂质量记录及最终模块清单，不作推定。
 
 ---
@@ -688,23 +688,23 @@ Freecity 的真正壁垒更可能来自**跨主体集成能力**，而非单一�
 
 ## 十四、主要参考来源
 
-1. [Freecity：First modules stacked at Freecity’s landmark Macquarie Park development](https://freecity.com/first-modules-stacked-at-freecitys-landmark-macquarie-park-development/)  
-2. [Freecity Innovation Insights No.2：Learning from global experts in VMC](https://freecity.com/freecity-innovation-insights-no-2-learning-from-global-experts-in-vmc/)  
-3. [Freecity Innovation Insights No.4：UNSW–Space Labs VMC Research Hub](https://freecity.com/freecity-innovation-insights-no-4-unsw-space-labs-vmc-research-hub/)  
-4. [Freecity Innovation Insights No.5（PDF）](https://freecity.com/wp-content/uploads/2025/12/Freecity-Innovation-Insights-No.-5.pdf)  
-5. [Freecity Innovation Insights No.9：Why VMC](https://freecity.com/freecity-innovation-insights-no-9-why-volumetric-modular-construction-the-case-for-precision-quality-accuracy-and-the-weight-advantage-of-vmc/)  
-6. [Space Labs Australia 官方网站](https://spacelabsau.com/)  
-7. [Australian Business Register：Space Labs Australia Pty Ltd](https://abr.business.gov.au/AbnHistory/View?id=67676089722)  
-8. [中建科工绿色科技公司：Herring Road 项目签约公告](https://ccsic.cscec.com/xwzx31/gskx31/202504/3867927.html)  
-9. [CSCEC Science and Industry Greentech：About Us](https://en.cscecgreentech.com/about-us)  
-10. [COX Architecture：First modules installed at Herring Road](https://www.coxarchitecture.com.au/perspective/first-modules-installed-at-herring-road-australias-tallest-modular-housing-project/)  
-11. [COX Architecture：Herring Road breaks ground](https://www.coxarchitecture.com.au/perspective/herring-road-breaks-ground-a-new-chapter-in-volumetric-modular-design/)  
-12. [UNSW：SMARTBuild project and industry partners](https://www.unsw.edu.au/news/2026/02/cies-researchers-win-aea-grants-to-fast-track-bold-idea)  
-13. [Living Sectors Summit：Designing Australia’s housing future](https://livingsectorssummit.com/designing-australias-housing-future/)  
-14. [David Chandler AM：Port Kembla module arrival](https://www.linkedin.com/posts/david-chandler-am-875bb1b5_freecity-mp-class3-activity-7476543786546905088-qcdx)  
-15. [David Chandler AM：Shipment from China](https://www.linkedin.com/posts/david-chandler-am-875bb1b5_introduction-legal-essentials-for-off-site-activity-7461614453445332992-mJwI)  
-16. [IP Australia Patents Journal](https://pericles.ipaustralia.gov.au/ols/epublish/content/olsPatentsPdfDownload?id=1260)  
-17. [City of Ryde：Herring Road BCA Report](https://cmweb.ryde.nsw.gov.au/KapishWebGrid/handlers/downloadFile.ashx?cn=DATracker&r=69a49cc1-b8e7-4880-ac66-f0fd79502d36.PDF&s=5690753.PDF)  
+1. [Freecity：First modules stacked at Freecity’s landmark Macquarie Park development](https://freecity.com/first-modules-stacked-at-freecitys-landmark-macquarie-park-development/)
+2. [Freecity Innovation Insights No.2：Learning from global experts in VMC](https://freecity.com/freecity-innovation-insights-no-2-learning-from-global-experts-in-vmc/)
+3. [Freecity Innovation Insights No.4：UNSW–Space Labs VMC Research Hub](https://freecity.com/freecity-innovation-insights-no-4-unsw-space-labs-vmc-research-hub/)
+4. [Freecity Innovation Insights No.5（PDF）](https://freecity.com/wp-content/uploads/2025/12/Freecity-Innovation-Insights-No.-5.pdf)
+5. [Freecity Innovation Insights No.9：Why VMC](https://freecity.com/freecity-innovation-insights-no-9-why-volumetric-modular-construction-the-case-for-precision-quality-accuracy-and-the-weight-advantage-of-vmc/)
+6. [Space Labs Australia 官方网站](https://spacelabsau.com/)
+7. [Australian Business Register：Space Labs Australia Pty Ltd](https://abr.business.gov.au/AbnHistory/View?id=67676089722)
+8. [中建科工绿色科技公司：Herring Road 项目签约公告](https://ccsic.cscec.com/xwzx31/gskx31/202504/3867927.html)
+9. [CSCEC Science and Industry Greentech：About Us](https://en.cscecgreentech.com/about-us)
+10. [COX Architecture：First modules installed at Herring Road](https://www.coxarchitecture.com.au/perspective/first-modules-installed-at-herring-road-australias-tallest-modular-housing-project/)
+11. [COX Architecture：Herring Road breaks ground](https://www.coxarchitecture.com.au/perspective/herring-road-breaks-ground-a-new-chapter-in-volumetric-modular-design/)
+12. [UNSW：SMARTBuild project and industry partners](https://www.unsw.edu.au/news/2026/02/cies-researchers-win-aea-grants-to-fast-track-bold-idea)
+13. [Living Sectors Summit：Designing Australia’s housing future](https://livingsectorssummit.com/designing-australias-housing-future/)
+14. [David Chandler AM：Port Kembla module arrival](https://www.linkedin.com/posts/david-chandler-am-875bb1b5_freecity-mp-class3-activity-7476543786546905088-qcdx)
+15. [David Chandler AM：Shipment from China](https://www.linkedin.com/posts/david-chandler-am-875bb1b5_introduction-legal-essentials-for-off-site-activity-7461614453445332992-mJwI)
+16. [IP Australia Patents Journal](https://pericles.ipaustralia.gov.au/ols/epublish/content/olsPatentsPdfDownload?id=1260)
+17. [City of Ryde：Herring Road BCA Report](https://cmweb.ryde.nsw.gov.au/KapishWebGrid/handlers/downloadFile.ashx?cn=DATracker&r=69a49cc1-b8e7-4880-ac66-f0fd79502d36.PDF&s=5690753.PDF)
 18. [Apple App Store：SL MODULE](https://apps.apple.com/cn/app/sl-module/id6748066414)
 
 ---
