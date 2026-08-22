@@ -35,6 +35,7 @@ LEXICON_VALIDATOR = load_module("validate_search_lexicon", CAPABILITY_SCRIPTS / 
 ASSESSMENT_CALCULATOR = load_module("calculate_lead_assessment", DILIGENCE_SCRIPTS / "calculate_lead_assessment.py")
 COHORT_CALCULATOR = load_module("calculate_lead_cohort", FIND_LEADS_SCRIPTS / "calculate_lead_cohort.py")
 INQUIRY_CALCULATOR = load_module("calculate_inquiry_readiness", INQUIRY_SCRIPTS / "calculate_inquiry_readiness.py")
+INQUIRY_INTAKE_GATE = load_module("validate_inquiry_intake", INQUIRY_SCRIPTS / "validate_inquiry_intake.py")
 COMPETITOR_CUSTOMER_AGGREGATOR = load_module(
     "aggregate_competitor_customers",
     COMPETITOR_CUSTOMER_SCRIPTS / "aggregate_competitor_customers.py",
@@ -59,6 +60,33 @@ def base_company() -> dict[str, object]:
 
 
 class ResearchBundleValidationTests(unittest.TestCase):
+    def test_inquiry_intake_gate_requires_minimum_fields_and_two_strong_matches(self) -> None:
+        manifest = json.loads(
+            (ROOT / "skills/geto-diligence-inquiry/references/inquiry-intake-example.json").read_text(
+                encoding="utf-8"
+            )
+        )
+        result = INQUIRY_INTAKE_GATE.validate_intake(manifest)
+        self.assertEqual(result["gateStatus"], "ready_for_diligence")
+        manifest["tradewind"]["status"] = "no_result"
+        result = INQUIRY_INTAKE_GATE.validate_intake(manifest)
+        self.assertEqual(result["gateStatus"], "blocked_identity_discovery")
+        manifest["tradewind"]["status"] = "not_configured"
+        result = INQUIRY_INTAKE_GATE.validate_intake(manifest)
+        self.assertEqual(result["gateStatus"], "blocked_provider")
+
+    def test_inquiry_intake_gate_blocks_incomplete_or_weak_input(self) -> None:
+        manifest = {
+            "companyName": "",
+            "requirement": {"requestedProduct": ""},
+            "email": "buyer@invalid",
+            "webSearch": {"status": "found", "strongIdentityMatch": False, "matchedEntity": "Candidate", "evidence": [{}]},
+            "tradewind": {"status": "found", "strongIdentityMatch": False, "matchedEntity": "Candidate", "evidence": [{}]},
+        }
+        result = INQUIRY_INTAKE_GATE.validate_intake(manifest)
+        self.assertEqual(result["gateStatus"], "blocked_missing_intake")
+        self.assertEqual(set(result["missingFields"]), {"companyName", "requirement", "email"})
+
     def test_complete_company_example_is_deterministic_valid_and_nonempty(self) -> None:
         path = ROOT / "skills/geto-run-market-research/references/company-json-example.json"
         committed = json.loads(path.read_text(encoding="utf-8"))

@@ -5,6 +5,7 @@
 ## 输入
 
 - 一条明确询盘及其原始附件/聊天记录。
+- 在开始深度背调前通过 [inquiry-intake-gate.md](inquiry-intake-gate.md)：公司名、可描述需求、邮箱齐全，且 Web 与 TradeWind 均能强匹配同一主体。
 - 目标 Company 的主体、产品、项目、联系人和风险 Evidence。
 - 研究截止日和本地公司目录。
 

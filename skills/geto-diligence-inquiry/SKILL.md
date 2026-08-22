@@ -7,7 +7,7 @@ description: 对单条 GETO 海外询盘执行主体核验、需求还原、项�
 
 一次只处理一条询盘及其目标 Company。询盘准备度回答当前能否报价和推进，不替代客户长期价值评分。
 
-开始前完整读取 [child-resources.md](references/child-resources.md)、[project-research-contract.md](references/project-research-contract.md)、[report-contract.md](references/report-contract.md)、[inquiry-contract.md](references/inquiry-contract.md) 和 [inquiry-readiness-model.json](references/inquiry-readiness-model.json)。构造或复核 company.json 时读取 `$geto-run-market-research` 的 `references/company-field-requirements.md`；首次查看完整形态时读取其 `references/company-json-example.json`，填写询盘与准备度时读取 [inquiry-example.md](references/inquiry-example.md)。本 Skill 自带 Company、Evidence、项目深挖和报告合同；调用 `$geto-diligence-company` 时只复用其公司研究流程，assessmentMode 固定为 none。
+开始前完整读取 [child-resources.md](references/child-resources.md)、[project-research-contract.md](references/project-research-contract.md)、[report-contract.md](references/report-contract.md)、[inquiry-contract.md](references/inquiry-contract.md)、[inquiry-intake-gate.md](references/inquiry-intake-gate.md) 和 [inquiry-readiness-model.json](references/inquiry-readiness-model.json)。构造或复核 company.json 时读取 `$geto-run-market-research` 的 `references/company-field-requirements.md`；首次查看完整形态时读取其 `references/company-json-example.json`，填写询盘与准备度时读取 [inquiry-example.md](references/inquiry-example.md)。需要模仿报告深度或章节组织时，按需读取 [report-examples/README.md](references/report-examples/README.md) 及其中相关样例。本 Skill 自带 Company、Evidence、项目深挖和报告合同；调用 `$geto-diligence-company` 时只复用其公司研究流程，assessmentMode 固定为 none。
 
 ## 输入
 
@@ -15,9 +15,25 @@ description: 对单条 GETO 海外询盘执行主体核验、需求还原、项�
 - 买方自报公司、人名、邮箱、电话、国家、产品、数量、项目、交付和付款信息。
 - 目标国家、GETO 产品范围、研究截止日和公司目录。
 
+## 启动闸门
+
+深度背调前先构造临时 `intake-gate.json`，至少包含公司名、可描述的产品/技术/项目需求和可回复邮箱；再分别执行 Web 主体检索与 TradeWind 精确公司查询。两边都必须返回同一主体的 `strongIdentityMatch=true`，并各自保留查询边界与证据。
+
+运行：
+
+```bash
+python '<geto-diligence-inquiry-dir>/scripts/validate_inquiry_intake.py' \
+  '<intake-gate.json>' \
+  --output '<intake-gate-result.json>'
+```
+
+只有 `gateStatus=ready_for_diligence` 才进入下面的主体、项目和报告流程。输入字段缺失时返回 `blocked_missing_intake`；Web/TradeWind 没有强主体命中时返回 `blocked_identity_discovery`；TradeWind 未配置、上游不可用或查询失败时返回 `blocked_provider`。阻断结果要回传缺失字段和下一动作，不生成没有主体基础的深度报告或准备度分。`no_result`、`not_queried`、`not_configured`、`upstream_unavailable` 与 `failed` 必须区分。
+
+最小可运行形态见 [inquiry-intake-example.json](references/inquiry-intake-example.json)。
+
 ## 工作流
 
-1. 初始化规范国家和自然公司名目录；一条询盘只绑定一个当前待核验 Company。
+1. 通过启动闸门后，初始化规范国家和自然公司名目录；一条询盘只绑定一个当前待核验 Company。
 2. 把原始信息写入 `inquiries[]`，保留附件路径、开放问题和 customer_document Evidence。
 3. 调用 `$geto-diligence-company` 核查主体、官网、产品、项目、联系人、风险和 lead/competitor，assessmentMode 使用 none。项目按发现瀑布流枚举官网组合，并沿政府、业主、开发商、主包、顾问、分包和供应商反查。
 4. 主体冲突、冒名、邮箱域名冲突和 Provider 宽匹配分别保留，不自动合并。

@@ -1,5 +1,7 @@
 # 询盘字段示例
 
+开始填写完整 `company.json` 前，先读取并运行 [inquiry-intake-gate.md](inquiry-intake-gate.md)。本文件展示通过启动闸门后的业务字段；启动闸门输入形态见 [inquiry-intake-example.json](inquiry-intake-example.json)。
+
 以下片段合并到完整 company.json。`inquiryRef` 在 inquiries[] 与 inquiryAssessment 中保持一致；每个正分维度附对应 Evidence，缺失项使用 0 分与 gapCodes。
 
 ```json
