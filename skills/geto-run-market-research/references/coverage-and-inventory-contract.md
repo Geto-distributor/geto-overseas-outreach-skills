@@ -16,6 +16,8 @@
 
 连通性检查、认证测试、国家级宽查询或单页结果只证明对应 queryBoundary，不代表产品覆盖完成。Provider 和 Web 分别记录，不用一个来源的覆盖替代另一个来源。
 
+TradeWind Agentic 使用两级覆盖：国家矩阵中的 sourceChannel=`tradewind_agentic` 单元，以及 Provider plan 中更细的 productFamily × roleLane × sourceGoal 单元。每个 Provider 单元记录 taskKeys、taskIds、pilotStatus、submissionStatus、resultCount、acceptedCount、driftCount、duplicateCount 和 coverageStatus。只有一个产品或一个宽任务时，只能关闭它实际覆盖的单元；用户范围中的其他产品/角色保持 not_queried，不能被聚合总量掩盖。
+
 ## 候选总账
 
 所有召回对象进入国家候选总账，并使用稳定 candidateRef 保留阶段状态：

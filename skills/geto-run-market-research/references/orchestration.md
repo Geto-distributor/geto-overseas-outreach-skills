@@ -25,6 +25,7 @@
 - final、progress 区块和成果文件分别验收；
 - 验证成果路径存在、JSON 可解析、自然公司目录正确且 validator 结果可复现；
 - 按 `diligence-review-contract.md` 对官网、社媒、项目、外部交叉、Provider、采购链和分类进行独立挑战；
+- TradeWind Agentic 第一次 submit 前先读取并挑战 Provider plan；范围不全、意图混合、缺 pilot 或任务边界重复时退回 Provider 任务，不批准付费提交；
 - 单公司 final 只把任务状态改为已回收，不自动把 diligenceReviewStatus 改为 accepted；
 - 有可补救缺口时向原任务发送具体 follow-up，等待其更新原工件和唯一 progress section，再重新审查；
 - 单次等待目标有工具数量限制时分组执行；

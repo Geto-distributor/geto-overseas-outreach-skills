@@ -46,9 +46,11 @@ python scripts/init_company_workspace.py --workspace-root '<ResearchBundle>' \
 
 竞对候选发现按产品/技术面和商业角色另行拆分。TradeWind 与网易外贸通启用时各创建一个独立任务。每个任务保存准确标题、taskId、parentTaskId、queryBoundary、成果路径和唯一 sectionName。使用 Codex 的任务创建、等待、读取和追问能力协调；`progress.md` 保存业务进度，完整 trace 保留在各自任务中。
 
+TradeWind 任务在第一次 Agentic submit 前必须接收完整用户产品范围、六类角色、竞对产品面、结果模式和排除项，并按 `$tradewind-api` 的 Agentic Search Plan 合同回传产品×角色×意图覆盖矩阵和 task 清单。主任务先检查每个在范围产品、角色和 lead/competitor 意图已 planned 或有明确 excluded 理由，再批准 pilot。用户范围包含多个产品面时，只有一条产品线的计划必须退回补齐；不得把一个宽泛 Agentic keyword 当作 Provider 覆盖完成。pilot 的国家、角色、产品命中、漂移、重复和分页未验收前，不批准 scale 批量提交。
+
 ### 3. 收集统一任务回传
 
-每个任务必须回传：做了什么、找到了什么、成果路径、接受/拒绝理由、缺口、下一步，以及官网、社媒、项目、外部交叉和 Provider 的覆盖边界。每个任务以唯一 sectionName 调用 `merge_progress.py` 合并自己的区块，再向 parentTaskId 发送精简 callback；callback 不可用时在 final 标记 callback_failed。主任务主动等待并读取每个任务 final，同时验证成果文件存在、结构可读和 validator 结果；不能用 progress.md 代替 final，也不能用 final 代替成果验收。任务仍在运行时继续协调，不以“已创建”或“正在运行”作为阶段完成。
+每个任务必须回传：做了什么、找到了什么、成果路径、接受/拒绝理由、缺口、下一步，以及官网、社媒、项目、外部交叉和 Provider 的覆盖边界。Agentic Provider 任务另回传 plan 路径、coverageMatrix 状态、每个 taskKey/taskId 的阶段、pilot 验收、跨任务去重和漂移。每个任务以唯一 sectionName 调用 `merge_progress.py` 合并自己的区块，再向 parentTaskId 发送精简 callback；callback 不可用时在 final 标记 callback_failed。主任务主动等待并读取每个任务 final，同时验证成果文件存在、结构可读和 validator 结果；不能用 progress.md 代替 final，也不能用 final 代替成果验收。任务仍在运行时继续协调，不以“已创建”或“正在运行”作为阶段完成。
 
 ### 4. 主体归一与分类仲裁
 
@@ -114,6 +116,7 @@ private/public 均要求注册号或已确认稳定官网域名等强身份。�
 ## 完成条件
 
 - 六个角色发现任务及已启用 Provider 的独立任务都有回传和成果路径。
+- 启用 TradeWind Agentic 时，计划覆盖矩阵的所有非 excluded 单元已 completed，或 sample 模式的停止条件已达到；单个 task 完成不能替代计划完成。
 - 每个评分公司可追溯到独立背调任务、自然名称目录、`company.json` 与 `report.md`。
 - 每个完成背调的公司都有主任务生成且通过校验的 `Additional/diligence-review.json`；退回问题已由原任务回答，或被明确接受为有边界的缺口。
 - lead/competitor 分类、接受/拒绝理由、冲突与查询边界没有在合并中丢失。
