@@ -505,7 +505,7 @@ class ResearchBundleValidationTests(unittest.TestCase):
             errors, _, _ = WORKSPACE_VALIDATOR.validate(root, company_dir)
         self.assertEqual(errors, [])
 
-    def test_main_task_requires_five_peers_then_batch_scores_one_version(self) -> None:
+    def test_main_task_uses_zero_baseline_until_five_peer_observations_exist(self) -> None:
         model = json.loads((ROOT / "skills/geto-diligence-company/references/lead-value-model.json").read_text())
         capability = {
             "foundationKey": "geto:capability-foundation", "foundationVersion": "2026-08-11",
@@ -515,6 +515,8 @@ class ResearchBundleValidationTests(unittest.TestCase):
         }
         with tempfile.TemporaryDirectory() as directory:
             root = Path(directory) / "AU-Australia"
+            early_companies = []
+            early_artifact = {}
             for index in range(6):
                 company = RESEARCH_BUNDLE.empty_company(f"Company {index}", "Australia", "AU")
                 company["assessment"] = {"dimensions": [
@@ -541,7 +543,13 @@ class ResearchBundleValidationTests(unittest.TestCase):
                 (company_dir / "company.json").write_text(json.dumps(company), encoding="utf-8")
                 if index == 3:
                     pending_result = COHORT_CALCULATOR.score_country(root, model, "2026-08-19")
-
+                    early_companies = [
+                        json.loads(path.read_text(encoding="utf-8"))
+                        for path in sorted((root / "companies").glob("*/company.json"))
+                    ]
+                    early_artifact = json.loads(
+                        Path(pending_result["baselineArtifact"]).read_text(encoding="utf-8")
+                    )
             result = COHORT_CALCULATOR.score_country(root, model, "2026-08-19")
             scored = [
                 json.loads(path.read_text(encoding="utf-8"))
@@ -549,7 +557,14 @@ class ResearchBundleValidationTests(unittest.TestCase):
             ]
             versions = {item["assessment"]["cohortBaselineVersion"] for item in scored}
             sixth = next(item for item in scored if item["company"]["companyName"] == "Company 5")
-        self.assertEqual(len(pending_result["pendingCompanyFiles"]), 4)
+        self.assertEqual(len(pending_result["pendingCompanyFiles"]), 0)
+        self.assertEqual(len(pending_result["updatedCompanyFiles"]), 4)
+        self.assertTrue(all(item["assessment"]["status"] == "completed" for item in early_companies))
+        self.assertTrue(all(
+            item["status"] == "zero_fallback_no_median"
+            for cohort in early_artifact["cohorts"]
+            for item in cohort["dimensions"]
+        ))
         self.assertEqual(len(result["updatedCompanyFiles"]), 6)
         self.assertEqual(len(versions), 1)
         self.assertTrue(all(item["assessment"]["status"] == "completed" for item in scored))
@@ -562,6 +577,43 @@ class ResearchBundleValidationTests(unittest.TestCase):
         )
         self.assertEqual(account["baselineScore"], 10)
         self.assertEqual(account["finalDimensionScore"], 10)
+
+    def test_zero_baseline_preserves_provider_failed_unknown_as_pending(self) -> None:
+        model = json.loads((ROOT / "skills/geto-diligence-company/references/lead-value-model.json").read_text())
+        capability = {
+            "foundationKey": "geto:capability-foundation", "foundationVersion": "2026-08-11",
+            "asOf": "2026-08-11", "status": "available", "contentHash": "sha256:" + "a" * 64,
+            "productCodes": ["aluminum_formwork"], "scenarioCodes": [], "roleCodes": [],
+            "caseKeys": [], "gapCodes": [],
+        }
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory) / "AU-Australia"
+            company = RESEARCH_BUNDLE.empty_company("Provider Pending", "Australia", "AU")
+            company["assessment"] = {"dimensions": [
+                {
+                    "dimensionCode": item["dimensionCode"], "observedScore": None,
+                    "evidenceGrade": "U", "rationale": "Provider query unavailable",
+                    "evidence": [], "gapCodes": ["provider_failed"], "capCodes": [],
+                }
+                for item in model["dimensions"]
+            ], "capCodes": [], "gapCodes": [], "overallConclusion": "Prepared"}
+            company["assessment"] = ASSESSMENT_CALCULATOR.calculate(
+                company, model, capability, "2026-08-24", "AU:main_contractor"
+            )
+            company_dir = root / "companies" / "Provider Pending"
+            company_dir.mkdir(parents=True)
+            company_file = company_dir / "company.json"
+            company_file.write_text(json.dumps(company), encoding="utf-8")
+            result = COHORT_CALCULATOR.score_country(root, model, "2026-08-24")
+            updated = json.loads(company_file.read_text(encoding="utf-8"))
+        self.assertEqual(result["updatedCompanyFiles"], [])
+        self.assertEqual(result["pendingCompanyFiles"], [str(company_file)])
+        self.assertEqual(updated["assessment"]["status"], "pending_cohort_baseline")
+        self.assertIsNone(updated["assessment"]["overallScore"])
+        self.assertTrue(any(
+            code.startswith("cohort_zero_baseline_blocked:")
+            for code in updated["assessment"]["gapCodes"]
+        ))
 
     def test_inquiry_readiness_scores_without_cohort(self) -> None:
         company = base_company()
@@ -698,9 +750,9 @@ class SearchLexiconTests(unittest.TestCase):
     def test_runtime_docs_read_as_a_current_contract(self) -> None:
         forbidden = (
             "ResearchDelta", "ResearchRun", "ClaimSourceLink", "EvidencePackage",
-            "runId", "taskId", "claimKey", "sourceKey", "OmniX Draft",
-            "Draft/Approval", "blocked_market_unavailable", "旧接口", "fallback",
-            "不再", "取代", "迁移",
+            "runId", "claimKey", "sourceKey", "OmniX Draft",
+            "Draft/Approval", "blocked_market_unavailable", "旧接口",
+            "此前版本", "本轮修复", "因为土耳其", "旧规则", "迁移说明",
         )
         documents = [ROOT / "README.md"]
         documents.extend((ROOT / "skills").glob("geto-*/SKILL.md"))
@@ -712,6 +764,42 @@ class SearchLexiconTests(unittest.TestCase):
             for phrase in forbidden:
                 with self.subTest(document=document.name, phrase=phrase):
                     self.assertNotIn(phrase, text)
+
+    def test_shared_classification_contract_separates_leads_from_cooperation_ideas(self) -> None:
+        contract = (
+            ROOT / "skills/geto-run-market-research/references/classification-and-engagement-contract.md"
+        ).read_text(encoding="utf-8")
+        self.assertIn("采购、租赁或付款路径", contract)
+        self.assertIn("泛化的产能互补、联合投标、战略合作或第二来源设想属于合作机会", contract)
+        self.assertIn("lead 列表排除 `lead=rejected`", contract)
+        self.assertIn("客户价值评分和关系切入分是可选的后续分析", contract)
+
+    def test_competitor_portfolio_is_optional_for_company_classification(self) -> None:
+        company = base_company()
+        company["researchClassifications"] = [
+            {
+                "classification": "competitor", "status": "confirmed", "country": "Australia",
+                "productScope": ["steel_formwork"], "reason": "Own system and sales control",
+                "evidence": [evidence()],
+            },
+            {
+                "classification": "lead", "status": "rejected", "country": "Australia",
+                "productScope": ["steel_formwork"], "reason": "No buying or channel path",
+                "evidence": [evidence("https://example.com/terms")],
+            },
+        ]
+        company["productsAndServices"] = [{
+            "name": "Steel Formwork", "systemName": "Frame", "type": "product",
+            "category": "steel_formwork", "description": "Owned system", "technologyTerms": [],
+            "applications": [], "targetCustomers": [], "markets": ["Australia"],
+            "commercialRoles": ["system_owner"], "manufacturingStatus": "manufacturing_claimed",
+            "manufacturingDescription": "Company-controlled production", "factoryLocations": [],
+            "media": [], "representativeProject": None, "status": "active", "getoRelevance": "high",
+            "evidence": [evidence()],
+        }]
+        self.assertEqual(company["competitorCustomerPortfolio"], {"status": "not_requested"})
+        errors, _, _ = RESEARCH_BUNDLE.validate_company(company)
+        self.assertEqual(errors, [])
 
 
 if __name__ == "__main__":

@@ -80,7 +80,7 @@ reportFiles 固定包含 `fileName/path/format/reportType/language/generatedOn/d
 
 ## 分类与角色
 
-`researchClassifications[]`：classification=`lead|competitor`，status=`confirmed|possible|rejected`，并包含 country、productScope[]、reason、evidence[]。同一公司可各有一条 lead 和 competitor，不使用 `both`。
+`researchClassifications[]`：classification=`lead|competitor`，status=`confirmed|possible|rejected`，并包含 country、productScope[]、reason、evidence[]。分类语义、双分类门禁、合作机会和 active 列表集合读取 [classification-and-engagement-contract.md](classification-and-engagement-contract.md)。
 
 `companyRoles[]`：role=`developer|main_contractor|subcontractor|agent_consultant_pm|distributor_trading|design_consulting_supervision_other`，并包含 scope、country、projectName、status、rationale、evidence。
 
@@ -96,7 +96,7 @@ relationships[] 的限制使用 limitations[]。排他状态使用 exclusivity �
 
 confirmed competitor 必须同时有重叠产品/技术、目标市场与商业控制/渠道控制 Evidence。installer/service_contractor-only 必须 rejected；outsourced 自有品牌/系统可 confirmed；distributor/reseller/rental_provider 为渠道竞对。
 
-已知竞对由 `$geto-diligence-competitor` 单独背调。确认竞对的客户组合使用 `competitorCustomerPortfolio` 保存去重客户数、已评分数、评分覆盖率、客户价值平均分和逐客引用；关系切入分保存在对应 `relationships[].entryAssessment`。
+已知竞对由 `$geto-diligence-competitor` 单独背调。竞对客户组合在执行组合分析时使用 `competitorCustomerPortfolio` 保存去重客户数、已评分数、评分覆盖率、客户价值平均分和逐客引用；关系切入分保存在对应 `relationships[].entryAssessment`。未执行组合分析时保持 `{"status":"not_requested"}`，不影响 competitor 分类。
 
 ## 目录和来源
 

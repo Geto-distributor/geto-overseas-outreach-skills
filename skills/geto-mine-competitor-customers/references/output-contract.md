@@ -4,7 +4,7 @@
 
 竞对 `company.json` 保存已核实 relationships[] 和派生的 competitorCustomerPortfolio；每个客户事实与六维 assessment 保存在该客户自己的 company.json。report.md 展示竞对客户组合和关系切入结论，Sources/sources.md 从内嵌 Evidence 生成。
 
-主任务回传至少列出：
+执行组合分析时，主任务回传至少列出：
 
 - verifiedCustomerCount；
 - scoredCustomerCount；

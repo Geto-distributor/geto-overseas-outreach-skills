@@ -72,6 +72,6 @@ customers[] 使用 companyName、country、relationshipCount、customerAssessmen
 
 averageCustomerValueScore 是已核实且具有当前 completed 客户价值 assessment 的去重客户 overallScore 算术平均值，保留一位小数。客户分缺失时不进入平均分分母；customerScoreCoverage=scoredCustomerCount/verifiedCustomerCount。
 
-competitorCustomerPortfolio 进入 OmniX Company Aggregate 共享投影；customers[] 只上传逐客评分摘要和关系 Evidence。客户完整六维 assessment 保存在客户自己的 company.json 和 Aggregate。
+competitorCustomerPortfolio 在执行组合分析时进入 OmniX Company Aggregate 共享投影；未执行时保持 not_requested 或省略投影。customers[] 只上传逐客评分摘要和关系 Evidence。客户完整六维 assessment 保存在客户自己的 company.json 和 Aggregate。
 
-组合状态：客户数为 0 时 no_verified_customers；客户存在且评分数为 0 时 pending_customer_scores；覆盖率介于 0 和 1 时 partial_coverage；覆盖率为 1 时 completed。
+组合状态：客户数为 0 时 no_verified_customers；客户存在且评分数为 0 时 pending_customer_scores；覆盖率介于 0 和 1 时 partial_coverage；覆盖率为 1 时 completed。组合状态不决定 competitor 分类，也不是 confirmed competitor 进入 OmniX competitor 投影的前置条件。

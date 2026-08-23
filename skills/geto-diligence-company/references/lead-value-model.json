@@ -12,6 +12,13 @@
   },
   "cohortPolicy": {
     "minimumComparableCompanies": 5,
+    "insufficientBaselineFallback": {
+      "mode": "zero",
+      "fallbackBaselineScore": 0,
+      "when": "A company research pass has completed for the dimension, but fewer than the minimum comparable companies have an eligible A/B/C observed score, so no same-cohort median is available.",
+      "preserveUnknownFor": ["not_queried", "provider_failed", "identity_conflict"],
+      "note": "The fallback is a scoring-policy zero, not a company-specific factual observation. U/null observed inputs remain explicitly marked as unknown; the final score is 0 only because both the observed value and cohort baseline are unavailable."
+    },
     "cohortKey": "countryCode:companyRole",
     "eligibleBaselineEvidenceGrades": ["A", "B", "C"],
     "formula": "fairScore = evidenceWeight * observedScore + (1 - evidenceWeight) * baselineScore",

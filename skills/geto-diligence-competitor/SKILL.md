@@ -7,7 +7,7 @@ description: 对 GETO 海外市场中的单一竞对公司执行深度背调，�
 
 一次只研究一个竞对 Company。主体事实、产品竞争面、制造深度和客户关系分别取证；公司名含 framework、formwork、modular 或相似产品词只用于召回。
 
-开始前读取 [child-resources.md](references/child-resources.md)、[competitor-contract.md](references/competitor-contract.md) 与 [report-contract.md](references/report-contract.md)。构造或复核 company.json 时读取 `$geto-run-market-research` 的 `references/company-field-requirements.md`；首次查看完整形态时读取其 `references/company-json-example.json`。Evidence 通用结构读取 `$geto-diligence-company` 的 evidence-contract.md。
+开始前读取 [child-resources.md](references/child-resources.md)、[competitor-contract.md](references/competitor-contract.md)、[report-contract.md](references/report-contract.md) 与 `$geto-run-market-research` 的 `references/classification-and-engagement-contract.md`。构造或复核 company.json 时读取 `$geto-run-market-research` 的 `references/company-field-requirements.md`；首次查看完整形态时读取其 `references/company-json-example.json`。Evidence 通用结构读取 `$geto-diligence-company` 的 evidence-contract.md。
 
 ## 输入
 
@@ -24,12 +24,12 @@ description: 对 GETO 海外市场中的单一竞对公司执行深度背调，�
 3. 读取 `$geto-capability-foundation`，取得当前国家与产品范围的 competitionSurface、产品技术、场景和关键词切片。
 4. 系统核查官网 About、Products、Systems、Solutions、Applications、Manufacturing、Factory、Rental、Distribution、Projects、Case Studies、Testimonials 与 News；按实际情况补充登记、认证、诉讼、财务、人员和媒体来源。
 5. 按 [competitor-contract.md](references/competitor-contract.md) 逐产品记录商业控制、制造状态、市场活动和 GETO 重叠边界。
-6. 在 `researchClassifications[]` 独立写 lead 与 competitor。competitor 使用 confirmed、possible 或 rejected；lead 的存在不改变 competitor 结论。
-7. 把官方案例中的具名公司、项目、产品和合作内容写入待核 `relationships[]`，完整客户资格由 `$geto-mine-competitor-customers` 处理。
+6. 在 `researchClassifications[]` 独立写 lead 与 competitor。competitor 使用 confirmed、possible 或 rejected；lead 只有在采购、使用、选型影响或正式渠道路径另有 Evidence 时成立。产能互补、联合投标或战略合作写入建议行动，不自动形成 lead。
+7. 把官方案例中的具名公司、项目、产品和合作内容写入 `relationships[]` 候选；当官方内容闭合可识别公司、具体项目或产品及实际合作内容时，可确认关系事实，未知交易字段保持 null。客户组合和评分由 `$geto-mine-competitor-customers` 按需处理。
 8. 生成详细 report.md，并将路径写入固定字段的 `reportFiles[]`。
 9. 使用 `$geto-run-market-research` 的 `write_company_json.py`、`build_deduplicated_sources.py` 和 `validate_workspace.py --company-dir` 完成原子写入、来源聚合和单公司验证。
 
-confirmed competitor 的 OmniX 共享投影在 `$geto-mine-competitor-customers` 生成 competitorCustomerPortfolio 后执行。
+confirmed competitor 可独立进入 OmniX competitor 投影。`competitorCustomerPortfolio` 在执行客户组合研究时生成，可以暂缺、待评分、部分覆盖或完成。
 
 ## Provider 与上传
 

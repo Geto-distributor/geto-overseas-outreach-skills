@@ -27,9 +27,9 @@
 
 项目证据分三层记录：项目存在、目标公司参与、目标公司提供的产品或承担的合同角色。三层证据可以来自不同来源，结论只扩张到已闭合层级。
 
-官方 Projects、Case Studies、Testimonials 或 News 明确点名可识别公司，并闭合具体项目或产品/服务及合作内容时，写入 `relationships[]` 候选。Logo 墙、匿名案例、共同参建和搜索摘要进入待核记录。
+官方 Projects、Case Studies、Testimonials 或 News 明确点名可识别公司，并闭合具体项目或产品/服务及实际合作内容时，可以确认该范围内的合作关系；buyer、payer、actualUser、租售方式、排他和当前持续性未知时保持 null。Logo 墙、匿名案例、共同参建和搜索摘要进入待核记录。
 
-具名客户候选交给 `$geto-mine-competitor-customers` 完成客户资格、关系切入评估与组合聚合。
+需要客户资格、关系切入分或组合价值时，交给 `$geto-mine-competitor-customers` 处理。客户评分覆盖不改变公司级 competitor 结论。
 
 ## 结果语义
 

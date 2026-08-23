@@ -1,6 +1,6 @@
 ---
 name: geto-mine-competitor-customers
-description: 从已确认的 GETO 海外竞对官方项目与案例中反查可识别客户，核验竞对—客户关系，逐客进入同一客户线索池和六维 cohort 评分，并计算竞对客户价值平均分与每条关系的 0–5 合作切入分。用于一家公司一个竞对任务的客户组合研究、关系仲裁和切入机会判断；竞对公司本身的深度背调使用 geto-diligence-competitor。
+description: 从已确认的 GETO 海外竞对官方项目与案例中反查可识别合作方，核验竞对—客户关系，并可按需执行一客一档、六维 cohort、组合平均分和关系切入评估。用于一家竞对的合作披露、客户关系、组合价值或切入机会研究；竞对公司本身的深度背调使用 geto-diligence-competitor。
 ---
 
 # GETO 竞对客户反查与组合评估
@@ -27,13 +27,13 @@ Logo、匿名案例、搜索摘要、共同参建和无法拆分的组合实体�
 
 ### 2. 关系资格仲裁
 
-按 [competitor-customer-contract.md](references/competitor-customer-contract.md) 形成 `verified_customer|verified_non_customer|pending|conflicting|invalid`。`verified_customer` 需要可识别公司，并由竞对或对方官方内容闭合具体项目或具体产品/服务及实际合作内容。
+按 [competitor-customer-contract.md](references/competitor-customer-contract.md) 形成 `verified_customer|verified_non_customer|pending|conflicting|invalid`。`verified_customer` 需要可识别公司，并由竞对或对方官方内容闭合具体项目或具体产品/服务及实际合作内容。竞对官网可以独立支持该范围内的关系事实；第二来源用于主体消歧、项目状态、时态、反证和评分确认度。
 
 buyer、payer、实际使用方、sale/rental、排他、框架关系和当前持续性分别取证。未知字段保持 null。
 
 ### 3. 客户一客一档
 
-每个 verified_customer 使用同一自然公司名目录。已有 Company 复用；新客户由主任务创建独立 `$geto-diligence-company` 任务，并以 `assessmentMode=lead_value` 准备六维观察输入。
+只有用户需要客户长期价值、销售优先级或组合均分时，每个 verified_customer 才进入一客一档和六维评分。已有 Company 复用；新客户由主任务创建独立 `$geto-diligence-company` 任务，并以 `assessmentMode=lead_value` 准备六维观察输入。只研究竞对合作披露时，可以保留关系 Evidence 和未知字段，不批量创建客户评分任务。
 
 主任务使用 `$geto-find-leads` 按国家×公司角色建立 cohort baseline，并批量完成客户长期价值评分。竞对来源不改变六维模型或 cohortKey。
 
@@ -45,7 +45,7 @@ entryAssessment 写入对应 `relationships[]` item。客户价值分表达客�
 
 ### 5. 竞对客户组合聚合
 
-客户 cohort 评分完成后运行：
+需要组合价值指标时运行：
 
 ```bash
 python scripts/aggregate_competitor_customers.py \
@@ -54,7 +54,7 @@ python scripts/aggregate_competitor_customers.py \
   --as-of '<YYYY-MM-DD>'
 ```
 
-脚本按去重 verified_customer 计算 verifiedCustomerCount、scoredCustomerCount、customerScoreCoverage 和 averageCustomerValueScore，并写入竞对 company.json 的 `competitorCustomerPortfolio`。缺少当前六维评分的客户不填 0；覆盖率随平均分一并交付。
+脚本按去重 verified_customer 计算 verifiedCustomerCount、scoredCustomerCount、customerScoreCoverage 和 averageCustomerValueScore，并写入竞对 company.json 的 `competitorCustomerPortfolio`。缺少当前六维评分的客户不填 0；覆盖率随平均分一并交付。组合状态和完整度不阻止 confirmed competitor 的公司级投影。
 
 ### 6. 报告与验证
 
@@ -62,4 +62,4 @@ python scripts/aggregate_competitor_customers.py \
 
 ## 任务回传
 
-回传查询范围、各关系仲裁结果、已核实客户及公司目录、待核/冲突对象、客户评分覆盖率、竞对客户价值平均分、逐关系切入分、成果路径和下一步。
+回传查询范围、各关系仲裁结果、已核实客户、待核/冲突对象、成果路径和下一步。执行一客一档、客户评分、组合聚合或关系切入评估时，再回传对应公司目录、评分覆盖率、平均分和逐关系切入分；未执行的分析保持 not_requested 或 null。

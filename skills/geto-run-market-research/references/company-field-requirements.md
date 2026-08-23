@@ -29,7 +29,7 @@
 | reportFiles | S，数组 |
 | assessment | S；执行长期价值观察或评分时进入 C |
 | inquiryAssessment | S；存在本次原始询盘时进入 C |
-| competitorCustomerPortfolio | S；confirmed competitor 完成客户研究时进入 C |
+| competitorCustomerPortfolio | S；执行竞对客户组合研究时进入 C，不作为 competitor 分类或上传前置条件 |
 | researchStatus | R：completed、completed_with_gaps、identity_conflict |
 | lastResearchedOn | R：YYYY-MM-DD |
 
@@ -77,7 +77,7 @@
 
 | 资源 | R 字段 | C 字段 | S/O 字段 |
 | --- | --- | --- | --- |
-| researchClassifications[] | classification、status、country、productScope[]、reason、evidence | confirmed competitor：productScope 非空并满足产品门禁 | rejected 仍保留反证 Evidence |
+| researchClassifications[] | classification、status、country、productScope[]、reason、evidence | confirmed competitor：productScope 非空并满足产品门禁；active lead：满足独立采购、使用、选型影响或正式渠道路径 | rejected 仍保留反证 Evidence；active 列表集合排除 rejected |
 | companyRoles[] | role、scope、country、status、rationale、evidence | projectName：角色由具体项目证明时 | — |
 | productsAndServices[] | name、type、category、markets[]、commercialRoles[]、manufacturingStatus、status、getoRelevance、evidence | confirmed competitor 对应产品：markets、商业控制角色与 Evidence 非空；manufacturingStatus 为 own_factory_confirmed、manufacturing_claimed、outsourced 时填写 manufacturingDescription | systemName、description、technologyTerms[]、applications[]、targetCustomers[]、factoryLocations[]、media[]、representativeProject |
 | productsAndServices[].media[] | url、mediaType、caption、lastVerifiedOn、evidence | — | — |

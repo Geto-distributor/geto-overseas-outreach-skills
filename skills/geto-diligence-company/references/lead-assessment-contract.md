@@ -51,7 +51,7 @@ python '<geto-diligence-company-dir>/scripts/calculate_lead_assessment.py' \
 
 脚本写入严格的单公司评分输入并原子替换 company.json。capCodes 只使用模型文件定义的代码；不能用注册资本推断支付能力，也不能在单公司任务中查找或猜测同类型基线。
 
-最终分由主会话使用 `$geto-find-leads` 的 cohort 脚本批量生成。任何 cohort 维度少于 5 家合格观察时，该 cohort 全部保持 pending，不能使用不同时点的临时分排序。
+最终分由主会话使用 `$geto-find-leads` 的 cohort 脚本批量生成。任何 cohort 维度少于 5 家合格观察时，若该维度已经完成公开检索且没有可用信息，则使用 0 作为 cohort baseline 并记录 `cohort_baseline_zero_fallback:<dimensionCode>` Evidence；`not_queried`、`provider_failed`、`identity_conflict` 保留未知状态并由主任务决定是否导入。报告同时展示 overallScore、grade、informationCompleteness 和 fallback 标记。
 
 单公司 validator 会要求 `RisksAndAssessment/capability-context.json`，并逐字段核对它与 `assessment.capabilityContext`。
 

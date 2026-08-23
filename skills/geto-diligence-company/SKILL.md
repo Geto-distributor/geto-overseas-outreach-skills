@@ -7,7 +7,7 @@ description: 对 GETO 海外市场中的单一线索或普通目标公司执行�
 
 一次只研究一个 Company。法定主体、经营公司和企业集团分别建模；CommercialAccount 不另建重复主体。
 
-开始前读取 [evidence-contract.md](references/evidence-contract.md) 与 [child-resources.md](references/child-resources.md)。构造或复核 company.json 时读取 `$geto-run-market-research` 的 `references/company-field-requirements.md`；首次查看完整形态时读取其 `references/company-json-example.json`。需要六维评分时再读 [lead-assessment-contract.md](references/lead-assessment-contract.md)。
+开始前读取 [evidence-contract.md](references/evidence-contract.md)、[child-resources.md](references/child-resources.md) 与 `$geto-run-market-research` 的 `references/classification-and-engagement-contract.md`。构造或复核 company.json 时读取 `$geto-run-market-research` 的 `references/company-field-requirements.md`；首次查看完整形态时读取其 `references/company-json-example.json`。需要六维评分时再读 [lead-assessment-contract.md](references/lead-assessment-contract.md)。
 
 ## 输入
 
@@ -41,11 +41,13 @@ python '<geto-run-market-research-dir>/scripts/init_company_workspace.py' \
 
 ### 3. Web 定向背调
 
-至少核查官网 About、Products、Services、Solutions、Manufacturing、Factory、Rental、Distribution、Projects、News；并按任务范围查询登记、股权、财务、资质、诉讼监管、负面新闻、联系人、项目和经营信号。
+至少核查官网 About、Products、Services、Solutions、Manufacturing、Factory、Rental、Distribution、Projects、News；并按任务范围查询登记、股权、财务、资质、诉讼监管、负面新闻、联系人、项目和经营信号。高优先级结论需要官网之外的独立证据或可核验的当前项目、招标、合同、监管披露或 Provider 观察；只有官网自述或历史项目时保留时态缺口和较低优先级。
 
 ### 4. Provider 补强
 
 TradeWind 和网易外贸通只作为独立 Provider 任务返回的 ExternalObservation。需要补查时向对应用户可见任务追问或创建该 Provider 专用任务。在 `researchQueries[]` 保留 topic、channel、query、scope、status、checkedOn、resultCount 和 Evidence。`not_queried`、已查无结果和失败分别记录；Provider 结果不能覆盖法定主体或官网一手事实。
+
+精确官网域名或法定名称锚定的人员 Observation 可以支持 `contacts[]` 的 Provider 验证范围；公开公司页或职业页用于确认全名、当前任职和职责。姓名掩码、雇主锚点不足或同名冲突不进入正式联系人。Provider 可支持触达路径，但 buyingRole、签字权、buyer、payer 和项目授权分别取证。人员 0 结果只表达当前 queryBoundary，应补官网、公开职业页或更宽名称边界。
 
 ### 5. 写入内嵌 Evidence
 
@@ -64,11 +66,11 @@ TradeWind 和网易外贸通只作为独立 Provider 任务返回的 ExternalObs
 
 ### 7. 独立 Lead/Competitor 分类
 
-在 `researchClassifications[]` 分别写 lead 和 competitor；两者互不排斥，不使用 both。每条必须包含 country、productScope、status、reason 与 Evidence。`companyRoles[]` 只写开发商、总包、分包、顾问、经销贸易等市场角色。
+在 `researchClassifications[]` 分别写 lead 和 competitor；两者按共享分类合同独立取证，不使用 both。Lead 必须有采购、使用、选型影响或正式渠道路径；泛化合作、产能互补或联合供货写入关系、风险和建议行动。每条分类必须包含 country、productScope、status、reason 与 Evidence。`companyRoles[]` 只写开发商、总包、分包、顾问、经销贸易等市场角色。
 
 ### 8. 可选评分与报告
 
-`assessmentMode=lead_value` 时，使用 [lead-value-model.json](references/lead-value-model.json) 的 components、factAnchors 和 evidenceGradeRules，并把能力底座直接 contextRef 保存到 `RisksAndAssessment/capability-context.json`。填写六维观察分、证据等级与 Evidence，再运行 `<geto-diligence-company-dir>/scripts/calculate_lead_assessment.py`，输出 pending_cohort_baseline 输入。总分和等级由国家主任务收齐同类型公司后统一计算。评分不改变 competitor 分类。
+`assessmentMode=lead_value` 时，使用 [lead-value-model.json](references/lead-value-model.json) 的 components、factAnchors 和 evidenceGradeRules，并把能力底座直接 contextRef 保存到 `RisksAndAssessment/capability-context.json`。填写六维观察分、证据等级与 Evidence，再运行 `<geto-diligence-company-dir>/scripts/calculate_lead_assessment.py`，输出 pending_cohort_baseline 输入。总分和等级由国家主任务统一计算；公开检索完成且同角色中位数不可用时，cohort 基线使用 0 并标记对应 Evidence；`not_queried`、`provider_failed`、`identity_conflict` 仍保持未知。信息完整度与价值分分别展示。评分不改变 competitor 分类。
 
 `company.json` 是事实与评估的唯一权威结构化来源；`report.md` 是由它组织的可读结论。模块 Markdown 仅保存原始材料、查询日志或扩展分析，按实际内容创建，不手工维护第二份事实表。
 
