@@ -15,7 +15,7 @@
 
 ## 状态机
 
-`intake → discovery → arbitration → diligence → decision → validation → optional_upload → complete`
+`intake → discovery → arbitration → diligence → review → decision → validation → optional_upload → complete`
 
 主任务在 `progress.md` 为每个检查点记录状态、任务标题、成果路径、接受/拒绝理由、缺口和下一步；任务使用唯一 sectionName 调用 `merge_progress.py` 更新自己的区块。完整任务 trace 留在 Codex 任务自身。
 
@@ -24,6 +24,9 @@
 - 主动读取每个一级任务 final，不依赖 callback 自动进入上下文；
 - final、progress 区块和成果文件分别验收；
 - 验证成果路径存在、JSON 可解析、自然公司目录正确且 validator 结果可复现；
+- 按 `diligence-review-contract.md` 对官网、社媒、项目、外部交叉、Provider、采购链和分类进行独立挑战；
+- 单公司 final 只把任务状态改为已回收，不自动把 diligenceReviewStatus 改为 accepted；
+- 有可补救缺口时向原任务发送具体 follow-up，等待其更新原工件和唯一 progress section，再重新审查；
 - 单次等待目标有工具数量限制时分组执行；
 - 运行中或 idle 但尚未读取 final 的任务仍属于未回收；
 - 当前批次全部完成或明确需要用户输入后，才进入仲裁、下一批背调或交付。
@@ -39,11 +42,11 @@
 5. 未完成项和缺口；
 6. 建议主任务采取的下一步。
 
-Provider 任务另加 provider、queryBoundary、retrievedOn、status 和 ExternalObservation 文件路径。单公司任务另加身份锚点、lead/competitor 分类建议、冲突与 report.md 路径。
+Provider 任务另加 provider、queryBoundary、retrievedOn、status 和 ExternalObservation 文件路径。单公司任务另加身份锚点、lead/competitor 分类建议、冲突、report.md 路径，以及官网、社媒、项目、外部交叉和 Provider 的 `exhaustive|bounded|partial|not_queried|not_applicable` 覆盖摘要。
 
 ## 恢复
 
-恢复时先读 `progress.md`、覆盖矩阵、候选总账和成果文件，再使用任务等待/读取能力获取尚未完成任务的最新状态。仅向需要补证的任务发 follow-up；不重建已完成任务，不无条件重查已完成来源。Provider 已有异步 taskId 时优先恢复状态与结果，不重复提交相同 queryBoundary。
+恢复时先读 `progress.md`、覆盖矩阵、候选总账、diligence-review.json 和成果文件，再使用任务等待/读取能力获取尚未完成任务的最新状态。任务 final 已回收但 review 未通过时仍属于未完成；向原任务发送审查中的具体 follow-up，不重建已完成任务，不无条件重查已完成来源。Provider 已有异步 taskId 时优先恢复状态与结果，不重复提交相同 queryBoundary。
 
 ## progress.md 最小结构
 
@@ -64,7 +67,7 @@ Provider 任务另加 provider、queryBoundary、retrievedOn、status 和 Extern
 | 任务 | 状态 | 做了什么 | 成果路径 | 接受/拒绝理由 | 缺口 | 下一步 |
 
 ## 公司仲裁
-| 公司 | lead | competitor | 目录 | 理由/冲突 |
+| 公司 | lead | competitor | 背调任务 | 背调验收 | reviewCycle | 目录 | 理由/冲突 |
 
 ## 上传
 - uploadStatus: not_requested

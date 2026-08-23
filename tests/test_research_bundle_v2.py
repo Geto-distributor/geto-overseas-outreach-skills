@@ -44,6 +44,10 @@ COMPANY_EXAMPLE_GENERATOR = load_module(
     "generate_company_json_example",
     RUN_SCRIPTS / "generate_company_json_example.py",
 )
+DILIGENCE_REVIEW_VALIDATOR = load_module(
+    "validate_diligence_review",
+    RUN_SCRIPTS / "validate_diligence_review.py",
+)
 
 
 def evidence(url: str = "https://example.com/product") -> dict[str, object]:
@@ -60,6 +64,37 @@ def base_company() -> dict[str, object]:
 
 
 class ResearchBundleValidationTests(unittest.TestCase):
+    def test_diligence_review_example_passes_adversarial_gate(self) -> None:
+        review = json.loads((
+            ROOT / "skills/geto-run-market-research/references/diligence-review-example.json"
+        ).read_text(encoding="utf-8"))
+        self.assertEqual(DILIGENCE_REVIEW_VALIDATOR.validate_review(review), [])
+
+    def test_diligence_review_rejects_shallow_site_and_project_coverage(self) -> None:
+        review = json.loads((
+            ROOT / "skills/geto-run-market-research/references/diligence-review-example.json"
+        ).read_text(encoding="utf-8"))
+        review["reviewStatus"] = "accepted"
+        review["coverage"]["officialWebsite"]["pagesReviewed"] = 1
+        review["coverage"]["officialWebsite"]["sectionsReviewed"].remove("Projects")
+        review["coverage"]["projects"]["priorityProjectsReviewed"] = 2
+        review["coverage"]["procurementChain"]["status"] = "not_queried"
+        review["challengeFindings"] = []
+        errors = DILIGENCE_REVIEW_VALIDATOR.validate_review(review)
+        self.assertTrue(any("sections are unaccounted" in item for item in errors))
+        self.assertTrue(any("homepage or single website page" in item for item in errors))
+        self.assertTrue(any("every discovered priority project" in item for item in errors))
+        self.assertTrue(any("procurement-chain coverage" in item for item in errors))
+
+    def test_returned_diligence_review_requires_actionable_followup(self) -> None:
+        review = json.loads((
+            ROOT / "skills/geto-run-market-research/references/diligence-review-example.json"
+        ).read_text(encoding="utf-8"))
+        review["reviewStatus"] = "returned_for_followup"
+        review["followUp"] = {"required": True, "cycle": 1, "questions": []}
+        errors = DILIGENCE_REVIEW_VALIDATOR.validate_review(review)
+        self.assertTrue(any("actionable follow-up questions" in item for item in errors))
+
     def test_inquiry_intake_gate_requires_minimum_fields_and_two_strong_matches(self) -> None:
         manifest = json.loads(
             (ROOT / "skills/geto-diligence-inquiry/references/inquiry-intake-example.json").read_text(

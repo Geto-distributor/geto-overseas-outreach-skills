@@ -30,6 +30,7 @@
 - productScope、currentPriority；
 - identityConflict、duplicateOf、groupOrJvBoundary；
 - companyDir、taskId、assessmentStatus、uploadStatus；
+- diligenceTaskStatus、diligenceReviewStatus、reviewArtifactPath、reviewCycle、reviewBlockingIssues、lastReviewedOn；
 - 接受/拒绝理由、缺口和下一步。
 
 原始候选池只表示召回。未确认归属的 website root、名称、地址、集团关系、JV 或项目共现不能成为自动去重锚点。
@@ -39,6 +40,8 @@
 高优先级候选至少需要一条公司官网之外的独立证据，或一条可核验的当前项目、招标、合同、监管披露、Provider 主体/人员观察。只有官网自述、历史项目或无法交叉验证的“进行中”标签时，保持 possible 或低优先级。
 
 项目机会优先闭合 owner/developer、main contractor/JV、结构或模板分包、buyer、payer、actualUser、technical approver、包件、当前结构阶段、采购或租赁边界和进入窗口。无法取得的字段保持未知，不用项目总额、公司注册资本或一般联系人代替。
+
+单公司任务 final 只更新 diligenceTaskStatus。国家主任务按 `diligence-review-contract.md` 写入独立审查工件后，才能更新 diligenceReviewStatus。`returned_for_followup` 仍计入未完成工作量，不得因任务已有 final 而从剩余清单移除。
 
 ## 工作空间
 

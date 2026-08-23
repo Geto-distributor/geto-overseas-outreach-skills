@@ -17,6 +17,8 @@
 
 冲突来源分别保留。查询动作写入 `researchQueries[]`：`not_queried` 与 `no_result` 是信息状态，`failed` 是需处理状态。对研究结论有实质影响的冲突、过期、Provider 失败或证据缺口写入 `missingInformation[]`；不得写占位事实。
 
+深度背调的 `researchQueries[]` 与 report.md 共同自证查询覆盖，至少区分 `official_website_inventory`、`social_media`、`projects`、`external_corroboration`、`provider`、`procurement_chain` 和 `classification_gate`。每个主题记录实际 queryBoundary、状态、checkedOn、结果数量和 Evidence；没有适用来源时明确 `not_applicable` 或有边界的 `no_result`，不能只写泛化的“已核查”。国家主任务会依据这些记录和原始来源生成独立 diligence review。
+
 ## 分类
 
 `researchClassifications[]` 每条包含 classification=lead|competitor、status=confirmed|possible|rejected、country、productScope[]、reason、evidence[]。lead 与 competitor 独立；同一公司可同时具备，不使用 both。

@@ -7,7 +7,7 @@ description: 对 GETO 海外市场中的单一线索或普通目标公司执行�
 
 一次只研究一个 Company。法定主体、经营公司和企业集团分别建模；CommercialAccount 不另建重复主体。
 
-开始前读取 [evidence-contract.md](references/evidence-contract.md)、[child-resources.md](references/child-resources.md) 与 `$geto-run-market-research` 的 `references/classification-and-engagement-contract.md`。构造或复核 company.json 时读取 `$geto-run-market-research` 的 `references/company-field-requirements.md`；首次查看完整形态时读取其 `references/company-json-example.json`。需要六维评分时再读 [lead-assessment-contract.md](references/lead-assessment-contract.md)。
+开始前读取 [evidence-contract.md](references/evidence-contract.md)、[child-resources.md](references/child-resources.md)，以及 `$geto-run-market-research` 的 `references/classification-and-engagement-contract.md` 与 `references/diligence-review-contract.md`。构造或复核 company.json 时读取 `$geto-run-market-research` 的 `references/company-field-requirements.md`；首次查看完整形态时读取其 `references/company-json-example.json`。需要六维评分时再读 [lead-assessment-contract.md](references/lead-assessment-contract.md)。
 
 ## 输入
 
@@ -39,9 +39,13 @@ python '<geto-run-market-research-dir>/scripts/init_company_workspace.py' \
 
 核对官网主域名、法定登记、注册号、地址、别名和集团关系。仅强身份一致时自动合并；名称相似、共同地址、品牌相近或共同项目不得自动合并。注册资本与实缴资本写入 `capitalRecords`，不得解释为现金、收入、净资产或信用能力。
 
-### 3. Web 定向背调
+### 3. Web 定向背调与覆盖自证
 
-至少核查官网 About、Products、Services、Solutions、Manufacturing、Factory、Rental、Distribution、Projects、News；并按任务范围查询登记、股权、财务、资质、诉讼监管、负面新闻、联系人、项目和经营信号。高优先级结论需要官网之外的独立证据或可核验的当前项目、招标、合同、监管披露或 Provider 观察；只有官网自述或历史项目时保留时态缺口和较低优先级。
+先枚举官网顶部/页脚导航、项目/新闻/产品分页、下载目录、法律页、sitemap、robots 和站内搜索，再核查适用的 About、Products、Systems、Services、Solutions、Applications、Manufacturing、Factory、Rental、Distribution、Projects、Case Studies、Testimonials、News、Contact、Privacy/Terms 与 Downloads。记录发现栏目、已检查栏目、页数或列表项数量、不可访问页面和分页终点；只看首页或 About 不构成深度背调。
+
+枚举官网指向和公开检索可归一的官方社媒。默认逐页检查最近 24 个月全部公开可见帖子，并回溯与产品发布、工厂、项目、客户和管理层有关的更早里程碑；平台限制完整分页时记录实际检查数量、时间范围和访问边界，不宣称穷尽。按任务范围查询登记、股权、财务、资质、诉讼监管、负面新闻、联系人、项目和经营信号。
+
+尽量枚举官网和外部来源的项目池，区分当前、历史和未知。每个当前、高相关或支撑分类/评分的项目必须打开详情并交叉 owner/developer、总包/JV、结构/模板分包、顾问、buyer、payer、actualUser、technical approver、阶段、数量、模板系统或供应商、租购/甲供边界与采购窗口。高优先级结论需要官网之外的独立证据或可核验的当前项目、招标、合同、监管披露或 Provider 观察；只有官网自述或历史项目时保留时态缺口和较低优先级。
 
 ### 4. Provider 补强
 
@@ -74,7 +78,7 @@ TradeWind 和网易外贸通只作为独立 Provider 任务返回的 ExternalObs
 
 `company.json` 是事实与评估的唯一权威结构化来源；`report.md` 是由它组织的可读结论。模块 Markdown 仅保存原始材料、查询日志或扩展分析，按实际内容创建，不手工维护第二份事实表。
 
-生成 `report.md`，并按固定字段 `fileName/path/format/reportType/language/generatedOn/description` 写入 `reportFiles[]`。共享工作空间脚本从 `$geto-run-market-research` 的安装目录调用，用它校验并原子替换完整 JSON，再运行来源聚合与单公司校验：
+生成 `report.md`，其中必须有“研究覆盖”章节，按官网、社媒、项目、主体、外部交叉、Provider、采购链和分类列出 `exhaustive|bounded|partial|not_queried|not_applicable`、数量、时间/分页边界、缺口与下一步。按固定字段 `fileName/path/format/reportType/language/generatedOn/description` 写入 `reportFiles[]`。共享工作空间脚本从 `$geto-run-market-research` 的安装目录调用，用它校验并原子替换完整 JSON，再运行来源聚合与单公司校验：
 
 ```bash
 python '<geto-run-market-research-dir>/scripts/write_company_json.py' \
@@ -89,4 +93,4 @@ python '<geto-run-market-research-dir>/scripts/validate_workspace.py' \
 
 ## 任务回传
 
-结束时向主任务回传：做了什么、主要发现、公司目录与报告路径、lead/competitor 接受或拒绝理由、身份/证据冲突、未完成缺口、建议下一步。主任务在本地验证后决定是否上传 OmniX。
+结束时向主任务回传：做了什么、主要发现、公司目录与报告路径、lead/competitor 接受或拒绝理由、身份/证据冲突、未完成缺口、建议下一步，以及官网栏目、社媒帖子、项目池、外部交叉和 Provider 的覆盖状态与计数。不得把 `partial` 表述成“已全面核查”。主任务会按共享对抗式验收合同独立抽查并可能把具体问题退回；收到 follow-up 后更新原 company.json、report.md、Sources 和同一 progress section，再回传差异。主任务验收通过后才决定评分定稿或 OmniX 上传。

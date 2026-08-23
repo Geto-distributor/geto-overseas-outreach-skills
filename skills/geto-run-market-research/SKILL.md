@@ -1,6 +1,6 @@
 ---
 name: geto-run-market-research
-description: 编排 GETO 海外市场的一次完整或定向调研，以当前用户任务为主任务，按公司角色、Provider 和单公司背调创建用户可见任务，维护国家 progress.md 与本地 ResearchBundle，并在验证通过后可选上传 OmniX。用于国家/地区市场调研、销售线索池、竞对客户挖掘或多模块研究。
+description: 编排 GETO 海外市场的一次完整或定向调研，以当前用户任务为主任务，按公司角色、Provider 和单公司背调创建用户可见任务，对回传执行官网、社媒、项目和采购链的对抗式验收，维护国家 progress.md 与本地 ResearchBundle，并在验证通过后可选上传 OmniX。用于国家/地区市场调研、销售线索池、竞对客户挖掘或多模块研究。
 ---
 
 # GETO 海外市场情报总编排
@@ -9,7 +9,7 @@ description: 编排 GETO 海外市场的一次完整或定向调研，以当前�
 
 把当前国家调研任务作为主任务。用用户可见的独立任务承载角色发现、Provider 查询和逐公司背调；subagent 只允许在单个任务内部并行。主任务维护人可直接浏览的 ResearchBundle，不依赖 OmniX 完成研究。
 
-开始前读取 [orchestration.md](references/orchestration.md)、[classification-and-engagement-contract.md](references/classification-and-engagement-contract.md)、[coverage-and-inventory-contract.md](references/coverage-and-inventory-contract.md) 与 [company-json-contract.md](references/company-json-contract.md)。构造、复核或校验 Company 字段时读取 [company-field-requirements.md](references/company-field-requirements.md)；首次查看完整形态时再读取 [company-json-example.json](references/company-json-example.json)。需要初始化或验证本地成果时使用本 Skill 的 `scripts/`。
+开始前读取 [orchestration.md](references/orchestration.md)、[diligence-review-contract.md](references/diligence-review-contract.md)、[classification-and-engagement-contract.md](references/classification-and-engagement-contract.md)、[coverage-and-inventory-contract.md](references/coverage-and-inventory-contract.md) 与 [company-json-contract.md](references/company-json-contract.md)。构造、复核或校验 Company 字段时读取 [company-field-requirements.md](references/company-field-requirements.md)；首次查看完整形态时再读取 [company-json-example.json](references/company-json-example.json)。需要初始化或验证本地成果时使用本 Skill 的 `scripts/`。
 
 ## 输入
 
@@ -48,7 +48,7 @@ python scripts/init_company_workspace.py --workspace-root '<ResearchBundle>' \
 
 ### 3. 收集统一任务回传
 
-每个任务必须回传：做了什么、找到了什么、成果路径、接受/拒绝理由、缺口、下一步。每个任务以唯一 sectionName 调用 `merge_progress.py` 合并自己的区块，再向 parentTaskId 发送精简 callback；callback 不可用时在 final 标记 callback_failed。主任务主动等待并读取每个任务 final，同时验证成果文件存在、结构可读和 validator 结果；不能用 progress.md 代替 final，也不能用 final 代替成果验收。任务仍在运行时继续协调，不以“已创建”或“正在运行”作为阶段完成。
+每个任务必须回传：做了什么、找到了什么、成果路径、接受/拒绝理由、缺口、下一步，以及官网、社媒、项目、外部交叉和 Provider 的覆盖边界。每个任务以唯一 sectionName 调用 `merge_progress.py` 合并自己的区块，再向 parentTaskId 发送精简 callback；callback 不可用时在 final 标记 callback_failed。主任务主动等待并读取每个任务 final，同时验证成果文件存在、结构可读和 validator 结果；不能用 progress.md 代替 final，也不能用 final 代替成果验收。任务仍在运行时继续协调，不以“已创建”或“正在运行”作为阶段完成。
 
 ### 4. 主体归一与分类仲裁
 
@@ -69,9 +69,22 @@ python scripts/init_company_workspace.py --workspace-root '<ResearchBundle>' \
 
 模块目录只在有真实内容时创建。
 
+### 5.1 对抗式验收与退回
+
+单公司任务完成后，主任务必须按 [diligence-review-contract.md](references/diligence-review-contract.md) 独立复核，而不是直接采纳 final。至少重开关键官网页、社媒和项目来源，检查官网栏目清单、社媒帖子时间与分页、项目索引和采购链字段、主体/JV/历史边界、外部交叉来源、Provider 归一、分类 Evidence、来源当前性以及工件一致性。
+
+主任务把审查写入 `<公司目录>/Additional/diligence-review.json` 并运行：
+
+```bash
+python scripts/validate_diligence_review.py \
+  '<公司目录>/Additional/diligence-review.json'
+```
+
+`returned_for_followup` 必须把可执行问题发回原单公司任务并持续等待更新；不得由主任务用猜测补齐。`accepted|accepted_with_gaps` 才允许进入分类定稿、cohort 计算或导入准备。validator 通过只证明数据合同有效，不能替代研究充分性审查。
+
 ### 6. 评分、关系与风险
 
-- `$geto-find-leads` 在主任务收齐单公司 observedScore/Evidence 后，按国家×同类型角色生成 cohort baseline，并以同一 baselineVersion 批量计算或重算长期客户价值。
+- `$geto-find-leads` 在主任务收齐已通过对抗式验收的单公司 observedScore/Evidence 后，按国家×同类型角色生成 cohort baseline，并以同一 baselineVersion 批量计算或重算长期客户价值。
 - `$geto-mine-competitor-customers` 只对 verified_customer 复用上述长期价值结果，聚合竞对客户价值平均分和评分覆盖率，并为每条关系保留 0–5 合作切入分。
 - 有明确原始询盘时使用 `$geto-diligence-inquiry` 生成不依赖 cohort 的询盘准备度；它不替代长期客户价值。
 - `$geto-map-relationships` 只对已归一公司/项目建立 typed Relationship。
@@ -88,11 +101,11 @@ python scripts/validate_workspace.py --company-dir '<公司目录>'
 python scripts/validate_workspace.py '<国家目录>'
 ```
 
-单公司任务只运行 `--company-dir` 模式；国家主任务运行国家模式。任何 ERROR 必须修复后再交付或上传；WARNING 必须处置或写入 `missingInformation`/`progress.md`，INFO 保留为查询覆盖说明。validator 默认输出 INFO 分类计数，使用 `--include-infos` 查看逐条明细。评分任务还会核对标准能力工件与 assessment。固定检查点为 `intake`、`discovery`、`arbitration`、`diligence`、`decision`、`validation`、`optional_upload`、`complete`。
+单公司任务只运行 `--company-dir` 模式；国家主任务运行国家模式。任何 ERROR 必须修复后再交付或上传；WARNING 必须处置或写入 `missingInformation`/`progress.md`，INFO 保留为查询覆盖说明。validator 默认输出 INFO 分类计数，使用 `--include-infos` 查看逐条明细。评分任务还会核对标准能力工件与 assessment。每家公司的 diligence review 必须为 `accepted|accepted_with_gaps`。固定检查点为 `intake`、`discovery`、`arbitration`、`diligence`、`review`、`decision`、`validation`、`optional_upload`、`complete`。
 
 ### 8. 可选 OmniX 上传
 
-仅在本地验证通过后询问用户：是否上传、Base URL/API Key 是否已安全配置、上传为 `private` 还是 `public`。用户同意后调用 `$omnix-market` 的单一无版本 Company Aggregate API。没有 OmniX 或用户不上传不阻断研究完成。
+仅在本地验证和对抗式验收通过后询问用户：是否上传、Base URL/API Key 是否已安全配置、上传为 `private` 还是 `public`。用户同意后调用 `$omnix-market` 的单一无版本 Company Aggregate API。没有 OmniX 或用户不上传不阻断研究完成。
 
 private/public 均要求注册号或已确认稳定官网域名等强身份。上传投影保留 competitorCustomerPortfolio、assessment.capabilityContext、projects[].participants、relationships[].exclusivity 和内嵌 Evidence；inquiryAssessment、researchQueries、reportFiles、报告和工作空间路径保存在本地。public 以整个 Aggregate 为可见单元。active lead 在同类型 cohort 完成评分后进入 lead 投影，scoring criteria hash 由 `$omnix-market` 自动读取并注入；confirmed competitor 可独立进入 competitor 投影，competitorCustomerPortfolio 可以缺省、待评分、部分覆盖或完成。
 
@@ -102,6 +115,7 @@ private/public 均要求注册号或已确认稳定官网域名等强身份。�
 
 - 六个角色发现任务及已启用 Provider 的独立任务都有回传和成果路径。
 - 每个评分公司可追溯到独立背调任务、自然名称目录、`company.json` 与 `report.md`。
+- 每个完成背调的公司都有主任务生成且通过校验的 `Additional/diligence-review.json`；退回问题已由原任务回答，或被明确接受为有边界的缺口。
 - lead/competitor 分类、接受/拒绝理由、冲突与查询边界没有在合并中丢失。
 - 产品×角色×来源覆盖矩阵和候选总账能解释全部召回、拒绝、背调、评分与导入对象。
 - `Sources/sources.md` 已由内嵌 Evidence 去重生成，工作空间验证无 ERROR。
