@@ -24,6 +24,7 @@ description: 为 GETO 在指定国家或地区按单一公司角色轨道发现�
 5. 对每个候选记录发现来源、目标角色、目标产品、强身份状态、接受/拒绝理由、开放问题、推荐背调优先级和候选总账状态。高优先级至少需要一条公司官网之外的独立证据，或可核验的当前项目、招标、合同、监管披露或 Provider 观察。
 6. 不在本任务深调全部公司；把入选候选交回主任务，由主任务创建一家公司一个 `$geto-diligence-company` 任务。
 7. 单公司任务返回同版本 observedScore、evidenceGrade、Evidence 和 cohortKey 后，主任务读取 [cohort-assessment-contract.md](references/cohort-assessment-contract.md)。每个 cohort 维度至少 5 家合格观察时生成版本化中位数；若公开检索已完成但该维度没有可用中位数，按 `insufficientBaselineFallback.mode=zero` 以 0 作为基线并标记 fallback。`not_queried`、`provider_failed`、`identity_conflict` 仍保持未知，不得直接当作事实 0。新成员或观察输入变化时统一重算，不能混排不同 baselineVersion。
+8. cohort 收口会同步清除已完成评分对应的旧迁移占位。只需修复存量占位且不得重算分数时，先运行 `scripts/cleanup_assessment_placeholders.py <国家目录>` 预览，再经确认使用 `--apply`；该脚本不会修改 assessment 分数或其他缺口。
 
 输出合同见 [output-contract.md](references/output-contract.md)。
 
