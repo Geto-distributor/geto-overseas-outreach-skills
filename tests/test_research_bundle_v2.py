@@ -554,6 +554,24 @@ class ResearchBundleValidationTests(unittest.TestCase):
             early_artifact = {}
             for index in range(6):
                 company = RESEARCH_BUNDLE.empty_company(f"Company {index}", "Australia", "AU")
+                if index == 0:
+                    company["missingInformation"] = [{
+                        "topic": "lead_assessment_contract_incomplete",
+                        "status": "not_queried",
+                        "description": "lead assessment contract incomplete",
+                        "impact": "Strong identity gate future upload",
+                        "checkedScope": "Legacy company and legal-entity records",
+                        "recommendedAction": "Complete identity arbitration before upload",
+                        "evidence": [],
+                    }, {
+                        "topic": "payment_capacity_evidence",
+                        "status": "not_queried",
+                        "description": "Payment evidence remains open.",
+                        "impact": "Commercial terms need confirmation.",
+                        "checkedScope": "Published financial and payment sources.",
+                        "recommendedAction": "Request payment references.",
+                        "evidence": [],
+                    }]
                 company["assessment"] = {"dimensions": [
                     {
                         "dimensionCode": item["dimensionCode"],
@@ -592,6 +610,7 @@ class ResearchBundleValidationTests(unittest.TestCase):
             ]
             versions = {item["assessment"]["cohortBaselineVersion"] for item in scored}
             sixth = next(item for item in scored if item["company"]["companyName"] == "Company 5")
+            first = next(item for item in scored if item["company"]["companyName"] == "Company 0")
         self.assertEqual(len(pending_result["pendingCompanyFiles"]), 0)
         self.assertEqual(len(pending_result["updatedCompanyFiles"]), 4)
         self.assertTrue(all(item["assessment"]["status"] == "completed" for item in early_companies))
@@ -603,6 +622,11 @@ class ResearchBundleValidationTests(unittest.TestCase):
         self.assertEqual(len(result["updatedCompanyFiles"]), 6)
         self.assertEqual(len(versions), 1)
         self.assertTrue(all(item["assessment"]["status"] == "completed" for item in scored))
+        self.assertEqual(
+            [item["topic"] for item in first["missingInformation"]],
+            ["payment_capacity_evidence"],
+        )
+        self.assertTrue(any("Company 0" in item for item in pending_result["removedAssessmentPlaceholders"]))
         for item in scored:
             errors, _, _ = RESEARCH_BUNDLE.validate_company(item)
             self.assertEqual(errors, [])
@@ -624,6 +648,15 @@ class ResearchBundleValidationTests(unittest.TestCase):
         with tempfile.TemporaryDirectory() as directory:
             root = Path(directory) / "AU-Australia"
             company = RESEARCH_BUNDLE.empty_company("Provider Pending", "Australia", "AU")
+            company["missingInformation"] = [{
+                "topic": "lead_assessment_contract_incomplete",
+                "status": "not_queried",
+                "description": "lead assessment contract incomplete",
+                "impact": "Strong identity gate future upload",
+                "checkedScope": "Legacy company and legal-entity records",
+                "recommendedAction": "Complete identity arbitration before upload",
+                "evidence": [],
+            }]
             company["assessment"] = {"dimensions": [
                 {
                     "dimensionCode": item["dimensionCode"], "observedScore": None,
@@ -649,6 +682,10 @@ class ResearchBundleValidationTests(unittest.TestCase):
             code.startswith("cohort_zero_baseline_blocked:")
             for code in updated["assessment"]["gapCodes"]
         ))
+        gap = updated["missingInformation"][0]
+        self.assertEqual(gap["status"], "pending_cohort_baseline")
+        self.assertIn("GETO_LEAD_VALUE assessment", gap["description"])
+        self.assertNotIn("identity", json.dumps(gap).lower())
 
     def test_inquiry_readiness_scores_without_cohort(self) -> None:
         company = base_company()

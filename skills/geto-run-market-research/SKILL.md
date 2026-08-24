@@ -87,6 +87,7 @@ python scripts/validate_diligence_review.py \
 ### 6. 评分、关系与风险
 
 - `$geto-find-leads` 在主任务收齐已通过对抗式验收的单公司 observedScore/Evidence 后，按国家×同类型角色生成 cohort baseline，并以同一 baselineVersion 批量计算或重算长期客户价值。
+- cohort 收口必须同步 `missingInformation[]`：完成六维评分且有总分时删除且仅删除旧迁移主题 `lead_assessment_contract_incomplete`；评分未完成时，该主题只能准确描述缺失维度、cohort 或模型状态，不得套用身份仲裁文案。真实身份、付款、项目、Provider 或证据缺口保持独立条目。
 - `$geto-mine-competitor-customers` 只对 verified_customer 复用上述长期价值结果，聚合竞对客户价值平均分和评分覆盖率，并为每条关系保留 0–5 合作切入分。
 - 有明确原始询盘时使用 `$geto-diligence-inquiry` 生成不依赖 cohort 的询盘准备度；它不替代长期客户价值。
 - `$geto-map-relationships` 只对已归一公司/项目建立 typed Relationship。

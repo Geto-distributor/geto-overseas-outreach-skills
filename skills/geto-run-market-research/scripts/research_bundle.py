@@ -1030,6 +1030,16 @@ def validate_company(value: Any) -> tuple[list[str], list[str], list[str]]:
             errors.extend(_validate_project(project, f"$.projects[{index}]"))
 
     errors.extend(_validate_assessment(value.get("assessment")))
+    assessment = value.get("assessment")
+    if isinstance(assessment, dict) and assessment.get("status") == "completed":
+        if any(
+            isinstance(item, dict) and item.get("topic") == "lead_assessment_contract_incomplete"
+            for item in value.get("missingInformation", [])
+        ):
+            errors.append(
+                "$.missingInformation: completed lead assessment cannot retain "
+                "lead_assessment_contract_incomplete"
+            )
     errors.extend(_validate_inquiry_assessment(value.get("inquiryAssessment")))
     errors.extend(_validate_competitor_portfolio(
         value.get("competitorCustomerPortfolio"), value.get("relationships")

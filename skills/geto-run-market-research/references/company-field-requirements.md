@@ -147,6 +147,8 @@ verificationStatus=email_only 只确认 workEmail 对应验证范围；任职、
 | --- | --- | --- | --- |
 | risks[] | riskType、severity、status、description、impact、blocking、mitigation、evidence | blocking=true 时明确阻断解除条件 | — |
 | missingInformation[] | topic、status、description、impact、checkedScope、recommendedAction、evidence | status=not_queried 时 evidence 可为空；conflicting、outdated、provider_failed 保留对应查询或冲突 Evidence | — |
+
+`lead_assessment_contract_incomplete` 只表示长期价值评分合同尚未完成。assessment 完成、六维均有最终分且 overallScore 非空时必须移除该主题；它不能承载注册主体或 entity kind 仲裁，身份缺口使用独立且具体的 topic。
 | recommendedActions[] | action、priority、owner、timing、reason 或 rationale、evidence | — | — |
 | additionalInformation[] | topic、title、details、status、evidence | — | 仅承载没有专属结构的事实 |
 | researchQueries[] | topic、channel、query、scope、status、checkedOn、resultCount、evidence | found、partial 时 Evidence 非空 | not_queried、no_result、failed 可为空 Evidence |

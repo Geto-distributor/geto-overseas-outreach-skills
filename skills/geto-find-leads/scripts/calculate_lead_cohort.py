@@ -16,6 +16,7 @@ from typing import Any
 
 SKILLS_ROOT = Path(__file__).resolve().parents[2]
 DEFAULT_MODEL = SKILLS_ROOT / "geto-diligence-company" / "references" / "lead-value-model.json"
+LEGACY_ASSESSMENT_GAP_TOPIC = "lead_assessment_contract_incomplete"
 
 
 def load_json(path: Path) -> Any:
@@ -123,6 +124,48 @@ def cohort_zero_fallback_evidence(
     }
 
 
+def synchronize_assessment_gap(company: dict[str, Any]) -> str:
+    """Remove or correct the legacy assessment placeholder after cohort scoring."""
+    assessment = company.get("assessment", {})
+    items = company.setdefault("missingInformation", [])
+    legacy_items = [
+        item for item in items
+        if isinstance(item, dict) and item.get("topic") == LEGACY_ASSESSMENT_GAP_TOPIC
+    ]
+    is_completed = (
+        assessment.get("status") == "completed"
+        and isinstance(assessment.get("overallScore"), (int, float))
+        and len(assessment.get("dimensions", [])) == 6
+        and all(
+            isinstance(item, dict) and item.get("finalDimensionScore") is not None
+            for item in assessment.get("dimensions", [])
+        )
+    )
+    if is_completed:
+        company["missingInformation"] = [
+            item for item in items
+            if not (isinstance(item, dict) and item.get("topic") == LEGACY_ASSESSMENT_GAP_TOPIC)
+        ]
+        return "removed" if legacy_items else "unchanged"
+    if not legacy_items:
+        return "unchanged"
+    status = str(assessment.get("status") or "not_requested")
+    accurate_gap = {
+        "topic": LEGACY_ASSESSMENT_GAP_TOPIC,
+        "status": status,
+        "description": f"GETO_LEAD_VALUE assessment is {status}; the company is not yet ready for lead-value ranking.",
+        "impact": "The active lead cannot be compared or uploaded with a completed lead score until the assessment contract is complete.",
+        "checkedScope": "GETO_LEAD_VALUE status, six dimension inputs, cohort baseline and final score fields.",
+        "recommendedAction": "Complete the missing assessment dimensions or cohort baseline, then rerun the country cohort calculator.",
+        "evidence": [],
+    }
+    company["missingInformation"] = [
+        accurate_gap if isinstance(item, dict) and item.get("topic") == LEGACY_ASSESSMENT_GAP_TOPIC else item
+        for item in items
+    ]
+    return "corrected"
+
+
 def score_country(country_root: Path, model: dict[str, Any], as_of: str) -> dict[str, Any]:
     company_files = sorted((country_root / "companies").glob("*/company.json"))
     companies = [(path, load_json(path)) for path in company_files]
@@ -195,6 +238,8 @@ def score_country(country_root: Path, model: dict[str, Any], as_of: str) -> dict
 
     updated: list[str] = []
     pending: list[str] = []
+    removed_placeholders: list[str] = []
+    corrected_placeholders: list[str] = []
     for path, company in lead_companies:
         assessment = company["assessment"]
         cohort_key = str(assessment.get("cohortKey") or "")
@@ -217,6 +262,8 @@ def score_country(country_root: Path, model: dict[str, Any], as_of: str) -> dict
             assessment["overallConclusion"] = (
                 f"主任务中的同类型 cohort 样本不足 {minimum} 家，等待形成统一中位数基线。"
             )
+            if synchronize_assessment_gap(company) == "corrected":
+                corrected_placeholders.append(str(path))
             pending.append(str(path))
             atomic_write(path, company)
             continue
@@ -237,6 +284,8 @@ def score_country(country_root: Path, model: dict[str, Any], as_of: str) -> dict
                     dimension["baselineScore"] = None
                     dimension["finalDimensionScore"] = None
             assessment["overallConclusion"] = "assessment 未提供完整六维输入，保持 pending，不能用零分兜底替代缺失维度结构。"
+            if synchronize_assessment_gap(company) == "corrected":
+                corrected_placeholders.append(str(path))
             pending.append(str(path))
             atomic_write(path, company)
             continue
@@ -279,6 +328,8 @@ def score_country(country_root: Path, model: dict[str, Any], as_of: str) -> dict
                 "零分基线不适用于未查询、Provider 失败或主体冲突造成的未知维度，"
                 "assessment 保持 pending。"
             )
+            if synchronize_assessment_gap(company) == "corrected":
+                corrected_placeholders.append(str(path))
             pending.append(str(path))
             atomic_write(path, company)
             continue
@@ -364,6 +415,8 @@ def score_country(country_root: Path, model: dict[str, Any], as_of: str) -> dict
             if fallback_codes else
             f"主任务已使用 {cohort_key} 同版本中位数基线完成公平价值评分。"
         )
+        if synchronize_assessment_gap(company) == "removed":
+            removed_placeholders.append(str(path))
         updated.append(str(path))
         atomic_write(path, company)
 
@@ -383,6 +436,8 @@ def score_country(country_root: Path, model: dict[str, Any], as_of: str) -> dict
         "baselineVersion": version,
         "updatedCompanyFiles": updated,
         "pendingCompanyFiles": pending,
+        "removedAssessmentPlaceholders": removed_placeholders,
+        "correctedAssessmentPlaceholders": corrected_placeholders,
     }
 
 
