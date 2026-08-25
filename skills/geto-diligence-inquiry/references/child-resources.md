@@ -40,7 +40,7 @@
 
 ## 财务、海关与合规
 
-- financialRecords[]：recordType、period、value、currency、unit、valueStatus、description、evidence。
+- financialRecords[]：recordType、subjectEntity、scope（兼容 financialScope）、accountingScope、relationshipToTarget、period、value、currency、unit、valueStatus、description、evidence。`subjectEntity` 写实际报表法人/集团/母公司/品牌/JV/SPV/分部；`scope` 写 standalone|parent_group|ultimate_parent_group|segment|range 等关系口径；`accountingScope` 写 individual|consolidated 等会计口径；`relationshipToTarget` 写与目标公司的关系。集团或关联主体数据不得伪装成目标法人单体；实体不匹配时保留权威记录并明确 mismatch。商业数据库只可作为 secondary 证据。注册资本与实缴资本只写入 capitalRecords，不得用于推断现金、收入、净资产、授信或付款能力。
 - customsTransactions[]：resultType、direction、importer、exporter、partnerCountry、transactionOn、dateRange、hsCode、productDescription、quantity、quantityUnit、value、currency、ports[]、recordCount、provider、queryScope、verificationStatus、notes、evidence。
 - lawsuitsAndCompliance[]：recordType、caseNumber、authority、jurisdiction、parties[]、recordOn、status、adverse、outcome、amount、currency、relatedProject、description、evidence。
 - newsAndSocialMedia[]：itemType、title、summary、publisherOrPlatform、url、publishedOn、status、relatedProject、businessMeaning、evidence。

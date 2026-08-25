@@ -892,6 +892,11 @@
   "financialRecords": [
     {
       "recordType": "revenue",
+      "subjectEntity": "Example Build Systems Ltd.",
+      "scope": "standalone",
+      "accountingScope": "consolidated",
+      "relationshipToTarget": "target_entity",
+      "financialScope": "consolidated",
       "period": "FY2025",
       "value": 185000000,
       "currency": "AUD",
@@ -919,6 +924,11 @@
     },
     {
       "recordType": "net_profit",
+      "subjectEntity": "Example Build Systems Ltd.",
+      "scope": "standalone",
+      "accountingScope": "consolidated",
+      "relationshipToTarget": "target_entity",
+      "financialScope": "consolidated",
       "period": "FY2025",
       "value": 14200000,
       "currency": "AUD",

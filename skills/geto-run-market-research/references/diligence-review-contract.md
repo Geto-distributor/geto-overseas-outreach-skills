@@ -112,4 +112,6 @@
 
 ## progress 与候选总账
 
+财务结构化补证复用同一 `progressSectionName`，例如 `financial_structure_supplement_es_20260824`；它是已有背调的增量验收，不是重新创建国家任务。逐条核对 `subjectEntity`、scope/accountingScope/relationshipToTarget、期间、币种/单位、valueStatus、Evidence 和实体边界。集团/母公司/品牌/JV/SPV 记录可以接受，但必须标真实主体与 mismatch；商业数据库只作 secondary 证据；注册资本/实缴资本只留在 capitalRecords。
+
 候选总账分别记录 `diligenceTaskStatus` 和 `diligenceReviewStatus`，另记 `reviewArtifactPath`、`reviewCycle`、`reviewBlockingIssues` 和 `lastReviewedOn`。progress.md 记录审查结论、挑战问题、退回对象、续查结果和是否允许进入评分/导入。任务 final 不能覆盖审查状态。

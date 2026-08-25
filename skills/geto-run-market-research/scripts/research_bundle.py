@@ -926,6 +926,21 @@ def validate_company(value: Any) -> tuple[list[str], list[str], list[str]]:
         if isinstance(item, dict) and item.get("capitalType") not in CAPITAL_TYPES:
             errors.append(f"$.capitalRecords[{index}].capitalType has an invalid value")
 
+    for index, item in enumerate(value.get("financialRecords", [])):
+        if not isinstance(item, dict):
+            continue
+        path = f"$.financialRecords[{index}]"
+        for field in ("recordType", "subjectEntity", "accountingScope", "relationshipToTarget", "period", "valueStatus", "description"):
+            if not str(item.get(field) or "").strip():
+                errors.append(f"{path}.{field} is required")
+        if not str(item.get("scope") or item.get("financialScope") or "").strip():
+            errors.append(f"{path}.scope or financialScope is required")
+        if item.get("value") is not None and not str(item.get("unit") or "").strip():
+            errors.append(f"{path}.unit is required when value is present")
+        record_type = str(item.get("recordType") or "").casefold()
+        if "registered_capital" in record_type or "paid_in_capital" in record_type:
+            errors.append(f"{path}: registered/paid-in capital belongs in capitalRecords")
+
     for index, product in enumerate(value.get("productsAndServices", [])):
         if isinstance(product, dict):
             errors.extend(_validate_product(product, f"$.productsAndServices[{index}]"))

@@ -74,6 +74,8 @@
 
 主要列表包括 aliases、registrations、capitalRecords、websites、addresses、marketPresence、socialChannels、researchClassifications、companyRoles、productsAndServices、projects、relationships、contacts、licensesAndCertifications、financialRecords、newsAndSocialMedia、customsTransactions、lawsuitsAndCompliance、inquiries、risks、missingInformation、recommendedActions、additionalInformation。查询覆盖单独写入 researchQueries；`not_queried|no_result` 可使用空 Evidence。Evidence 只描述来源；业务 item 的 status、verificationStatus、reason 与 researchConclusion 承载事实判断。
 
+`financialRecords[]` 必须包含 `subjectEntity`、`scope`（兼容旧输入 `financialScope`）、`accountingScope` 和 `relationshipToTarget`，用于区分目标法人单体、母公司/集团合并、品牌、JV、SPV、分部和区间。实体不匹配不丢弃：保留最权威记录并明确 mismatch，不得改名为目标法人单体。商业数据库只能使用 `secondary_registry_derived`、`secondary_range` 等次级 `valueStatus`。只有期间、主体、口径和币种一致的总资产与总负债可以派生资产负债率。`capitalRecords[]` 专门承载注册资本/实缴资本，禁止混入 financialRecords 或推断付款能力。
+
 researchQueries 固定包含 topic、channel、query、scope、status、checkedOn、resultCount、evidence。status 使用 `found|no_result|partial|failed|not_queried`。
 
 reportFiles 固定包含 `fileName/path/format/reportType/language/generatedOn/description`。format 使用 `markdown|docx|pdf|html`；reportType 使用 `diligence|assessment|risk|supplement`。长期价值 assessment 的两阶段评分由 `$geto-diligence-company` 和 `$geto-find-leads` 定义；询盘准备度 inquiryAssessment 由 `$geto-diligence-inquiry` 定义；竞对客户组合 competitorCustomerPortfolio 与 relationships[].entryAssessment 由 `$geto-mine-competitor-customers` 定义。

@@ -51,6 +51,12 @@ Provider 任务另加 provider、queryBoundary、retrievedOn、status 和 Extern
 
 ## progress.md 最小结构
 
+### 财务结构化补证增量 section
+
+财务补证属于已有国家 ResearchBundle 的增量验收，不重新创建国家主任务或重复派发已完成公司任务。统一沿用 `financial_structure_supplement_<iso2>_<yyyymmdd>`，在同一 section 记录补证范围、公司目录、subjectEntity、scope/accountingScope/relationshipToTarget、period、valueStatus、Evidence、实体 mismatch、未披露字段和下一步。国家主任务独立复核 company.json、report.md、Sources 和 validator；回传 final 不能直接替代验收。
+
+目标法人单体、母公司/集团、品牌、JV、SPV 或分部记录必须保留真实主体和口径；实体不匹配不删除也不改名。商业数据库仅作为 secondary 记录。capitalRecords 与 financialRecords 永久隔离，注册资本/实缴资本不得作为收入、资产、现金、授信或付款能力。
+
 ```markdown
 # <国家> GETO 市场调研进度
 

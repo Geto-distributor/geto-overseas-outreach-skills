@@ -529,6 +529,11 @@ def build_example() -> dict[str, Any]:
         "financialRecords": [
             {
                 "recordType": "revenue",
+                "subjectEntity": "Example Build Systems Ltd.",
+                "scope": "standalone",
+                "accountingScope": "consolidated",
+                "relationshipToTarget": "target_entity",
+                "financialScope": "consolidated",
                 "period": "FY2025",
                 "value": 185000000,
                 "currency": "AUD",
@@ -539,6 +544,11 @@ def build_example() -> dict[str, Any]:
             },
             {
                 "recordType": "net_profit",
+                "subjectEntity": "Example Build Systems Ltd.",
+                "scope": "standalone",
+                "accountingScope": "consolidated",
+                "relationshipToTarget": "target_entity",
+                "financialScope": "consolidated",
                 "period": "FY2025",
                 "value": 14200000,
                 "currency": "AUD",

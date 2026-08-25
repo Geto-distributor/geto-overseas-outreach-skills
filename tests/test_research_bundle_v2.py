@@ -177,6 +177,36 @@ class ResearchBundleValidationTests(unittest.TestCase):
         self.assertTrue(any("missing fields: note" in item for item in errors))
         self.assertTrue(any("verificationScope must be a non-empty string array" in item for item in errors))
 
+    def test_financial_records_require_real_subject_and_scope_metadata(self) -> None:
+        value = base_company()
+        value["financialRecords"] = [{
+            "recordType": "revenue", "period": "FY2025", "value": 100,
+            "currency": "EUR", "unit": "currency_units", "valueStatus": "audited",
+            "description": "Audited revenue.", "evidence": [evidence()],
+        }]
+
+        errors, _, _ = RESEARCH_BUNDLE.validate_company(value)
+
+        self.assertTrue(any("subjectEntity is required" in item for item in errors))
+        self.assertTrue(any("scope or financialScope is required" in item for item in errors))
+        self.assertTrue(any("accountingScope is required" in item for item in errors))
+        self.assertTrue(any("relationshipToTarget is required" in item for item in errors))
+
+    def test_capital_records_cannot_be_stored_as_financial_records(self) -> None:
+        value = base_company()
+        value["financialRecords"] = [{
+            "recordType": "registered_capital", "subjectEntity": "Example",
+            "scope": "standalone", "accountingScope": "individual",
+            "relationshipToTarget": "target_entity", "period": "2025-12-31",
+            "value": 100, "currency": "EUR", "unit": "currency_units",
+            "valueStatus": "reported", "description": "Registered capital.",
+            "evidence": [evidence()],
+        }]
+
+        errors, _, _ = RESEARCH_BUNDLE.validate_company(value)
+
+        self.assertTrue(any("belongs in capitalRecords" in item for item in errors))
+
     def test_project_participants_are_typed_and_evidence_backed(self) -> None:
         value = base_company()
         value["projects"] = [{
@@ -355,6 +385,25 @@ class ResearchBundleValidationTests(unittest.TestCase):
         updated["competitorCustomerPortfolio"]["customers"] = updated["competitorCustomerPortfolio"]["customers"][:1]
         errors, _, _ = RESEARCH_BUNDLE.validate_company(updated)
         self.assertTrue(any("must match deduplicated verified_customer" in item for item in errors))
+
+    def test_competitor_customer_portfolio_blocks_missing_customer_bundle(self) -> None:
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory) / "AU-Australia"
+            competitor_dir = root / "companies" / "Competitor A"
+            competitor_dir.mkdir(parents=True)
+            competitor = RESEARCH_BUNDLE.empty_company("Competitor A", "Australia", "AU")
+            competitor["researchClassifications"] = [{
+                "classification": "competitor", "status": "confirmed", "country": "Australia",
+                "productScope": ["formwork"], "reason": "Own competing system", "evidence": [evidence()],
+            }]
+            competitor["relationships"] = [{
+                "relationshipType": "customer", "counterpartyName": "Missing Customer",
+                "country": "Australia", "reviewDecision": "verified_customer", "evidence": [evidence()],
+            }]
+            (competitor_dir / "company.json").write_text(json.dumps(competitor), encoding="utf-8")
+
+            with self.assertRaisesRegex(ValueError, "exactly one company.json; found 0"):
+                COMPETITOR_CUSTOMER_AGGREGATOR.aggregate(root, competitor_dir, "2026-08-25")
 
     def test_assessment_total_requires_complete_evidenced_dimensions(self) -> None:
         value = base_company()

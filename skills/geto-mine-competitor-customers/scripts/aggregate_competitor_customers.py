@@ -10,6 +10,7 @@ import tempfile
 from datetime import datetime
 from pathlib import Path
 from typing import Any
+from urllib.parse import urlparse
 
 
 PORTFOLIO_MODEL_CODE = "GETO_COMPETITOR_CUSTOMER_PORTFOLIO"
@@ -51,13 +52,82 @@ def confirmed_competitor(company: dict[str, Any]) -> bool:
     )
 
 
-def customer_index(country_root: Path) -> dict[str, list[tuple[Path, dict[str, Any]]]]:
-    result: dict[str, list[tuple[Path, dict[str, Any]]]] = {}
-    for path in sorted((country_root / "companies").glob("*/company.json")):
+def _domain(value: Any) -> str:
+    text = str(value or "").strip()
+    if not text:
+        return ""
+    parsed = urlparse(text if "://" in text else f"https://{text}")
+    host = (parsed.hostname or "").casefold()
+    return host[4:] if host.startswith("www.") else host
+
+
+def customer_indexes(country_roots: list[Path]) -> dict[str, dict[str, list[tuple[Path, dict[str, Any]]]]]:
+    names: dict[str, list[tuple[Path, dict[str, Any]]]] = {}
+    domains: dict[str, list[tuple[Path, dict[str, Any]]]] = {}
+    registrations: dict[str, list[tuple[Path, dict[str, Any]]]] = {}
+    paths: list[Path] = []
+    for country_root in country_roots:
+        paths.extend(sorted((country_root / "companies").glob("*/company.json")))
+    for path in paths:
         value = load_json(path)
         name = str(value.get("company", {}).get("companyName") or path.parent.name).strip()
-        result.setdefault(name.casefold(), []).append((path, value))
-    return result
+        identity = (path, value)
+        all_names = [name]
+        for alias in value.get("aliases", []):
+            if isinstance(alias, dict):
+                candidate = alias.get("name") or alias.get("alias") or alias.get("value")
+            else:
+                candidate = alias
+            if candidate:
+                all_names.append(str(candidate).strip())
+        for candidate in all_names:
+            names.setdefault(candidate.casefold(), []).append(identity)
+        for website in value.get("websites", []):
+            candidate = website.get("url") or website.get("website") or website.get("domain") if isinstance(website, dict) else website
+            domain = _domain(candidate)
+            if domain:
+                domains.setdefault(domain, []).append(identity)
+        for registration in value.get("registrations", []):
+            if not isinstance(registration, dict):
+                continue
+            candidate = registration.get("registrationNumber") or registration.get("number") or registration.get("value")
+            if candidate:
+                registrations.setdefault(str(candidate).strip().casefold(), []).append(identity)
+    return {"names": names, "domains": domains, "registrations": registrations}
+
+
+def unique_matches(matches: list[tuple[Path, dict[str, Any]]]) -> list[tuple[Path, dict[str, Any]]]:
+    result: dict[str, tuple[Path, dict[str, Any]]] = {}
+    for path, value in matches:
+        result[str(path.resolve())] = (path, value)
+    return list(result.values())
+
+
+def resolve_customer(
+    relationship: dict[str, Any], display_name: str,
+    indexes: dict[str, dict[str, list[tuple[Path, dict[str, Any]]]]],
+) -> list[tuple[Path, dict[str, Any]]]:
+    identity = relationship.get("relatedPartyIdentity")
+    strong_candidates: list[list[tuple[Path, dict[str, Any]]]] = []
+    if isinstance(identity, dict):
+        registration = identity.get("registrationNumber")
+        website = identity.get("website") or identity.get("primaryDomain")
+        legal_name = identity.get("legalName")
+        if registration:
+            strong_candidates.append(indexes["registrations"].get(str(registration).strip().casefold(), []))
+        if website and _domain(website):
+            strong_candidates.append(indexes["domains"].get(_domain(website), []))
+        if legal_name:
+            strong_candidates.append(indexes["names"].get(str(legal_name).strip().casefold(), []))
+    elif isinstance(identity, str) and _domain(identity):
+        strong_candidates.append(indexes["domains"].get(_domain(identity), []))
+    for candidates in strong_candidates:
+        unique = unique_matches(candidates)
+        if len(unique) == 1:
+            return unique
+        if len(unique) > 1:
+            return unique
+    return unique_matches(indexes["names"].get(display_name.casefold(), []))
 
 
 def unique_evidence(relationships: list[dict[str, Any]]) -> list[dict[str, Any]]:
@@ -74,7 +144,7 @@ def unique_evidence(relationships: list[dict[str, Any]]) -> list[dict[str, Any]]
     return result
 
 
-def aggregate(country_root: Path, competitor_dir: Path, as_of: str) -> dict[str, Any]:
+def aggregate(country_root: Path, competitor_dir: Path, as_of: str, customer_roots: list[Path] | None = None) -> dict[str, Any]:
     datetime.strptime(as_of, "%Y-%m-%d")
     competitor_path = competitor_dir / "company.json"
     competitor = load_json(competitor_path)
@@ -95,11 +165,12 @@ def aggregate(country_root: Path, competitor_dir: Path, as_of: str) -> dict[str,
         display_names.setdefault(key, name)
         grouped.setdefault(key, []).append(relationship)
 
-    index = customer_index(country_root)
+    roots = [country_root, *(customer_roots or [])]
+    indexes = customer_indexes(list(dict.fromkeys(path.resolve() for path in roots)))
     customers: list[dict[str, Any]] = []
     scores: list[float] = []
     for key in sorted(grouped, key=lambda item: (display_names[item].casefold(), item[1])):
-        matches = index.get(key[0], [])
+        matches = resolve_customer(grouped[key][0], display_names[key], indexes)
         if len(matches) != 1:
             raise ValueError(
                 f"verified customer {display_names[key]!r} must resolve to exactly one company.json; found {len(matches)}"
@@ -117,7 +188,7 @@ def aggregate(country_root: Path, competitor_dir: Path, as_of: str) -> dict[str,
         if score is not None:
             scores.append(score)
         customers.append({
-            "companyName": profile.get("companyName") or display_names[key],
+            "companyName": display_names[key],
             "country": profile.get("country"),
             "relationshipCount": len(grouped[key]),
             "customerAssessmentStatus": assessment.get("status", "not_requested") if isinstance(assessment, dict) else "not_requested",
@@ -164,11 +235,13 @@ def main() -> int:
     parser.add_argument("--country-root", required=True)
     parser.add_argument("--competitor-dir", required=True)
     parser.add_argument("--as-of", required=True)
+    parser.add_argument("--customer-root", action="append", default=[], help="Additional country root containing customer Company files")
     args = parser.parse_args()
     portfolio = aggregate(
         Path(args.country_root).expanduser().resolve(),
         Path(args.competitor_dir).expanduser().resolve(),
         args.as_of,
+        [Path(value).expanduser().resolve() for value in args.customer_root],
     )
     print(json.dumps(portfolio, ensure_ascii=False, indent=2))
     return 0

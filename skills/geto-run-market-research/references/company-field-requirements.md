@@ -122,7 +122,7 @@ verificationStatus=email_only 只确认 workEmail 对应验证范围；任职、
 
 | 资源 | R 字段 | C 字段 | S/O 字段 |
 | --- | --- | --- | --- |
-| financialRecords[] | recordType、period、value、currency、unit、valueStatus、description、evidence | — | — |
+| financialRecords[] | recordType、subjectEntity、scope（或兼容 financialScope）、accountingScope、relationshipToTarget、period、valueStatus、description、evidence | value 有值时填写 unit；货币金额填写 currency | financialScope：兼容旧输入字段 |
 | newsAndSocialMedia[] | itemType、title、summary、publishedOn、status、evidence | publisherOrPlatform、url：来源可定位时；relatedProject：新闻指向具体项目时 | businessMeaning |
 | customsTransactions[] | resultType、direction、partnerCountry、productDescription、provider、queryScope、verificationStatus、evidence；importer 或 exporter 至少一个；transactionOn 或 dateRange 至少一个 | quantity 出现时 quantityUnit；value 出现时 currency | hsCode、ports[]、recordCount、notes |
 | lawsuitsAndCompliance[] | recordType、caseNumber、authority、jurisdiction、recordOn、status、adverse、description、evidence | amount 出现时 currency；存在具名当事人、结果或项目时填写 parties[]、outcome、relatedProject | — |

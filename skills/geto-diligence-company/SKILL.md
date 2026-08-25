@@ -37,7 +37,7 @@ python '<geto-run-market-research-dir>/scripts/init_company_workspace.py' \
 
 ### 2. 主体与强身份核验
 
-核对官网主域名、法定登记、注册号、地址、别名和集团关系。仅强身份一致时自动合并；名称相似、共同地址、品牌相近或共同项目不得自动合并。注册资本与实缴资本写入 `capitalRecords`，不得解释为现金、收入、净资产或信用能力。
+核对官网主域名、法定登记、注册号、地址、别名和集团关系。仅强身份一致时自动合并；名称相似、共同地址、品牌相近或共同项目不得自动合并。注册资本与实缴资本写入 `capitalRecords`，不得解释为现金、收入、净资产或信用能力，也不得写入 `financialRecords`。
 
 ### 3. Web 定向背调与覆盖自证
 
@@ -56,6 +56,8 @@ TradeWind 和网易外贸通只作为独立 Provider 任务返回的 ExternalObs
 ### 5. 写入内嵌 Evidence
 
 把事实写入 `company.json` 对应 item，每个主要列表 item 自带 `evidence[]`。Evidence 保存来源信息；事实状态、冲突与拒绝理由写在所属业务 item。冲突来源全部保留，不以数量投票。最终从全部内嵌 Evidence 生成 `Sources/sources.md`。
+
+财务补证必须把 `subjectEntity`、`scope`（兼容旧字段 `financialScope`）、`accountingScope`、`relationshipToTarget`、期间、币种/单位、`valueStatus` 和 Evidence 写入同一条 `financialRecords[]`。集团、母公司、品牌、JV、SPV 和业务分部数据允许登记，但必须保留真实报表主体和口径；实体不匹配时保留最权威记录并明确 mismatch，不得改名为目标法人单体。只有同一期间、主体、口径和币种的总资产与总负债才可派生资产负债率，并标为 `derived`。商业数据库只作为 `secondary_registry_derived`、`secondary_range` 等次级证据。财务补证 follow-up 复用同一 progress section，不重新创建国家任务。
 
 ### 6. 产品商业角色与分类事实
 
