@@ -1,54 +1,28 @@
-# EvidencePackage 合同
+# 单公司 ResearchBundle 合同
 
-~~~json
-{
-  "company": {
-    "companyKey": "稳定自然键",
-    "canonicalName": "",
-    "aliases": [],
-    "primaryDomain": null,
-    "legalEntities": [],
-    "roles": [],
-    "identityStatus": "resolved|identity_conflict"
-  },
-  "commercialAccount": {},
-  "projects": [],
-  "relationships": [],
-  "claims": [],
-  "sources": [],
-  "claimSourceLinks": [],
-  "contacts": [],
-  "customsEvidence": [],
-  "financials": [],
-  "providerObservations": [],
-  "capabilityHandoff": {
-    "foundationKey": "geto:capability-foundation",
-    "contentHash": null,
-    "status": "matched|pending|refuted|pending_capability_foundation",
-    "matchedProductCodes": [],
-    "matchedScenarioCodes": [],
-    "targetClaimKeys": [],
-    "targetSourceKeys": [],
-    "gapCodes": []
-  },
-  "diligenceStatus": "completed_with_explicit_gaps",
-  "gaps": [],
-  "conflicts": [],
-  "asOf": "YYYY-MM-DD",
-  "provenance": {}
-}
-~~~
+## 必需工件
 
-## Claim
+```text
+<国家>/companies/<公司自然名称>/
+├── company.json
+├── report.md
+└── Sources/sources.md
+```
 
-每条 Claim 包含：claimKey、claimType、valueStatus、valueText/valueNumber/valueJson、confidence、targetType、targetKey、asOf。
+其他目录只在有真实内容时创建。一个 company.json 只表示一个 legal_entity、operating_company 或 corporate_group。
 
-## Source
+## Evidence
 
-每条 Source 包含：sourceKey、url、title、sourceType、publisher、publishedOn、retrievedOn、contentHash、archivedUrl、accessStatus。
+主要列表 item 内嵌 `evidence[]`，每条包含 sourceTitle、sourceUrl、publisher、sourceType、publishedOn、retrievedOn、locator、excerpt、note；Provider 字段级验证可增加 verificationScope[]。Evidence 表达来源本身，所属业务 item、status、verificationStatus、reason 和 researchConclusion 表达事实成立、待核、冲突或拒绝。客户附件没有公开 URL 时可用空 sourceUrl，但必须填写 sourceTitle、sourceType=customer_document 和 locator。
 
-## ClaimSourceLink
+冲突来源分别保留。查询动作写入 `researchQueries[]`：`not_queried` 与 `no_result` 是信息状态，`failed` 是需处理状态。对研究结论有实质影响的冲突、过期、Provider 失败或证据缺口写入 `missingInformation[]`；不得写占位事实。
 
-包含：linkKey、claimKey、sourceKey、relationType、locator、excerpt、dimensionCodes、lastCheckedOn。
+深度背调的 `researchQueries[]` 与 report.md 共同自证查询覆盖，至少区分 `official_website_inventory`、`social_media`、`projects`、`external_corroboration`、`provider`、`procurement_chain` 和 `classification_gate`。每个主题记录实际 queryBoundary、状态、checkedOn、结果数量和 Evidence；没有适用来源时明确 `not_applicable` 或有边界的 `no_result`，不能只写泛化的“已核查”。国家主任务会依据这些记录和原始来源生成独立 diligence review。
 
-值状态必须区分 observed、derived、not_found、not_applicable、conflicting；查询状态另行记录 not_queried 和 stale。写入 OmniX 时由 `$omnix-market` 依据当前 OpenAPI 映射到服务端枚举。
+## 分类
+
+`researchClassifications[]` 每条包含 classification=lead|competitor、status=confirmed|possible|rejected、country、productScope[]、reason、evidence[]。lead 与 competitor 独立；同一公司可同时具备，不使用 both。
+
+`companyRoles[]` 只表达开发商、总包、分包、代理顾问项目管理、经销贸易和其他设计咨询监理角色。
+
+结构化事实以 company.json 为准；`Sources/sources.md` 是从内嵌 Evidence 生成的来源索引。

@@ -1,0 +1,161 @@
+{
+  "companyName": "Example Construction A.Ş.",
+  "reviewedOn": "2026-08-24",
+  "reviewerTaskTitle": "Example country market research",
+  "sourceTaskTitle": "Example Construction single-company diligence",
+  "reviewStatus": "accepted_with_gaps",
+  "artifactChecks": {
+    "companyJson": true,
+    "report": true,
+    "sources": true,
+    "validatorReproduced": true,
+    "validatorErrors": 0
+  },
+  "coverage": {
+    "identity": {
+      "status": "exhaustive",
+      "queryBoundary": "Official registry, legal pages, domain and group boundary checked",
+      "evidenceRefs": [
+        "company.json#registrations/0"
+      ],
+      "gaps": [],
+      "nextActions": []
+    },
+    "officialWebsite": {
+      "status": "bounded",
+      "queryBoundary": "Top navigation, footer, sitemap, product, project and news pagination checked through the last accessible page",
+      "sectionsDiscovered": [
+        "About",
+        "Products",
+        "Projects",
+        "News",
+        "Contact",
+        "Privacy"
+      ],
+      "sectionsReviewed": [
+        "About",
+        "Products",
+        "Projects",
+        "News",
+        "Contact",
+        "Privacy"
+      ],
+      "inaccessibleSections": [],
+      "pagesReviewed": 27,
+      "evidenceRefs": [
+        "report.md#研究覆盖"
+      ],
+      "gaps": [
+        "News archive exposes no total count"
+      ],
+      "nextActions": [
+        "Recheck the news archive when a dated index becomes available"
+      ]
+    },
+    "socialMedia": {
+      "status": "bounded",
+      "queryBoundary": "Official LinkedIn posts visible from 2024-08-24 through 2026-08-24 plus older product milestones",
+      "channels": [
+        {
+          "platform": "LinkedIn",
+          "url": "https://www.linkedin.com/company/example-construction/",
+          "queryBoundary": "All publicly visible posts in the declared 24-month window",
+          "accessiblePosts": 42,
+          "reviewedPosts": 42
+        }
+      ],
+      "evidenceRefs": [
+        "report.md#研究覆盖"
+      ],
+      "gaps": [
+        "Platform does not expose a stable lifetime post count"
+      ],
+      "nextActions": [
+        "Monitor new posts quarterly"
+      ]
+    },
+    "projects": {
+      "status": "bounded",
+      "queryBoundary": "All 18 official project cards reviewed; four current or high-relevance projects opened and externally checked",
+      "projectsDiscovered": 18,
+      "projectsReviewed": 18,
+      "priorityProjectsDiscovered": 4,
+      "priorityProjectsReviewed": 4,
+      "projectFieldsReviewed": [
+        "owner",
+        "main_contractor",
+        "subcontractor",
+        "buyer",
+        "payer",
+        "actualUser",
+        "technical_approver",
+        "stage",
+        "formwork_system",
+        "procurement_window"
+      ],
+      "evidenceRefs": [
+        "company.json#projects"
+      ],
+      "gaps": [
+        "Two project payers remain undisclosed"
+      ],
+      "nextActions": [
+        "Request the project procurement responsibility matrix"
+      ]
+    },
+    "externalCorroboration": {
+      "status": "bounded",
+      "queryBoundary": "Registry, owner, tender and trade-association sources checked for every priority claim",
+      "evidenceRefs": [
+        "Sources/sources.md"
+      ],
+      "gaps": [],
+      "nextActions": []
+    },
+    "providerReconciliation": {
+      "status": "not_applicable",
+      "queryBoundary": "Provider was not enabled for this task; no Provider-derived claim is present",
+      "evidenceRefs": [],
+      "gaps": [],
+      "nextActions": []
+    },
+    "procurementChain": {
+      "status": "bounded",
+      "queryBoundary": "Owner, contractor, known subcontractor and public procurement routes checked for four priority projects",
+      "evidenceRefs": [
+        "company.json#projects"
+      ],
+      "gaps": [
+        "Buyer and payer are not public for two projects"
+      ],
+      "nextActions": [
+        "Confirm buyer, payer and actual user before quotation"
+      ]
+    },
+    "classification": {
+      "status": "exhaustive",
+      "queryBoundary": "Lead and competitor gates independently replayed against product, market and commercial-control evidence",
+      "evidenceRefs": [
+        "company.json#researchClassifications"
+      ],
+      "gaps": [],
+      "nextActions": []
+    }
+  },
+  "challengeFindings": [
+    {
+      "severity": "material",
+      "question": "Are buyer and payer proven for every priority project?",
+      "finding": "Two projects disclose the owner and contractor but not the formwork buyer or payer",
+      "requiredAction": "Keep the transaction path unknown and require project confirmation before quotation",
+      "status": "accepted_gap"
+    }
+  ],
+  "followUp": {
+    "required": false,
+    "cycle": 1,
+    "questions": []
+  },
+  "reviewConclusion": "Public coverage is sufficient for classification and cohort input; transaction-path gaps remain explicit and block quotation assumptions.",
+  "progressSectionName": "diligence_review_example_construction"
+}

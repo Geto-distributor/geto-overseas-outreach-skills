@@ -1,61 +1,82 @@
-# 总编排合同
+# 用户可见任务编排
 
-## 模块关系
+## 拓扑
 
-~~~mermaid
-flowchart LR
-  U["业务输入"] --> O["geto-run-market-research"]
-  O --> F["geto-capability-foundation"]
-  F --> L["geto-find-leads"]
-  F --> C["geto-mine-competitor-customers"]
-  O --> L["geto-find-leads"]
-  O --> C["geto-mine-competitor-customers"]
-  L --> D["geto-diligence-company"]
-  C --> D
-  C --> R["geto-map-relationships"]
-  D --> L
-  D --> R
-  L --> A["六维客户价值评分"]
-  R --> A
-  A --> P{"明确签约机会与条款?"}
-  P -->|是| K["geto-assess-precontract-risk"]
-  P -->|否| F["持续补证/销售跟进"]
-  O --> M["omnix-market 私人草稿"]
-  K --> M
-~~~
+- 当前完整国家调研任务是主任务。
+- Web 发现按六个 companyRole 分为六个用户可见任务。
+- 竞对发现按产品/技术面和商业角色拆任务。
+- TradeWind、网易外贸通各自一个独立任务。
+- 一条线索使用一个 `$geto-diligence-company` 任务；一家竞对使用一个 `$geto-diligence-competitor` 任务。
+- 需要研究 confirmed 竞对的客户关系、切入分或组合价值时，每家竞对使用一个 `$geto-mine-competitor-customers` 任务；需要长期价值评分的 verified_customer 仍由自己的单公司任务维护事实和六维评分。
+- 一条明确原始询盘使用一个 `$geto-diligence-inquiry` 任务；同一公司的长期价值观察输入仍归入其 Company，不重复建主体。
+- subagent 只在单个任务内部并行网页、法规、项目或反证轨。
 
-## 顺序约束
+每个一级任务提示包含 parentTaskId、准确标题、queryBoundary、成果目录、唯一 sectionName 和禁止重复查询清单。任务完成时先调用 `merge_progress.py`，再向 parentTaskId 发送精简 callback；无法 callback 时在 final 明确标记 callback_failed。
 
-1. resolve-before-upsert。
-2. 先形成同一次运行共享的 CapabilityContext，再发现候选和判断 GETO 适配。
-3. 先发现候选，再对目标公司做背调。
-4. 背调和能力底座门槛都通过后才能做六维价值评分。
-5. 竞对案例客户先过客户资格门，再进入 Company/CommercialAccount 和线索池。
-6. 关系证据只证明关系本身，不能自动证明 buyer、payer、exclusive 或 current。
-7. 签约前风险只在精确交易对象形成后运行。
+## 状态机
 
-## Provider 路由
+`intake → discovery → arbitration → diligence → review → decision → validation → optional_upload → complete`
 
-| 能力 | 主路径 | 可选增强 | 缺失时处理 |
-|---|---|---|---|
-| 公开公司/项目发现 | Web Search | TradeWind、网易外贸通 | 继续 Web-only |
-| 单公司公开背调 | 官网、监管、财报、新闻、法院等 Web 来源 | TradeWind、网易外贸通 | 保留覆盖缺口 |
-| 联系人/海关补充 | 可验证公开来源 | TradeWind、网易外贸通 | not_queried/not_found 分开 |
-| 已有实体解析与交付 | OmniX Market Skill | 无 | 研究继续，交付 blocked |
+主任务在 `progress.md` 为每个检查点记录状态、任务标题、成果路径、接受/拒绝理由、缺口和下一步；任务使用唯一 sectionName 调用 `merge_progress.py` 更新自己的区块。完整任务 trace 留在 Codex 任务自身。
 
-GETO 能力底座不是 Provider：它不联网、不鉴权、不写入。当它缺失时，公开 Web 和可用 Provider 仍可收集市场事实，但产品适配、竞对确认和正式评分必须挂起。
+主任务按批次持续执行 wait/read：
 
-不得自动安装缺失 Skill，不得由总编排直接复制 Provider 或 Market 的 HTTP 请求。
+- 主动读取每个一级任务 final，不依赖 callback 自动进入上下文；
+- final、progress 区块和成果文件分别验收；
+- 验证成果路径存在、JSON 可解析、自然公司目录正确且 validator 结果可复现；
+- 按 `diligence-review-contract.md` 对官网、社媒、项目、外部交叉、Provider、采购链和分类进行独立挑战；
+- TradeWind Agentic 第一次 submit 前先读取并挑战 Provider plan；范围不全、意图混合、缺 pilot 或任务边界重复时退回 Provider 任务，不批准付费提交；
+- 单公司 final 只把任务状态改为已回收，不自动把 diligenceReviewStatus 改为 accepted；
+- 有可补救缺口时向原任务发送具体 follow-up，等待其更新原工件和唯一 progress section，再重新审查；
+- 单次等待目标有工具数量限制时分组执行；
+- 运行中或 idle 但尚未读取 final 的任务仍属于未回收；
+- 当前批次全部完成或明确需要用户输入后，才进入仲裁、下一批背调或交付。
 
-## adversarial 模式
+## 统一回传
 
-对下列高影响结论至少建立一条 challenger 路径：
+每个任务结束时返回：
 
-- 主体身份与别名合并。
-- 真实竞对判定。
-- 官方案例中的客户资格。
-- 项目未来性与采购窗口。
-- 客户价值高分维度。
-- 付款能力或签约 hard stop。
+1. 做了什么；
+2. 找到了什么；
+3. 成果所在路径；
+4. 接受或拒绝理由；
+5. 未完成项和缺口；
+6. 建议主任务采取的下一步。
 
-硬反证必须更新原 Claim 的 relationType=`refutes`、状态和下游对象，不得保留已被证伪的评分或关系。
+Provider 任务另加 provider、queryBoundary、retrievedOn、status 和 ExternalObservation 文件路径。单公司任务另加身份锚点、lead/competitor 分类建议、冲突、report.md 路径，以及官网、社媒、项目、外部交叉和 Provider 的 `exhaustive|bounded|partial|not_queried|not_applicable` 覆盖摘要。
+
+## 恢复
+
+恢复时先读 `progress.md`、覆盖矩阵、候选总账、diligence-review.json 和成果文件，再使用任务等待/读取能力获取尚未完成任务的最新状态。任务 final 已回收但 review 未通过时仍属于未完成；向原任务发送审查中的具体 follow-up，不重建已完成任务，不无条件重查已完成来源。Provider 已有异步 taskId 时优先恢复状态与结果，不重复提交相同 queryBoundary。
+
+## progress.md 最小结构
+
+### 财务结构化补证增量 section
+
+财务补证属于已有国家 ResearchBundle 的增量验收，不重新创建国家主任务或重复派发已完成公司任务。统一沿用 `financial_structure_supplement_<iso2>_<yyyymmdd>`，在同一 section 记录补证范围、公司目录、subjectEntity、scope/accountingScope/relationshipToTarget、period、valueStatus、Evidence、实体 mismatch、未披露字段和下一步。国家主任务独立复核 company.json、report.md、Sources 和 validator；回传 final 不能直接替代验收。
+
+目标法人单体、母公司/集团、品牌、JV、SPV 或分部记录必须保留真实主体和口径；实体不匹配不删除也不改名。商业数据库仅作为 secondary 记录。capitalRecords 与 financialRecords 永久隔离，注册资本/实缴资本不得作为收入、资产、现金、授信或付款能力。
+
+```markdown
+# <国家> GETO 市场调研进度
+
+## 范围
+- 国家：
+- 产品：
+- 语言：
+- 截止日：
+- 结果范围：
+
+## 检查点
+| 阶段 | 状态 | 成果路径 | 缺口 | 下一步 |
+
+## 任务
+| 任务 | 状态 | 做了什么 | 成果路径 | 接受/拒绝理由 | 缺口 | 下一步 |
+
+## 公司仲裁
+| 公司 | lead | competitor | 背调任务 | 背调验收 | reviewCycle | 目录 | 理由/冲突 |
+
+## 上传
+- uploadStatus: not_requested
+- detailRoute:
+```

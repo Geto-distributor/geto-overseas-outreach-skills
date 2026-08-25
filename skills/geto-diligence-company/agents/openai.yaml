@@ -1,4 +1,4 @@
 interface:
-  display_name: "GETO 公司背调与证据补强"
-  short_description: "围绕单一公司完成身份、业务、项目、财务、风险与联系人证据链。"
-  default_prompt: "使用 $geto-diligence-company 对目标公司完成证据化背调。"
+  display_name: "GETO 单公司背调"
+  short_description: "按一家公司一任务生成 company.json、报告和内嵌证据。"
+  default_prompt: "使用 $geto-diligence-company 对这一家公司完成独立背调并写入本地 ResearchBundle。"

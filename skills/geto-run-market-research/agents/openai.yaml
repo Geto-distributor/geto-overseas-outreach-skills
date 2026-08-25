@@ -1,4 +1,4 @@
 interface:
   display_name: "GETO 海外市场情报总编排"
-  short_description: "编排线索、背调、竞对客户反查、关系网和风险模块，生成可交付 ResearchDelta。"
-  default_prompt: "使用 $geto-run-market-research 对指定国家执行完整 GETO 市场调研。"
+  short_description: "用可见任务编排国家调研并交付本地 ResearchBundle。"
+  default_prompt: "使用 $geto-run-market-research 为指定国家编排可恢复的完整 GETO 市场调研。"

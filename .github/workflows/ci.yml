@@ -24,29 +24,21 @@ jobs:
       - name: Compile Python scripts
         run: python -m compileall -q skills scripts
       - name: Validate GETO capability foundation
-        run: python skills/geto-capability-foundation/scripts/validate_foundation.py
+        run: |
+          python skills/geto-capability-foundation/scripts/validate_foundation.py
+          python skills/geto-capability-foundation/scripts/validate_search_lexicon.py
       - name: Test capability context selection
         run: >-
           python skills/geto-capability-foundation/scripts/select_context.py
           --query "Australia modular housing developer"
           --country AU
           --product-code modular_building
-      - name: Validate ResearchDelta fixture
-        run: >-
-          python skills/geto-run-market-research/scripts/validate_research_delta.py
-          skills/geto-run-market-research/references/examples/research-delta-available-empty.json
-      - name: Confirm unavailable foundation blocks formal scoring
-        shell: bash
+      - name: Validate Company JSON fixtures
         run: |
-          set -euo pipefail
-          output_file="$(mktemp)"
-          if python skills/geto-run-market-research/scripts/validate_research_delta.py \
-            skills/geto-run-market-research/references/examples/research-delta-unavailable-score-blocked.json \
-            >"${output_file}"; then
-            echo "Expected blocked fixture to fail validation"
-            exit 1
-          fi
-          grep -F "GETO_LEAD_VALUE requires available capabilityFoundation" "${output_file}"
+          python skills/geto-run-market-research/scripts/validate_company_json.py tests/fixtures/freecity-company.json
+          python skills/geto-run-market-research/scripts/validate_company_json.py tests/fixtures/electron-company.json
+      - name: Run contract unit tests
+        run: python -m unittest discover -s tests -v
 
   credential-scan:
     runs-on: ubuntu-latest

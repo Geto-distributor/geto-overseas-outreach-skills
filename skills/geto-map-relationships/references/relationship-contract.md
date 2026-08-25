@@ -1,46 +1,31 @@
-# RelationshipDelta 合同
+# relationships[] 合同
 
-~~~json
+```json
 {
-  "relationshipKey": "稳定自然键",
-  "sourceCompanyKey": "",
-  "targetCompanyKey": "",
-  "relationshipType": "",
-  "capabilityFoundationRef": {
-    "foundationKey": "geto:capability-foundation",
-    "contentHash": null,
-    "status": "available|partial|unavailable"
+  "counterpartyName": "",
+  "relatedPartyType": "company|person|government|project|organization",
+  "relationshipType": "parent|subsidiary|shareholder|controlled_by|brand_operator|customer|supplier|distributor|agent|consultant|developer|contractor|subcontractor|joint_venture|strategic_partner|other",
+  "direction": "from_company|to_company|mutual",
+  "projectName": "",
+  "country": "",
+  "description": "",
+  "status": "confirmed|possible|historical|ended|conflicting",
+  "startedOn": null,
+  "endedOn": null,
+  "limitations": [],
+  "exclusivity": {
+    "status": "exclusive|non_exclusive|unknown|conflicting",
+    "scope": null,
+    "description": null,
+    "lastVerifiedOn": null,
+    "evidence": []
   },
-  "cooperationMode": null,
-  "projectKey": null,
-  "productCode": null,
-  "currentStatus": "current|historical|unknown",
-  "strength": null,
-  "exclusive": null,
-  "procurementPartyCompanyKey": null,
-  "actualUserCompanyKey": null,
-  "payerCompanyKey": null,
-  "location": null,
-  "timeWindow": null,
-  "entryPoint": null,
-  "limitation": null,
-  "counterpartyRoleCode": null,
-  "customerQualificationStatusCode": null,
-  "evidenceStatus": "pending|partially_verified|verified|conflicting",
-  "claimKeys": [],
-  "sourceKeys": [],
-  "lastCheckedOn": "YYYY-MM-DD",
-  "provenance": {}
+  "evidence": []
 }
-~~~
+```
 
-## 不变量
+source 公司就是当前 company.json 表示的主体，counterparty 使用自然名称和必要身份说明。若关系需要采购方、实际使用方、付款方、sale/rental、strength 或 timeWindow，可增加清晰命名的业务字段，并附直接 Evidence。exclusivity.status 区分排他、非排他、未知与冲突。
 
-1. sourceCompanyKey 与 targetCompanyKey 指向统一 Company。
-2. customer/competitor/project/partner 不得作为 relationshipType。
-3. relationshipKey 由稳定自然键材料派生，不使用数据库 ID。
-4. projectKey/productCode 只有在确定时填写。
-5. procurementParty、actualUser、payer、exclusive 的 null 表示未披露，不等于否。
-6. 关系证据与公司证据分别保存，不用公司官网首页替代具体关系来源。
-7. customerQualificationStatusCode 仅说明该对手方能否进入客户池，不改变 Company 多角色。
-8. 客观关系可在能力底座 unavailable 时保存；但 GETO productCode、建议 cooperationMode 与 entryPoint 不得猜测。
+竞对客户关系按 `$geto-mine-competitor-customers` 的 competitor-customer-contract 增加 relationshipRole、productOrService、cooperationModeCode、cooperationDepthCode、relationshipStatusCode、reviewDecision、entryPoint、limitations、entrySignalCode 和 entryAssessment。客户资格、客户价值分和关系切入分分别表达。
+
+relationshipType 不得使用 lead、competitor、partner、ecosystem 或 project。一个关系 item 只表达一种明确关系。

@@ -1,49 +1,11 @@
-# 签约前评估输出合同
+# 签约前风险写入合同
 
-~~~json
-{
-  "assessmentKey": "precontract:company-key:opportunity-key:as-of",
-  "assessmentModelCode": "approved-model-code",
-  "modelVersion": "approved-model-version",
-  "asOf": "2026-08-11",
-  "contractingCompanyKey": "company-key",
-  "legalEntityKey": "legal-entity-key",
-  "opportunityKey": "opportunity-key",
-  "status": "assessment_draft",
-  "counterpartyRisk": {
-    "facts": [],
-    "riskSignals": [],
-    "claimKeys": [],
-    "sourceKeys": []
-  },
-  "dealTermsRisk": {
-    "depositPercent": null,
-    "preShipmentCollectionPercent": null,
-    "paymentCurrency": null,
-    "foreignExchangeControl": "not_queried",
-    "propertySettlementClause": "unknown",
-    "claimKeys": [],
-    "sourceKeys": []
-  },
-  "projectEconomics": {
-    "contractAmount": null,
-    "currency": null,
-    "estimatedNetMarginPercent": null,
-    "costBoundary": null,
-    "claimKeys": [],
-    "sourceKeys": []
-  },
-  "dimensions": [],
-  "totalScore": null,
-  "rating": null,
-  "hardStops": [],
-  "mitigations": [],
-  "decision": "hold",
-  "decisionRationale": [],
-  "gapCodes": [],
-  "researchRunKey": "run-key",
-  "provenance": {}
-}
-~~~
+把结果写入目标公司 company.json：
 
-每个 dimension 保存 `dimensionCode`、observedScore、maxScore、rationale、claimKeys、sourceKeys、valueStatus。若 `status=assessment_draft`，`totalScore` 和 `rating` 必须为 null；decision 只能为 `hold`，除非 hard stop 已被直接证据确认，此时可为 `reject`。
+- inquiries[]：本次买方、联系人、产品、数量、技术要求、项目国、签约主体、付款主体、交付、付款条款、文件和开放问题。
+- risks[]：category、level、finding、impact、blocking、mitigation、evidence。
+- assessment：assessmentType=precontract、grade、overallScore、overallConclusion、assessedOn、dimensions[]；每个 dimension 含 name、score、level、rationale、evidence。
+- recommendedActions[]：action、priority、owner、timing、reason、evidence。
+- missingInformation[]：未查询、未找到、冲突、过期或 Provider 失败。
+
+模型或关键输入不足时 overallScore/grade 为空，decision=hold；直接证据确认 hard stop 时可 reject。报告同步更新到 report.md 和 RisksAndAssessment/ 扩展材料。
