@@ -1,98 +1,58 @@
-# GETO 客户价值评分权威合同
+# GETO 六维客户价值评估
 
-`$geto-diligence-company` 按本合同生成单公司的 `GETO_LEAD_VALUE` Assessment。`$geto-find-leads` 接收已完成结果，用于覆盖率统计和跨公司排序。
+## 可执行模型
 
-## 输入、状态与前置门
+评分使用 [lead-value-model.json](lead-value-model.json)：
 
-- 输入 `assessmentMode` 只能是 `none` 或 `lead_value`，缺省为 `none`。
-- `assessmentMode=none`：`assessmentStatus=not_requested`，不创建 Assessment。
-- `assessmentMode=lead_value`：`diligenceStatus` 必须为 `completed` 或 `completed_with_explicit_gaps`；其他状态统一 `pending_diligence`，不得评分。
-- 评分业务对象是 Company；一个国家内 Company 与 CommercialAccount 一一对应，持久化时明确映射到该 Company 内嵌 account。
-- 模型代码固定为 `GETO_LEAD_VALUE`，并使用当前已批准 `modelVersion`。版本不可用时 `assessmentStatus=pending_model`。
-- `capabilityFoundation.status` 必须为 `available`，并保存 contentHash、productCodes、scenarioCodes、caseKeys 与 sourceKeys。partial/unavailable 时 `assessmentStatus=pending_capability_foundation`。
-- 任一维度不可评分时 `assessmentStatus=incomplete_evidence`；不得生成 totalScore、rating 或 levelCode。
-- 六维全部合法且确定性计算完成后才可 `assessmentStatus=completed`。
+- modelCode：`GETO_LEAD_VALUE`
+- modelVersion：`2026-07-29`
+- ratingScaleVersion：`value-status-2026-07-29`
+- 证据等级：`A=1.0`、`B=0.75`、`C=0.5`、`U=0`
+- 六维满分依次为 15、20、20、10、15、20，总分 100。
 
-## 六个维度
+单公司任务不生成最终分。它提交 observedScore、evidenceWeight 和 cohortKey；国家主任务形成同类型中位数 P 后统一执行 `Fᵢ=qᵢOᵢ+(1-qᵢ)Pᵢ`。信息完整度仍是六维 `maxScore×evidenceWeight` 的合计百分比。
 
-| dimensionCode | 满分 | 评估内容 |
-|---|---:|---|
-| project_city_value | 15 | 项目所在城市与市场价值 |
-| account_scale | 20 | 企业规模、经营能力及可承接体量 |
-| future_project_demand | 20 | 未来项目管线与模架/装配式需求 |
-| reachability | 10 | 决策链、联系方式及触达可行性 |
-| payment_capacity | 15 | 支付能力、财务稳定性和付款风险 |
-| multi_product_fit | 20 | GETO 多产品组合适配度 |
+## 门禁
 
-## 维度评分锚点
+- `assessmentMode=lead_value`。
+- `researchStatus=completed|completed_with_gaps`，主体身份稳定。
+- `$geto-capability-foundation` 返回的 `contextRef.status=available`，并把 `contextRef` 原样写入 `assessment.capabilityContext`。
+- 每个维度写 observedScore、A/B/C/U 证据等级、判断理由和内嵌 Evidence；未知使用 U/null，确认不存在使用有证据的 0。
+- 使用 `cohortKey=<ISO2>:<companyRole>`，单公司状态为 `pending_cohort_baseline`，baselineScore、finalDimensionScore、overallScore 和 grade 为 null。
 
-### project_city_value（15）
+## 六维
 
-- 城市 GDP/GRP 与市场体量：8 分。
-- 公共建筑与建设活动：7 分。
-- 使用机会项目所在地，不用公司注册地址替代。没有可确认项目地点时最高 5/15。
+1. `project_city_value` 项目与城市价值，15 分。
+2. `account_scale` 客户规模与行业地位，20 分。
+3. `future_project_demand` 未来项目与采购需求，20 分。
+4. `reachability` 决策链与触达可行性，10 分。
+5. `payment_capacity` 合作与支付能力，15 分。
+6. `multi_product_fit` 多产品匹配与复制价值，20 分。
 
-### account_scale（20）
+每个 observedScore 按模型中的 `components` 逐项相加，并用 `factAnchors` 检查所属区间。evidenceGrade 按 `evidenceGradeRules` 判断来源直接性、独立性、时效性和冲突；等级评价的是该维判断依据，不是网站类型本身。客户询盘可以直接证明其当前需求，不能单独证明主体、规模或付款能力。无法落到事实锚点时使用 U 和 null，不给保守猜分。
 
-- 财务与资本承载：10 分。
-- 项目与订单规模：6 分。
-- 运营与交付能力：4 分。
-- 集团值必须说明归属且不能在母子公司重复计分；异常主体最高 3/20。
+先生成标准能力工件：
 
-### future_project_demand（20）
+```bash
+python '<geto-capability-foundation-dir>/scripts/select_context.py' \
+  --country '<ISO2>' --product-code '<productCode>' \
+  --scenario-code '<已证实场景，可省略>' --role-code '<roleCode>' \
+  --output '<公司目录>/RisksAndAssessment/capability-context.json'
+```
 
-- 未来项目数量：6 分。
-- 产品/工法需求：9 分。
-- 确定性和进入窗口：5 分。
-- 历史案例不算未来需求；别名项目先去重。关键事实 unknown 时最高 8/20。
-- 同一项目的需求贡献按时间/确定性递减：100%、60%、35%，其后项目按 15% 计入，避免项目数量堆分。
+先在 `assessment.dimensions[]` 填写 observedScore、evidenceGrade、rationale、evidence、gapCodes 和 capCodes，再运行：
 
-### reachability（10）
+```bash
+python '<geto-diligence-company-dir>/scripts/calculate_lead_assessment.py' \
+  '<公司目录>/company.json' \
+  --capability-context '<context.json>' --cohort-key '<ISO2>:<companyRole>' \
+  --assessed-on 'YYYY-MM-DD'
+```
 
-- 目标岗位与具名决策人：5 分。
-- 可验证的直接触达入口：3 分。
-- 当前采购/项目窗口：2 分。
-- 不按联系人数量堆分；联系人必须与 Company 去重关联并保存来源。
+脚本写入严格的单公司评分输入并原子替换 company.json。capCodes 只使用模型文件定义的代码；不能用注册资本推断支付能力，也不能在单公司任务中查找或猜测同类型基线。
 
-### payment_capacity（15）
+最终分由主会话使用 `$geto-find-leads` 的 cohort 脚本批量生成。任何 cohort 维度少于 5 家合格观察时，若该维度已经完成公开检索且没有可用信息，则使用 0 作为 cohort baseline 并记录 `cohort_baseline_zero_fallback:<dimensionCode>` Evidence；`not_queried`、`provider_failed`、`identity_conflict` 保留未知状态并由主任务决定是否导入。报告同时展示 overallScore、grade、informationCompleteness 和 fallback 标记。
 
-- 资金与现金流：7 分。
-- 风险事件：5 分。
-- 合同与付款机制：3 分。
-- 只评精确交易/签约主体；主体未确认时最高 9/15。
+单公司 validator 会要求 `RisksAndAssessment/capability-context.json`，并逐字段核对它与 `assessment.capabilityContext`。
 
-### multi_product_fit（20）
-
-- 可交易产品族宽度：8 分。
-- 与已知项目场景的相关性：8 分。
-- 可执行的交易路径：4 分。
-- 必须同时具备 GETO 能力底座映射和目标客户/项目侧 Claim/Source。没有客户场景证据时最高 8/20；没有能力底座时保持未评分。共享工程量和互斥方案不得重复计分。
-
-## Dimension 合同
-
-每维至少包含：
-
-~~~json
-{
-  "dimensionCode": "future_project_demand",
-  "observedScore": 16,
-  "maxScore": 20,
-  "evidenceGrade": "B",
-  "evidenceWeight": 0.75,
-  "peerPriorScore": null,
-  "cohortSnapshotKey": null,
-  "finalDimensionScore": null,
-  "scoreCalculationStatus": "pending_deterministic_rule",
-  "rationale": "未来两年有三个已披露项目，其中两个存在结构施工窗口。",
-  "claimKeys": ["claim_company_pipeline"],
-  "sourceKeys": ["source_official_projects"],
-  "gapCodes": [],
-  "capCodes": []
-}
-~~~
-
-证据等级：A=权威直接证据，B=可信一手或多源一致，C=有限间接证据，U=无可用证据；建议权重 1、0.75、0.5、0 仅在批准模型确认后使用。
-
-Agent 负责 `observedScore`、证据等级、理由和逐维 Claim/Source。`finalDimensionScore`、`totalScore` 与等级必须由批准的确定性 validator 或服务端规则计算并返回，同时保存 `scoreCalculatedBy=deterministic_validator|server_rule`。没有冻结 cohort 和模型时不得启用 peer prior；U 级或不可评分维度保持 null，不能用 0 代替未知。
-
-等级代码只允许服务端 reference-data 当前发布的 `A|B|C|U` 或其后批准版本。未批准阈值、缺少 `ratingScaleVersion` 或任一维度未完成时，不得生成 rating/levelCode。
+assessment.evidence 聚合六个维度中实际使用的去重 Evidence。主任务完成 cohort 评分后保留该数组，使评分在本地报告和 OmniX 共享投影中都能回溯。

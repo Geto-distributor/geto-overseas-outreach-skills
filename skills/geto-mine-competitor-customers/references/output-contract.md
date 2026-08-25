@@ -1,54 +1,15 @@
-# 输出合同
+# 竞对客户任务输出
 
-~~~json
-{
-  "capabilityFoundation": {
-    "foundationKey": "geto:capability-foundation",
-    "contentHash": "sha256:...",
-    "status": "available|partial|unavailable",
-    "productCodes": [],
-    "scenarioCodes": [],
-    "caseKeys": [],
-    "sourceKeys": [],
-    "gapCodes": []
-  },
-  "competitorCandidates": [],
-  "competitionDecisions": [],
-  "confirmedCompetitors": [],
-  "officialCases": [
-    {
-      "competitorCompanyKey": "",
-      "counterpartyCompanyKey": "",
-      "projectKey": null,
-      "productCodes": [],
-      "cooperationDescription": "",
-      "counterpartyRoleCode": "",
-      "customerQualificationStatusCode": "",
-      "buyerCompanyKey": null,
-      "payerCompanyKey": null,
-      "procurementMode": null,
-      "exclusive": null,
-      "currentStatus": "unknown",
-      "relationshipKey": "",
-      "claimKeys": [],
-      "sourceKeys": []
-    }
-  ],
-  "qualifiedCustomers": [],
-  "competitorMetrics": [
-    {
-      "competitorCompanyKey": "",
-      "qualifiedCustomerCount": 0,
-      "scoredCustomerCount": 0,
-      "assessmentCoverage": 0,
-      "averageCustomerValueScore": null
-    }
-  ],
-  "exclusions": [],
-  "providerStatuses": {},
-  "quality": {},
-  "provenance": {}
-}
-~~~
+输出包含：竞对自然名称与强身份锚点、目标国家与产品范围、查询边界、关系候选、仲裁结果、已核实客户、非客户关系、客户公司目录、客户六维评分状态、组合平均分与覆盖率、逐关系合作切入分、Evidence、冲突、缺口和下一步。
 
-合格客户必须引用统一 Company/CommercialAccount、背调 EvidencePackage 和六维 Assessment。关系字段未知时使用 null/unknown，不能用推断值补齐。
+竞对 `company.json` 保存已核实 relationships[] 和派生的 competitorCustomerPortfolio；每个客户事实与六维 assessment 保存在该客户自己的 company.json。report.md 展示竞对客户组合和关系切入结论，Sources/sources.md 从内嵌 Evidence 生成。
+
+执行组合分析时，主任务回传至少列出：
+
+- verifiedCustomerCount；
+- scoredCustomerCount；
+- customerScoreCoverage；
+- averageCustomerValueScore；
+- score=null 的客户及缺口；
+- 每条 score=null 的关系切入评估及缺口；
+- 竞对、客户、项目、产品与关系成果路径。

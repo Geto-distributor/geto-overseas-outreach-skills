@@ -1,0 +1,57 @@
+{
+  "inquiryRef": "inquiry:2026-08-22-001",
+  "companyName": "Example Build Systems Ltd.",
+  "requirement": {
+    "requestedProduct": "GETO aluminum formwork system",
+    "technicalRequirements": "Repeated residential floors, 3.0 m floor height, target six-day cycle",
+    "projectScenario": "28-storey residential tower in Sydney"
+  },
+  "email": "procurement@example.com",
+  "webSearch": {
+    "status": "found",
+    "strongIdentityMatch": true,
+    "matchedEntity": "Example Build Systems Ltd.",
+    "query": "Example Build Systems Ltd official website registration 123456789",
+    "queryCountry": "AU",
+    "observedCountry": "Australia",
+    "evidence": [
+      {
+        "sourceTitle": "Example Build Systems official profile",
+        "sourceUrl": "https://example.com/company-profile",
+        "publisher": "Example Build Systems Ltd.",
+        "sourceType": "official_website",
+        "retrievedOn": "2026-08-22",
+        "locator": "Company profile and contact page",
+        "excerpt": "The official domain and registration number identify Example Build Systems Ltd.",
+        "note": "Synthetic reference evidence for the gate shape."
+      }
+    ]
+  },
+  "tradewind": {
+    "status": "found",
+    "strongIdentityMatch": true,
+    "matchedEntity": "Example Build Systems Ltd.",
+    "query": {
+      "companyName": "Example Build Systems Ltd.",
+      "country": "AU",
+      "primaryDomain": "example.com"
+    },
+    "queryCountry": "AU",
+    "observedCountry": "Australia",
+    "providerRecordRef": "fixture:tradewind-company-001",
+    "evidence": [
+      {
+        "sourceTitle": "TradeWind company exact-match observation",
+        "sourceUrl": "https://app.trade-wind.co/",
+        "publisher": "TradeWind",
+        "sourceType": "provider",
+        "retrievedOn": "2026-08-22",
+        "locator": "company.search exact-name result",
+        "excerpt": "The returned record matches the verified domain and country.",
+        "note": "Synthetic reference observation; provider record refs are not company identity keys."
+      }
+    ],
+    "warnings": []
+  },
+  "expectedGateStatus": "ready_for_diligence"
+}

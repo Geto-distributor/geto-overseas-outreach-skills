@@ -1,4 +1,4 @@
 interface:
-  display_name: "GETO 线索发现与 Assessment 聚合"
-  short_description: "发现并去重国家线索，聚合公司背调返回的 Assessment 后排序。"
-  default_prompt: "使用 $geto-find-leads 在指定国家发现并评估 GETO 销售线索。"
+  display_name: "GETO 单轨线索发现"
+  short_description: "按一个公司角色轨道发现候选并回传独立背调建议。"
+  default_prompt: "使用 $geto-find-leads 在指定国家按一个角色轨道发现 GETO 候选线索。"

@@ -1,93 +1,98 @@
 ---
 name: geto-diligence-company
-description: 对 GETO 海外市场中的单一目标公司执行深度背调与证据补强，形成 Claim/Source 证据链，并可在背调完成后按 assessmentMode 可选生成 GETO_LEAD_VALUE 六维客户价值 Assessment。用于线索候选背调、竞对客户背调、主体冲突处理和合作对象核查；不负责广泛找公司、跨公司排名或签约风险评估。
+description: 对 GETO 海外市场中的单一线索或普通目标公司执行深度背调，输出自然公司名目录、company.json、内嵌 Evidence、按需模块资料与 report.md，并可准备长期客户价值的六维观察输入。用于一家公司一个独立任务的客户事实核查与主体冲突处理；原始询盘使用 geto-diligence-inquiry，已知竞对使用 geto-diligence-competitor。
 ---
 
-# GETO 公司背调与证据补强
+# GETO 单公司背调
 
-一次只研究一个已初步归一的 Company。目标是形成可审计 EvidencePackage，并在明确请求时生成该公司的六维客户价值 Assessment。CommercialAccount 是该公司在目标市场的商业账户视角，不作为另一个主体重复研究。
+一次只研究一个 Company。法定主体、经营公司和企业集团分别建模；CommercialAccount 不另建重复主体。
 
-## 输入要求
+开始前读取 [evidence-contract.md](references/evidence-contract.md)、[child-resources.md](references/child-resources.md)，以及 `$geto-run-market-research` 的 `references/classification-and-engagement-contract.md` 与 `references/diligence-review-contract.md`。构造或复核 company.json 时读取 `$geto-run-market-research` 的 `references/company-field-requirements.md`；首次查看完整形态时读取其 `references/company-json-example.json`。需要六维评分时再读 [lead-assessment-contract.md](references/lead-assessment-contract.md)。
 
-至少提供公司名称以及官网域名、法定实体、注册号、所在国家中的一项身份锚点。若主体仍可能指向多个实体，先返回 identity_conflict，不得混合背调。
+## 输入
 
-输入还应包含市场、产品范围、已有自然键/别名、研究深度、asOf、已知来源和 `assessmentMode=none|lead_value`。`assessmentMode` 缺省为 `none`；国家线索池候选和已进入统一线索池的竞对客户使用 `lead_value`。完整合同见 [evidence-contract.md](references/evidence-contract.md)。
+- 自然公司名及至少一个锚点：稳定官网域名、法定名称、注册号或明确所在国。
+- 目标国家、GETO 产品范围、发现来源、开放问题、研究截止日。
+- `assessmentMode=none|lead_value`，缺省 `none`。
+- 禁止重复查询清单和目标公司目录路径。
 
-当任务要求判断“与 GETO 是否适配”或 `assessmentMode=lead_value` 时，还要读取 `$geto-capability-foundation` 形成产品和场景切片。没有底座不影响客观公司背调，但适配交接保持 `pending_capability_foundation`，评分状态为 `pending_capability_foundation`。
-
-## 启动预检
-
-- Web 研究必需；不可用时停止。
-- `$geto-capability-foundation` 是 GETO 适配判断的必需底座，不是公司事实来源。
-- $tradewind-api 和 $netease-waimao 为增强渠道。缺失或未配置时允许 Web-only，但逐项记录未查询。
-- $omnix-market 可选用于查询已有实体/来源及写入草稿；缺失时输出 API-ready EvidencePackage。
-- 不为寻找某公司而自动登录、管理网易会话或创建/安装 Provider。
+主体可能指向多个实体时输出 `researchStatus=identity_conflict`，不得混合事实。
 
 ## 工作流
 
-### 1. 主体归一
+### 1. 初始化公司目录
 
-区分 Company、Brand、LegalEntity、CommercialAccount 与集团关系。用官网主域名、注册号、法定名称、地址和别名核对；组合实体或同名公司不得合并。
+调用 `$geto-run-market-research` 的工作空间脚本创建：
 
-### 2. 查询已有证据
+```bash
+python '<geto-run-market-research-dir>/scripts/init_company_workspace.py' \
+  --workspace-root '<ResearchBundle>' \
+  --country-code '<ISO2>' --country-name '<English Display Name>' \
+  --company-name '<自然公司名>'
+```
 
-若 $omnix-market 可用，先查询 Company、Source、Claim、Project、Relationship、Contact、Customs、Financial，避免重复研究和重复来源。
+国家目录固定为 `<ISO2>-<English-Display-Name>`。`company.countryCode` 保存 ISO2，`company.country` 保存统一展示名。
 
-### 3. 定向 Web 背调
+只在获得真实内容时创建 `Info/`、`Financial/`、`ProductsAndServices/`、`Projects/`、`NewsAndSocialMedia/`、`CustomsTransactions/`、`LawsuitsAndCompliance/`、`Inquiries/`、`RisksAndAssessment/` 或 `Additional/`。
 
-围绕具体公司检索并核查：
+### 2. 主体与强身份核验
 
-- 官网 About、Products、Services、Projects、Testimonials、Locations、News。
-- 公开财报、公司注册、股权结构、母子公司和管理层。
-- 诉讼、监管处罚、破产/清算、制裁和可信负面新闻。
-- 当前、历史和未来项目；明确参与角色与采购边界。
-- 招聘、社媒与人员变动，只作为相应经营/联系人 Claim 的证据。
+核对官网主域名、法定登记、注册号、地址、别名和集团关系。仅强身份一致时自动合并；名称相似、共同地址、品牌相近或共同项目不得自动合并。注册资本与实缴资本写入 `capitalRecords`，不得解释为现金、收入、净资产或信用能力，也不得写入 `financialRecords`。
 
-### 4. TradeWind 定向补强
+### 3. Web 定向背调与覆盖自证
 
-在可用时查询 Company、People、Customs；记录查询条件、ISO2、时间窗口、分页和覆盖边界。结果保持 ExternalObservation，不能覆盖法定主体或官网一手事实。
+先枚举官网顶部/页脚导航、项目/新闻/产品分页、下载目录、法律页、sitemap、robots 和站内搜索，再核查适用的 About、Products、Systems、Services、Solutions、Applications、Manufacturing、Factory、Rental、Distribution、Projects、Case Studies、Testimonials、News、Contact、Privacy/Terms 与 Downloads。记录发现栏目、已检查栏目、页数或列表项数量、不可访问页面和分页终点；只看首页或 About 不构成深度背调。
 
-### 5. 网易定向补强
+枚举官网指向和公开检索可归一的官方社媒。默认逐页检查最近 24 个月全部公开可见帖子，并回溯与产品发布、工厂、项目、客户和管理层有关的更早里程碑；平台限制完整分页时记录实际检查数量、时间范围和访问边界，不宣称穷尽。按任务范围查询登记、股权、财务、资质、诉讼监管、负面新闻、联系人、项目和经营信号。
 
-在可用时使用全球搜索、公司、联系人或海关普通能力。异步任务只使用 public ref；不接触 raw RPA、登录、短信或管理员端点。
+尽量枚举官网和外部来源的项目池，区分当前、历史和未知。每个当前、高相关或支撑分类/评分的项目必须打开详情并交叉 owner/developer、总包/JV、结构/模板分包、顾问、buyer、payer、actualUser、technical approver、阶段、数量、模板系统或供应商、租购/甲供边界与采购窗口。高优先级结论需要官网之外的独立证据或可核验的当前项目、招标、合同、监管披露或 Provider 观察；只有官网自述或历史项目时保留时态缺口和较低优先级。
 
-### 6. Claim 原子化与仲裁
+### 4. Provider 补强
 
-一条 Claim 只表达一个可证伪事实。为每条 Source 保存 URL、标题、类型、publisher、publishedOn、retrievedOn、contentHash/archivedUrl；通过 ClaimSourceLink 标记 supports、refutes 或 context 以及 locator。
+TradeWind 和网易外贸通只作为独立 Provider 任务返回的 ExternalObservation。需要补查时向对应用户可见任务追问或创建该 Provider 专用任务。在 `researchQueries[]` 保留 topic、channel、query、scope、status、checkedOn、resultCount 和 Evidence。`not_queried`、已查无结果和失败分别记录；Provider 结果不能覆盖法定主体或官网一手事实。
 
-冲突时保留双方 Claim/Source，不以数量投票。官网、法定登记、监管、财报与项目一手文件按具体主张优先，第三方数据用于补充和交叉验证。
+精确官网域名或法定名称锚定的人员 Observation 可以支持 `contacts[]` 的 Provider 验证范围；公开公司页或职业页用于确认全名、当前任职和职责。姓名掩码、雇主锚点不足或同名冲突不进入正式联系人。Provider 可支持触达路径，但 buyingRole、签字权、buyer、payer 和项目授权分别取证。人员 0 结果只表达当前 queryBoundary，应补官网、公开职业页或更宽名称边界。
 
-### 7. 独立子资源
+### 5. 写入内嵌 Evidence
 
-联系人、海关和财务必须输出为独立对象，遵守 [child-resources.md](references/child-resources.md)。不得塞入 Company 长文本。
+把事实写入 `company.json` 对应 item，每个主要列表 item 自带 `evidence[]`。Evidence 保存来源信息；事实状态、冲突与拒绝理由写在所属业务 item。冲突来源全部保留，不以数量投票。最终从全部内嵌 Evidence 生成 `Sources/sources.md`。
 
-### 8. GETO 能力映射
+财务补证必须把 `subjectEntity`、`scope`（兼容旧字段 `financialScope`）、`accountingScope`、`relationshipToTarget`、期间、币种/单位、`valueStatus` 和 Evidence 写入同一条 `financialRecords[]`。集团、母公司、品牌、JV、SPV 和业务分部数据允许登记，但必须保留真实报表主体和口径；实体不匹配时保留最权威记录并明确 mismatch，不得改名为目标法人单体。只有同一期间、主体、口径和币种的总资产与总负债才可派生资产负债率，并标为 `derived`。商业数据库只作为 `secondary_registry_derived`、`secondary_range` 等次级证据。财务补证 follow-up 复用同一 progress section，不重新创建国家任务。
 
-仅在能力底座可用时，将目标公司的产品、项目、采购边界证据与 `productCode`、`scenarioCode` 逐项匹配，输出 matched/pending/refuted 和对应 claim/source keys。不得用 GETO 自身案例替代目标公司的需求证据。
+### 6. 产品商业角色与分类事实
 
-### 9. 可选六维客户价值评分
+对每个相关产品/服务写入 `commercialRoles[]`、`manufacturingStatus`、`manufacturingDescription`、`factoryLocations[]` 与 Evidence。线索研究中发现竞对事实时仍按以下边界分类；需要系统产品对标与竞对客户研究时交给 `$geto-diligence-competitor`。名称含 framework、formwork、modular 只能作为召回线索：
 
-- `assessmentMode=none`：设置 `assessmentStatus=not_requested`，只交付 EvidencePackage，不创建 Assessment。
-- `assessmentMode=lead_value`：读取 [lead-assessment-contract.md](references/lead-assessment-contract.md)，在背调状态、能力底座和批准模型均满足时生成逐维判断与证据；Assessment 的 `producerSkill` 固定为 `geto-diligence-company`。
-- 背调为 pending、failed 或 identity_conflict 时设置 `pending_diligence`，不得评分。
-- 能力底座或批准模型不可用时分别设置 `pending_capability_foundation`、`pending_model`，不得生成总分或等级。
-- 任一维度不可评分时设置 `incomplete_evidence`，保留明确缺口，但不得生成总分或等级。
-- 总分和等级只接受批准的确定性公式/服务端规则结果。Agent 提供逐维判断、理由和 Claim/Source，不自行猜公式、peer prior 或等级阈值。
+- manufacturer/system_owner/brand_owner 且产品和市场重叠：可支持直接竞对；
+- distributor/reseller/rental_provider 且经营竞品：可支持渠道竞对；
+- installer/service_contractor-only：不得确认为竞对；
+- contract_manufacturer-only 且不独立销售：不自动确认为竞对；
+- outsourced 但拥有并销售自有品牌/系统：仍可能是竞对；
+- 商业控制或生产状态不清：分类保持 possible 并列入缺口。
 
-### 10. 完成判定
+### 7. 独立 Lead/Competitor 分类
 
-- completed：身份稳定，必查面已查询，关键结论有证据。
-- completed_with_explicit_gaps：身份稳定，但存在明确未找到/未查询项。
-- pending：关键查询仍未完成。
-- failed：不可恢复失败。
-- identity_conflict：无法确定单一主体。
+在 `researchClassifications[]` 分别写 lead 和 competitor；两者按共享分类合同独立取证，不使用 both。Lead 必须有采购、使用、选型影响或正式渠道路径；泛化合作、产能互补或联合供货写入关系、风险和建议行动。每条分类必须包含 country、productScope、status、reason 与 Evidence。`companyRoles[]` 只写开发商、总包、分包、顾问、经销贸易等市场角色。
 
-`diligenceStatus` 与 `assessmentStatus` 独立输出。背调完成不代表评分完成，未请求评分也不是缺陷。输出 EvidencePackage + optional Assessment；不做跨公司排名，也不生成签约决定。
+### 8. 可选评分与报告
 
-## 禁止事项
+`assessmentMode=lead_value` 时，使用 [lead-value-model.json](references/lead-value-model.json) 的 components、factAnchors 和 evidenceGradeRules，并把能力底座直接 contextRef 保存到 `RisksAndAssessment/capability-context.json`。填写六维观察分、证据等级与 Evidence，再运行 `<geto-diligence-company-dir>/scripts/calculate_lead_assessment.py`，输出 pending_cohort_baseline 输入。总分和等级由国家主任务统一计算；公开检索完成且同角色中位数不可用时，cohort 基线使用 0 并标记对应 Evidence；`not_queried`、`provider_failed`、`identity_conflict` 仍保持未知。信息完整度与价值分分别展示。评分不改变 competitor 分类。
 
-- 不把搜索摘要当原始来源。
-- 不因一个页面出现 formwork/framework 就判为竞对。
-- 不把汇总海关“有数”推断为明细存在。
-- 不伪造未取得的联系人、财务数值或来源覆盖率。
-- 不写数据库 ID、SQL patch 或 Excel importer 逻辑。
+`company.json` 是事实与评估的唯一权威结构化来源；`report.md` 是由它组织的可读结论。模块 Markdown 仅保存原始材料、查询日志或扩展分析，按实际内容创建，不手工维护第二份事实表。
+
+生成 `report.md`，其中必须有“研究覆盖”章节，按官网、社媒、项目、主体、外部交叉、Provider、采购链和分类列出 `exhaustive|bounded|partial|not_queried|not_applicable`、数量、时间/分页边界、缺口与下一步。按固定字段 `fileName/path/format/reportType/language/generatedOn/description` 写入 `reportFiles[]`。共享工作空间脚本从 `$geto-run-market-research` 的安装目录调用，用它校验并原子替换完整 JSON，再运行来源聚合与单公司校验：
+
+```bash
+python '<geto-run-market-research-dir>/scripts/write_company_json.py' \
+  '<完整临时 JSON>' '<公司目录>/company.json'
+python '<geto-run-market-research-dir>/scripts/build_deduplicated_sources.py' \
+  '<公司目录>/company.json'
+python '<geto-run-market-research-dir>/scripts/validate_workspace.py' \
+  --company-dir '<公司目录>'
+```
+
+修复 ERROR；WARNING 表示需处理的风险或冲突，INFO 表示如实记录的未查询或已查无结果。validator 默认显示 INFO 汇总；人工排查时加 `--include-infos` 查看逐条明细。
+
+## 任务回传
+
+结束时向主任务回传：做了什么、主要发现、公司目录与报告路径、lead/competitor 接受或拒绝理由、身份/证据冲突、未完成缺口、建议下一步，以及官网栏目、社媒帖子、项目池、外部交叉和 Provider 的覆盖状态与计数。不得把 `partial` 表述成“已全面核查”。主任务会按共享对抗式验收合同独立抽查并可能把具体问题退回；收到 follow-up 后更新原 company.json、report.md、Sources 和同一 progress section，再回传差异。主任务验收通过后才决定评分定稿或 OmniX 上传。
