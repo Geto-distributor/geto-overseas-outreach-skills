@@ -6,12 +6,17 @@ from __future__ import annotations
 import argparse
 import json
 import re
+import sys
 from pathlib import Path
 
 from research_bundle import (
     CAPABILITY_CONTEXT_FIELDS, SECRET_PATTERNS, all_evidence, format_result,
     load_json, validate_company, validate_inquiry_report,
 )
+
+INQUIRY_SCRIPTS = Path(__file__).resolve().parents[2] / "geto-diligence-inquiry" / "scripts"
+sys.path.insert(0, str(INQUIRY_SCRIPTS))
+from validate_publication_gate import validate_publication  # noqa: E402
 
 
 def validate(root: Path, company_dir: Path | None = None) -> tuple[list[str], list[str], list[str]]:
@@ -57,6 +62,10 @@ def validate(root: Path, company_dir: Path | None = None) -> tuple[list[str], li
                 errors.extend(
                     f"{company_dir.name}: {item}" for item in validate_inquiry_report(report_text, value)
                 )
+        if isinstance(value.get("inquiryAssessment"), dict) and value["inquiryAssessment"].get("status") != "not_requested":
+            errors.extend(
+                f"{company_dir.name}: {item}" for item in validate_publication(company_dir, value)
+            )
         assessment = value.get("assessment", {})
         if isinstance(assessment, dict) and assessment.get("status") != "not_requested":
             context_file = company_dir / "RisksAndAssessment" / "capability-context.json"
