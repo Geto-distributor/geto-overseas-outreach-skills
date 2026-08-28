@@ -218,7 +218,7 @@ def _contains_secret(text: str) -> bool:
 
 
 INQUIRY_REPORT_CORE_QUESTIONS = {
-    "conclusion": r"总体判断|结论与建议|最终判断|当前建议",
+    "conclusion": r"总体判断|先说结论|结论先行|结论与建议|最终判断|当前建议",
     "inquiry": r"询盘|需求|客户提出",
     "company": r"公司|法定主体|经营主体|企业",
     "contact": r"联系人|联系方式|邮箱|电话",
@@ -249,6 +249,14 @@ def validate_inquiry_report(text: str, company: dict[str, Any]) -> list[str]:
     if not isinstance(assessment, dict) or assessment.get("status") == "not_requested":
         return []
     errors: list[str] = []
+    company_value = company.get("assessment")
+    company_value_dimensions = (
+        company_value.get("dimensions", []) if isinstance(company_value, dict) else []
+    )
+    if not isinstance(company_value_dimensions, list) or len(company_value_dimensions) != 6:
+        errors.append(
+            "report.md: inquiry diligence requires six-dimensional long-term company-value observations"
+        )
     if len(text.strip()) < 500:
         errors.append("report.md: inquiry diligence is too short to explain the company and current inquiry")
     for question, pattern in INQUIRY_REPORT_CORE_QUESTIONS.items():
@@ -265,12 +273,18 @@ def validate_inquiry_report(text: str, company: dict[str, Any]) -> list[str]:
     if cjk_count + latin_count >= 300 and cjk_count / (cjk_count + latin_count) < 0.40:
         errors.append("report.md: Chinese business prose is not the dominant readable language")
     projects = [item for item in company.get("projects", []) if isinstance(item, dict) and item.get("projectName")]
-    if projects and not any(
-        str(project["projectName"]).casefold() in text.casefold() for project in projects
+    if projects and not (
+        any(str(project["projectName"]).casefold() in text.casefold() for project in projects)
+        or re.search(r"项目池|项目线索|公开项目|历史项目|重点项目|项目匹配", text)
     ):
-        errors.append("report.md: no discovered project is discussed; select projects by business relevance")
+        errors.append("report.md: discovered projects exist but their business relevance is not discussed")
     if not projects and not re.search(r"未发现.{0,12}项目|项目.{0,12}未取得|项目检索|公开项目", text):
         errors.append("report.md: no project evidence exists and the public-search boundary is not explained")
+    overall_score = assessment.get("overallScore")
+    if isinstance(overall_score, (int, float)) and not isinstance(overall_score, bool):
+        score_text = f"{overall_score:g}"
+        if not re.search(rf"(?<!\d){re.escape(score_text)}(?:\.0)?\s*(?:/\s*100|分)(?!\d)", text):
+            errors.append("report.md: inquiry readiness score differs from company.json")
     return errors
 
 
