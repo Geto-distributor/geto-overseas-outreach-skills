@@ -22,7 +22,7 @@ Skills：
 - `geto-run-market-research`：用户可见任务编排与国家 progress.md。
 - `geto-find-leads`：单公司角色轨道发现。
 - `geto-diligence-company`：一条线索或普通目标公司一个任务的 ResearchBundle。
-- `geto-diligence-inquiry`：一条询盘一个任务的主体核验与交易准备度，不使用 cohort 插补。
+- `geto-diligence-inquiry`：一条询盘一个任务，同时完成公司历史至当前的完整背调与当前交易准备度；先交付中文 Markdown 供用户审阅，DOCX/PDF 按需发布。
 - `geto-diligence-competitor`：一家竞对一个任务的产品、商业控制、制造、项目与客户事实背调。
 - `geto-mine-competitor-customers`：已确认竞对的官方合作披露与客户关系核验，并可按需执行客户价值组合与关系切入评估。
 - `geto-map-relationships`：有证据的 typed relationships[]。

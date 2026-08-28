@@ -1,4 +1,4 @@
 interface:
   display_name: "GETO 询盘背调"
-  short_description: "开放调查单条询盘，溯源主体冲突并输出证据化报价建议"
-  default_prompt: "使用 $geto-diligence-inquiry 对一条 GETO 海外询盘做开放式独立背调；即使主体或 Provider 信息冲突也继续溯源并输出本地 ResearchBundle。"
+  short_description: "完整研究询盘公司与当前交易，先交付中文Markdown供审阅"
+  default_prompt: "使用 $geto-diligence-inquiry 对一条 GETO 海外询盘执行公司轴与询盘轴双重背调：广泛覆盖公司历史至当前信息，选择高价值路径深挖，输出极致汉化、务实易读的中文 Markdown 报告供我审阅；未经我确认不要默认生成 DOCX/PDF。"
