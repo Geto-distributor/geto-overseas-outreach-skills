@@ -1,4 +1,4 @@
 interface:
   display_name: "GETO 询盘背调"
-  short_description: "核验单条GETO海外询盘并生成证据化交易准备度评分与报价建议"
-  default_prompt: "使用 $geto-diligence-inquiry 对一条 GETO 海外询盘做独立背调，并输出本地 ResearchBundle 与询盘准备度结论。"
+  short_description: "完整研究询盘公司与当前交易，先交付中文Markdown供审阅"
+  default_prompt: "使用 $geto-diligence-inquiry 对一条 GETO 海外询盘执行公司轴与询盘轴双重背调：广泛覆盖公司历史至当前信息，选择高价值路径深挖，输出极致汉化、务实易读的中文 Markdown 报告供我审阅；未经我确认不要默认生成 DOCX/PDF。"

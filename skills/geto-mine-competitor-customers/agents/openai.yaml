@@ -1,4 +1,4 @@
 interface:
-  display_name: "GETO 竞对客户反查"
-  short_description: "核验竞对客户关系，聚合客户价值并评估合作切入口"
-  default_prompt: "使用 $geto-mine-competitor-customers 反查一家已确认竞对的客户组合，并计算覆盖率、客户价值平均分和关系切入分。"
+  display_name: "GETO 竞对客户网络反查"
+  short_description: "广泛反查竞对客户、项目、渠道和供应链网络并形成 AI 切入结论。"
+  default_prompt: "使用 $geto-mine-competitor-customers 广泛反查一家竞对的客户与合作网络并形成 AI 切入结论。"

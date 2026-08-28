@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import importlib.util
+import hashlib
 import json
 import subprocess
 import tempfile
@@ -36,6 +37,7 @@ ASSESSMENT_CALCULATOR = load_module("calculate_lead_assessment", DILIGENCE_SCRIP
 COHORT_CALCULATOR = load_module("calculate_lead_cohort", FIND_LEADS_SCRIPTS / "calculate_lead_cohort.py")
 INQUIRY_CALCULATOR = load_module("calculate_inquiry_readiness", INQUIRY_SCRIPTS / "calculate_inquiry_readiness.py")
 INQUIRY_INTAKE_GATE = load_module("validate_inquiry_intake", INQUIRY_SCRIPTS / "validate_inquiry_intake.py")
+PUBLICATION_GATE = load_module("validate_publication_gate", INQUIRY_SCRIPTS / "validate_publication_gate.py")
 COMPETITOR_CUSTOMER_AGGREGATOR = load_module(
     "aggregate_competitor_customers",
     COMPETITOR_CUSTOMER_SCRIPTS / "aggregate_competitor_customers.py",
@@ -47,6 +49,10 @@ COMPANY_EXAMPLE_GENERATOR = load_module(
 DILIGENCE_REVIEW_VALIDATOR = load_module(
     "validate_diligence_review",
     RUN_SCRIPTS / "validate_diligence_review.py",
+)
+WORKSPACE_INITIALIZER = load_module(
+    "init_company_workspace",
+    RUN_SCRIPTS / "init_company_workspace.py",
 )
 
 
@@ -64,7 +70,7 @@ def base_company() -> dict[str, object]:
 
 
 class ResearchBundleValidationTests(unittest.TestCase):
-    def test_diligence_review_example_passes_adversarial_gate(self) -> None:
+    def test_diligence_review_example_passes_research_sufficiency_gate(self) -> None:
         review = json.loads((
             ROOT / "skills/geto-run-market-research/references/diligence-review-example.json"
         ).read_text(encoding="utf-8"))
@@ -95,7 +101,7 @@ class ResearchBundleValidationTests(unittest.TestCase):
         errors = DILIGENCE_REVIEW_VALIDATOR.validate_review(review)
         self.assertTrue(any("actionable follow-up questions" in item for item in errors))
 
-    def test_inquiry_intake_gate_requires_minimum_fields_and_two_strong_matches(self) -> None:
+    def test_inquiry_intake_gate_routes_identity_and_provider_gaps_without_stopping_research(self) -> None:
         manifest = json.loads(
             (ROOT / "skills/geto-diligence-inquiry/references/inquiry-intake-example.json").read_text(
                 encoding="utf-8"
@@ -105,12 +111,14 @@ class ResearchBundleValidationTests(unittest.TestCase):
         self.assertEqual(result["gateStatus"], "ready_for_diligence")
         manifest["tradewind"]["status"] = "no_result"
         result = INQUIRY_INTAKE_GATE.validate_intake(manifest)
-        self.assertEqual(result["gateStatus"], "blocked_identity_discovery")
+        self.assertEqual(result["gateStatus"], "diligence_with_identity_gaps")
+        self.assertTrue(result["researchAllowed"])
         manifest["tradewind"]["status"] = "not_configured"
         result = INQUIRY_INTAKE_GATE.validate_intake(manifest)
-        self.assertEqual(result["gateStatus"], "blocked_provider")
+        self.assertEqual(result["gateStatus"], "diligence_with_provider_gaps")
+        self.assertTrue(result["researchAllowed"])
 
-    def test_inquiry_intake_gate_blocks_incomplete_or_weak_input(self) -> None:
+    def test_inquiry_intake_gate_uses_partial_anchors_and_only_blocks_without_any_anchor(self) -> None:
         manifest = {
             "companyName": "",
             "requirement": {"requestedProduct": ""},
@@ -119,8 +127,14 @@ class ResearchBundleValidationTests(unittest.TestCase):
             "tradewind": {"status": "found", "strongIdentityMatch": False, "matchedEntity": "Candidate", "evidence": [{}]},
         }
         result = INQUIRY_INTAKE_GATE.validate_intake(manifest)
-        self.assertEqual(result["gateStatus"], "blocked_missing_intake")
+        self.assertEqual(result["gateStatus"], "diligence_with_partial_intake")
+        self.assertTrue(result["researchAllowed"])
         self.assertEqual(set(result["missingFields"]), {"companyName", "requirement", "email"})
+        manifest["webSearch"] = {"status": "no_result", "strongIdentityMatch": False, "evidence": []}
+        manifest["tradewind"] = {"status": "no_result", "strongIdentityMatch": False, "evidence": []}
+        result = INQUIRY_INTAKE_GATE.validate_intake(manifest)
+        self.assertEqual(result["gateStatus"], "blocked_no_research_anchor")
+        self.assertFalse(result["researchAllowed"])
 
     def test_complete_company_example_is_deterministic_valid_and_nonempty(self) -> None:
         path = ROOT / "skills/geto-run-market-research/references/company-json-example.json"
@@ -755,22 +769,93 @@ class ResearchBundleValidationTests(unittest.TestCase):
         self.assertEqual(company["inquiryAssessment"]["overallScore"], 100)
         self.assertEqual(company["inquiryAssessment"]["grade"], "ready_for_quotation")
 
-    def test_inquiry_report_requires_depth_and_project_coverage(self) -> None:
+    def test_inquiry_report_requires_business_answers_not_fixed_section_count(self) -> None:
         company = base_company()
         company["inquiryAssessment"] = {"status": "completed"}
         shallow = "# Report\n\n## 结论\n\n资料较少。\n"
         errors = RESEARCH_BUNDLE.validate_inquiry_report(shallow, company)
-        self.assertTrue(any("12 substantive" in item for item in errors))
-        self.assertTrue(any("project search coverage" in item for item in errors))
+        self.assertTrue(any("too short" in item for item in errors))
+        self.assertTrue(any("core question" in item for item in errors))
 
-        headings = [
-            "执行摘要", "询盘原始信息", "主体身份", "业务与产品能力", "项目组合",
-            "项目检索覆盖", "管理层与联系人", "财务与信用", "诉讼监管与合规",
-            "Provider 海关与供应链", "GETO 适配", "询盘准备度", "核心冲突与缺口",
-            "风险矩阵与硬阻断", "下一步动作清单", "建议交易条件", "最终判断",
-        ]
-        detailed = "# Report\n\n" + "\n\n".join(f"## {heading}\n\n待证据化展开。" for heading in headings)
+        detailed = """# Example 公司询盘背调报告
+
+## 结论与建议
+
+总体判断：公司经营身份可以核实，本次询盘值得继续，但当前只适合发送产品资料和预算计算方法。正式报价、签约和授信前，必须确认项目、图纸、采购方、合同签约主体和付款方。当前建议是继续培育并补充核实，不承诺最终价格和交期。
+
+## 询盘、公司与联系人
+
+客户提出铝模板需求，但没有提供数量、结构图纸和目标交付时间。公司公开登记和官网支持其真实经营，历史至当前的业务资料表明其从事建筑施工。联系人已有公司邮箱和电话，可以继续联系；公开资料尚不能确认其采购、签约和付款权限，因此需要补充职位和公司授权。
+
+## 项目、产品与交易判断
+
+在已检查的官网、政府许可和交易对手资料中，未发现可直接绑定本次询盘的公开项目。客户需求与铝模板应用场景可能匹配，但缺少墙柱板尺寸、层高、接触面积、重复率和施工节拍，当前无法完成正式选型。采购窗口、实际使用方和付款条件也尚未确认。
+
+## 客户价值、风险与下一步
+
+客户价值方面，公司存在真实经营和潜在项目需求，值得保持联系；同类样本不足，暂不出具最终等级。主要风险是项目和决策链没有闭合。下一步应向客户索取项目名称、建筑和结构图、工程量、交付城市、采购时间、合同公司、付款公司及联系人职位；可以发送标准目录和案例，暂时不提供账期、锁价或交期承诺。
+"""
         self.assertEqual(RESEARCH_BUNDLE.validate_inquiry_report(detailed, company), [])
+
+    def test_inquiry_report_rejects_internal_machine_terms(self) -> None:
+        company = base_company()
+        company["inquiryAssessment"] = {"status": "completed"}
+        report = ("公司、联系人、询盘、项目、产品、报价、付款、客户价值和下一步均已说明。" * 30)
+        report += " pending_cohort_baseline Provider queryBoundary hard block"
+        errors = RESEARCH_BUNDLE.validate_inquiry_report(report, company)
+        for label in ("pending_cohort_baseline", "Provider", "queryBoundary", "hard block"):
+            with self.subTest(label=label):
+                self.assertTrue(any(label in item for item in errors))
+
+        url_only = ("公司、联系人、询盘、项目、产品、报价、付款、客户价值和下一步均已说明。" * 30)
+        url_only += " 来源：https://example.com/provider/no_result"
+        url_errors = RESEARCH_BUNDLE.validate_inquiry_report(url_only, company)
+        self.assertFalse(any("raw query state" in item for item in url_errors))
+
+    def test_inquiry_report_requires_chinese_to_be_the_dominant_readable_language(self) -> None:
+        company = base_company()
+        company["inquiryAssessment"] = {"status": "completed"}
+        report = (
+            "总体判断 公司 联系人 询盘 项目 产品 报价 付款 客户价值 下一步。\n"
+            + "This company inquiry report repeats untranslated business analysis, project details, "
+              "product fit, transaction conditions, contact findings, and recommended actions. " * 20
+        )
+        errors = RESEARCH_BUNDLE.validate_inquiry_report(report, company)
+        self.assertTrue(any("Chinese business prose" in item for item in errors))
+
+    def test_publication_gate_requires_review_hash_for_docx_or_pdf(self) -> None:
+        with tempfile.TemporaryDirectory() as directory:
+            company_dir = Path(directory)
+            report = company_dir / "report.md"
+            report.write_text("# 已确认内容\n", encoding="utf-8")
+            company = base_company()
+            company["inquiryAssessment"] = {"status": "completed"}
+            self.assertEqual(PUBLICATION_GATE.validate_publication(company_dir, company), [])
+
+            (company_dir / "report.pdf").write_bytes(b"pdf")
+            company["reportFiles"] = [{
+                "fileName": "report.pdf", "path": "report.pdf", "format": "pdf",
+                "reportType": "diligence", "language": "zh-CN",
+                "generatedOn": "2026-08-28", "description": "正式报告",
+            }]
+            errors = PUBLICATION_GATE.validate_publication(company_dir, company)
+            self.assertTrue(any("report-review.json is required" in item for item in errors))
+
+            additional = company_dir / "Additional"
+            additional.mkdir()
+            review = {
+                "status": "approved", "reportPath": "report.md",
+                "reportSha256": hashlib.sha256(report.read_bytes()).hexdigest(),
+                "reviewedOn": "2026-08-28", "reviewedBy": "user",
+                "instructionRef": "User approved the Markdown report for publication.",
+            }
+            (additional / "report-review.json").write_text(
+                json.dumps(review, ensure_ascii=False), encoding="utf-8"
+            )
+            self.assertEqual(PUBLICATION_GATE.validate_publication(company_dir, company), [])
+            report.write_text("# 已修改内容\n", encoding="utf-8")
+            errors = PUBLICATION_GATE.validate_publication(company_dir, company)
+            self.assertTrue(any("changed after user review" in item for item in errors))
 
     def test_info_summary_hides_details_by_default(self) -> None:
         result = RESEARCH_BUNDLE.format_result([], [], [
@@ -921,6 +1006,107 @@ class SearchLexiconTests(unittest.TestCase):
         self.assertEqual(company["competitorCustomerPortfolio"], {"status": "not_requested"})
         errors, _, _ = RESEARCH_BUNDLE.validate_company(company)
         self.assertEqual(errors, [])
+
+
+class ResearchFirstSkillContractTests(unittest.TestCase):
+    CORE_SKILLS = (
+        "geto-run-market-research",
+        "geto-diligence-company",
+        "geto-diligence-competitor",
+        "geto-diligence-inquiry",
+        "geto-find-leads",
+        "geto-mine-competitor-customers",
+        "geto-map-relationships",
+    )
+
+    def test_shared_contract_makes_local_research_and_ai_conclusions_first_class(self) -> None:
+        contract = (
+            ROOT / "skills/geto-run-market-research/references/research-intelligence-contract.md"
+        ).read_text(encoding="utf-8")
+        for phrase in (
+            "本地 ResearchBundle 是研究的第一交付和事实主合同",
+            "广度覆盖",
+            "重点路径深挖",
+            "关联扩展",
+            "开放信号",
+            "AI 推理",
+            "AI 结论",
+            "不得用“留待人工判断”代替",
+        ):
+            with self.subTest(phrase=phrase):
+                self.assertIn(phrase, contract)
+        self.assertIn("OmniX 只是用户明确要求后的可选投影", contract)
+
+    def test_core_research_skills_use_the_shared_contract_without_goal_dependency(self) -> None:
+        for skill_name in self.CORE_SKILLS:
+            skill = (ROOT / "skills" / skill_name / "SKILL.md").read_text(encoding="utf-8")
+            with self.subTest(skill=skill_name):
+                self.assertIn("research-intelligence-contract.md", skill)
+                self.assertNotIn("/goal", skill)
+
+    def test_inquiry_skill_uses_dual_axis_markdown_first_and_optional_publication(self) -> None:
+        skill_dir = ROOT / "skills/geto-diligence-inquiry"
+        skill = (skill_dir / "SKILL.md").read_text(encoding="utf-8")
+        report_contract = (skill_dir / "references/report-contract.md").read_text(encoding="utf-8")
+        project_contract = (skill_dir / "references/project-research-contract.md").read_text(encoding="utf-8")
+        publication = (skill_dir / "references/publication-contract.md").read_text(encoding="utf-8")
+        inquiry_research = (
+            skill_dir / "references/inquiry-research-intelligence-contract.md"
+        ).read_text(encoding="utf-8")
+
+        for phrase in (
+            "完整公司轴", "Markdown 第一交付", "默认停止，不自动生成 DOCX/PDF",
+            "公司从历史至今", "不固定章节数量",
+        ):
+            with self.subTest(phrase=phrase):
+                self.assertIn(phrase, skill)
+        self.assertIn("公司轴", inquiry_research)
+        self.assertIn("询盘轴", inquiry_research)
+        self.assertIn("历史至当前", inquiry_research)
+        self.assertIn("固定核心问题，不固定模板", report_contract)
+        self.assertNotIn("## 必需章节", report_contract)
+        self.assertNotIn("至少 3 个", project_contract)
+        self.assertIn("用户明确确认 Markdown", publication)
+        self.assertIn("PDF 是可选发布物", publication)
+
+    def test_formal_inquiry_report_contract_requires_plain_business_chinese(self) -> None:
+        contract = (
+            ROOT / "skills/geto-diligence-inquiry/references/report-contract.md"
+        ).read_text(encoding="utf-8")
+        for phrase in (
+            "极致汉化", "务实易读", "对本次业务意味着什么",
+            "不固定章节数量", "机器状态", "下一步必须具体",
+        ):
+            with self.subTest(phrase=phrase):
+                self.assertIn(phrase, contract)
+
+    def test_workspace_progress_tracks_frontier_synthesis_and_local_completion(self) -> None:
+        progress = WORKSPACE_INITIALIZER.progress_template("Spain", "ES")
+        for checkpoint in (
+            "research_frontier", "review", "synthesis", "validation", "local_complete",
+        ):
+            with self.subTest(checkpoint=checkpoint):
+                self.assertIn(f"| {checkpoint} |", progress)
+        self.assertIn("## 研究前沿", progress)
+        self.assertIn("## AI 市场综合", progress)
+        self.assertIn("仅在用户明确要求时启用", progress)
+        self.assertNotIn("| optional_upload | pending", progress)
+
+    def test_historical_rework_rules_are_targeted_not_mechanical(self) -> None:
+        review_contract = (
+            ROOT / "skills/geto-run-market-research/references/diligence-review-contract.md"
+        ).read_text(encoding="utf-8")
+        company_skill = (
+            ROOT / "skills/geto-diligence-company/SKILL.md"
+        ).read_text(encoding="utf-8")
+        field_contract = (
+            ROOT / "skills/geto-run-market-research/references/company-field-requirements.md"
+        ).read_text(encoding="utf-8")
+        self.assertIn("先建立最近活动、公开数量和分页边界", review_contract)
+        self.assertIn("数量过大或平台受限时是否说明选择方法", review_contract)
+        self.assertIn("Provider 没有具名人员不等于公司没有可用联系方式", company_skill)
+        self.assertIn("公司通用邮箱、电话、表单、办公室、项目咨询、供应商/投标和投资者关系入口与具名人员分别建模", field_contract)
+        self.assertNotIn("默认最近 24 个月公开可见范围内，帖子是否逐页检查", review_contract)
 
 
 if __name__ == "__main__":
