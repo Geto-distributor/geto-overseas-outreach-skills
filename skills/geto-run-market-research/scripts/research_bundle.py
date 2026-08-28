@@ -243,6 +243,21 @@ INQUIRY_REPORT_FORBIDDEN_TERMS = {
     "claimed profile": r"\bclaimed profile\b",
 }
 
+GENERIC_PROJECT_NAME_PATTERN = re.compile(
+    r"(?:historical|current|public)?\s*project\s*(?:pool|portfolio)|历史项目池|项目组合|若干.{0,8}项目",
+    re.IGNORECASE,
+)
+
+
+def _project_report_names(project: dict[str, Any]) -> list[str]:
+    names = [str(project.get("projectName") or "").strip()]
+    for alias in project.get("aliases", []):
+        if isinstance(alias, str):
+            names.append(alias.strip())
+        elif isinstance(alias, dict):
+            names.append(str(alias.get("name") or alias.get("alias") or "").strip())
+    return [name for name in names if name]
+
 
 def validate_inquiry_report(text: str, company: dict[str, Any]) -> list[str]:
     assessment = company.get("inquiryAssessment")
@@ -273,11 +288,27 @@ def validate_inquiry_report(text: str, company: dict[str, Any]) -> list[str]:
     if cjk_count + latin_count >= 300 and cjk_count / (cjk_count + latin_count) < 0.40:
         errors.append("report.md: Chinese business prose is not the dominant readable language")
     projects = [item for item in company.get("projects", []) if isinstance(item, dict) and item.get("projectName")]
-    if projects and not (
-        any(str(project["projectName"]).casefold() in text.casefold() for project in projects)
-        or re.search(r"项目池|项目线索|公开项目|历史项目|重点项目|项目匹配", text)
-    ):
-        errors.append("report.md: discovered projects exist but their business relevance is not discussed")
+    if projects:
+        generic_names = [
+            str(project["projectName"]) for project in projects
+            if GENERIC_PROJECT_NAME_PATTERN.search(str(project["projectName"]))
+        ]
+        if generic_names:
+            errors.append(
+                "report.md: projects[] must use one item per named project, not aggregate placeholders: "
+                + ", ".join(generic_names)
+            )
+        if not re.search(r"公司.{0,4}项目池|公开项目池|项目总表|项目一览|项目组合总表", text):
+            errors.append("report.md: a company project-pool table is required")
+        missing_projects = [
+            str(project["projectName"]) for project in projects
+            if not any(name.casefold() in text.casefold() for name in _project_report_names(project))
+        ]
+        if missing_projects:
+            errors.append(
+                "report.md: company project-pool table omits structured projects: "
+                + ", ".join(missing_projects)
+            )
     if not projects and not re.search(r"未发现.{0,12}项目|项目.{0,12}未取得|项目检索|公开项目", text):
         errors.append("report.md: no project evidence exists and the public-search boundary is not explained")
     overall_score = assessment.get("overallScore")
