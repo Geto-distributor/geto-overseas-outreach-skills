@@ -1,4 +1,4 @@
 interface:
-  display_name: "GETO 竞对背调"
-  short_description: "核验单一海外竞对的主体、产品、商业控制、项目与客户事实"
-  default_prompt: "使用 $geto-diligence-competitor 对一家 GETO 海外竞对做独立深度背调，并输出证据化竞争面和客户候选。"
+  display_name: "GETO 单竞对深度背调"
+  short_description: "深挖一家竞对的产品控制、渠道、项目、客户和竞争结论。"
+  default_prompt: "使用 $geto-diligence-competitor 对这家竞对开展广泛深入的竞争情报研究并形成中文 AI 结论。"

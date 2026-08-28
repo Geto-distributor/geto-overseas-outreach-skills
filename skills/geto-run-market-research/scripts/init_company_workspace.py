@@ -34,12 +34,18 @@ def progress_template(country: str, country_code: str) -> str:
 | --- | --- | --- | --- | --- |
 | intake | pending |  |  |  |
 | discovery | pending |  |  |  |
+| research_frontier | pending |  |  |  |
 | arbitration | pending |  |  |  |
 | diligence | pending |  |  |  |
+| review | pending |  |  |  |
 | decision | pending |  |  |  |
+| synthesis | pending |  |  |  |
 | validation | pending |  |  |  |
-| optional_upload | pending |  |  |  |
-| complete | pending |  |  |  |
+| local_complete | pending |  |  |  |
+
+## 研究前沿
+| 待追问题/对象 | 来源线索 | 信息价值 | 与当前任务相关性 | 可研究性 | 状态 | 下一步 |
+| --- | --- | --- | --- | --- | --- | --- |
 
 ## 任务
 | 任务 | 状态 | 做了什么 | 成果路径 | 接受/拒绝理由 | 缺口 | 下一步 |
@@ -49,7 +55,16 @@ def progress_template(country: str, country_code: str) -> str:
 | 公司 | lead | competitor | 目录 | 理由/冲突 |
 | --- | --- | --- | --- | --- |
 
-## 上传
+## AI 市场综合
+- 核心事实：待补充
+- 关键信号：待补充
+- AI 推理：待补充
+- AI 结论：待补充
+- 不确定性：待补充
+- 下一轮研究方向：待补充
+
+## 可选上传
+- 仅在用户明确要求时启用。
 - uploadStatus: not_requested
 - detailRoute:
 """

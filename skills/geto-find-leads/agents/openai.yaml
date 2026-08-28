@@ -1,4 +1,4 @@
 interface:
   display_name: "GETO 单轨线索发现"
-  short_description: "按一个公司角色轨道发现候选并回传独立背调建议。"
-  default_prompt: "使用 $geto-find-leads 在指定国家按一个角色轨道发现 GETO 候选线索。"
+  short_description: "从多类公开来源发现一个角色轨道的候选、关系信号和研究下一跳。"
+  default_prompt: "使用 $geto-find-leads 在指定国家按一个角色轨道广泛发现候选、关系信号和下一跳。"

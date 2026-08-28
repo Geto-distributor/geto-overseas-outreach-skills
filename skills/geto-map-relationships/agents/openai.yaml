@@ -1,4 +1,4 @@
 interface:
-  display_name: "GETO 商业关系网梳理"
-  short_description: "把已归一公司、项目和产品写成内嵌证据关系。"
-  default_prompt: "使用 $geto-map-relationships 将目标公司与项目关系写入本地 company.json。"
+  display_name: "GETO 商业关系网络梳理"
+  short_description: "写入公司、项目和产品的证据关系并识别值得继续研究的邻接节点。"
+  default_prompt: "使用 $geto-map-relationships 梳理目标公司、项目和产品关系，并指出值得继续研究的邻接节点。"

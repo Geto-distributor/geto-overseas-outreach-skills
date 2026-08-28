@@ -48,6 +48,8 @@
 
 `entityType` 使用 legal_entity、operating_company、corporate_group。countryCode 使用大写 ISO2。主体身份冲突未解决时，researchStatus 使用 identity_conflict。
 
+面向中文用户时，summary、researchConclusion、marketPosition、procurementBoundary 和 listingDetails 使用自然中文解释；法定名称、交易所、股票代码和正式项目名保留原文事实。严格枚举保留机器码，不把 snake_case 或原始对象直接写入可读叙述。
+
 ## Evidence
 
 每条 Evidence 的九个基础键都必须出现。
@@ -118,6 +120,8 @@ confirmed competitor 的匹配产品至少包含 manufacturer、system_owner、b
 
 verificationStatus=email_only 只确认 workEmail 对应验证范围；任职、职位、授权和 buyingRole 分别依赖相应 Evidence。
 
+公司通用邮箱、电话、表单、办公室、项目咨询、供应商/投标和投资者关系入口与具名人员分别建模；通用或部门入口的 name 使用可读的公司/部门入口名称，不虚构自然人。Provider 人员 0 结果不等于公司没有联系方式。
+
 ## 财务、新闻、海关与合规
 
 | 资源 | R 字段 | C 字段 | S/O 字段 |
@@ -185,5 +189,7 @@ customers[] 每项始终需要 companyName、country、relationshipCount、custo
 | assessment.status=completed | 国家 Scoring/lead-value-cohort.json，baselineVersion 与 cohortKey 对应 assessment |
 | reportFiles[] 有记录 | 每个 path 指向真实文件 |
 | inquiryAssessment 已执行 | report.md 满足询盘报告主题、项目讨论与项目检索覆盖合同 |
+
+面向中文用户的 report.md 还必须自然中文呈现事实底座、关键信号、AI 推理、AI 结论、不确定性和继续研究方向；法定名、项目正式名、产品系统名和 Evidence 原文可保留原语。不得用“待人工判断”代替 AI 结论。评分或 OmniX 未请求、未配置或未完成不阻止本地 ResearchBundle 交付。
 
 交付前依次运行 `build_deduplicated_sources.py`、`validate_company_json.py` 和 `validate_workspace.py --company-dir`。国家主任务再运行国家模式 validator。

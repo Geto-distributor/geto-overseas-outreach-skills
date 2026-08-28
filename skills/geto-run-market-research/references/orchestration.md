@@ -15,7 +15,9 @@
 
 ## 状态机
 
-`intake → discovery → arbitration → diligence → review → decision → validation → optional_upload → complete`
+`intake → discovery → research_frontier → arbitration → diligence → review → decision → synthesis → validation → local_complete`
+
+只有用户明确要求 OmniX 时，才从 `local_complete` 进入 `optional_upload`。评分、Provider 和平台状态各自记录，不替代本地研究状态。
 
 主任务在 `progress.md` 为每个检查点记录状态、任务标题、成果路径、接受/拒绝理由、缺口和下一步；任务使用唯一 sectionName 调用 `merge_progress.py` 更新自己的区块。完整任务 trace 留在 Codex 任务自身。
 
@@ -24,13 +26,15 @@
 - 主动读取每个一级任务 final，不依赖 callback 自动进入上下文；
 - final、progress 区块和成果文件分别验收；
 - 验证成果路径存在、JSON 可解析、自然公司目录正确且 validator 结果可复现；
-- 按 `diligence-review-contract.md` 对官网、社媒、项目、外部交叉、Provider、采购链和分类进行独立挑战；
+- 按 `research-intelligence-contract.md` 与 `diligence-review-contract.md` 对信息广度、重点路径深度、关联扩展、来源使用、AI 推理、官网、社媒、项目、Provider、采购链和分类进行独立审校；只对影响主要结论的事实做定向反向核查；
 - TradeWind Agentic 第一次 submit 前先读取并挑战 Provider plan；范围不全、意图混合、缺 pilot 或任务边界重复时退回 Provider 任务，不批准付费提交；
 - 单公司 final 只把任务状态改为已回收，不自动把 diligenceReviewStatus 改为 accepted；
 - 有可补救缺口时向原任务发送具体 follow-up，等待其更新原工件和唯一 progress section，再重新审查；
 - 单次等待目标有工具数量限制时分组执行；
 - 运行中或 idle 但尚未读取 final 的任务仍属于未回收；
 - 当前批次全部完成或明确需要用户输入后，才进入仲裁、下一批背调或交付。
+
+每回收一批任务都更新研究前沿，跨公司归并反复出现的公司、项目、产品、供应商、客户、渠道和人员。主任务根据它们对市场理解的增量选择下一批，不把“任务全部回收”自动等同研究完成。
 
 ## 统一回传
 
@@ -40,10 +44,11 @@
 2. 找到了什么；
 3. 成果所在路径；
 4. 接受或拒绝理由；
-5. 未完成项和缺口；
-6. 建议主任务采取的下一步。
+5. AI 当前结论及推理摘要；
+6. 新发现的关联对象和信息边界；
+7. 建议主任务采取的下一跳。
 
-Provider 任务另加 provider、queryBoundary、retrievedOn、status 和 ExternalObservation 文件路径。单公司任务另加身份锚点、lead/competitor 分类建议、冲突、report.md 路径，以及官网、社媒、项目、外部交叉和 Provider 的 `exhaustive|bounded|partial|not_queried|not_applicable` 覆盖摘要。
+Provider 任务另加 provider、queryBoundary、retrievedOn、status、信号用途限制和 ExternalObservation 文件路径。单公司任务另加身份锚点、lead/competitor 分类建议、冲突、report.md 路径、事实/信号/推理/结论摘要、值得扩展的下一跳，以及官网、社媒、项目、外部交叉和 Provider 的 `exhaustive|bounded|partial|not_queried|not_applicable` 覆盖摘要。
 
 ## 恢复
 
@@ -70,13 +75,24 @@ Provider 任务另加 provider、queryBoundary、retrievedOn、status 和 Extern
 ## 检查点
 | 阶段 | 状态 | 成果路径 | 缺口 | 下一步 |
 
+## 研究前沿
+| 节点/问题 | 来源公司或任务 | 为什么重要 | 当前证据强度 | 下一跳 | 状态 |
+
 ## 任务
 | 任务 | 状态 | 做了什么 | 成果路径 | 接受/拒绝理由 | 缺口 | 下一步 |
 
 ## 公司仲裁
 | 公司 | lead | competitor | 背调任务 | 背调验收 | reviewCycle | 目录 | 理由/冲突 |
 
-## 上传
+## AI 市场综合
+- 事实底座：
+- 关键信号：
+- AI 推理：
+- AI 结论：
+- 不确定性：
+- 继续研究方向：
+
+## 可选上传
 - uploadStatus: not_requested
 - detailRoute:
 ```

@@ -1,4 +1,4 @@
 interface:
   display_name: "GETO 海外市场情报总编排"
-  short_description: "用可见任务编排国家调研并交付本地 ResearchBundle。"
-  default_prompt: "使用 $geto-run-market-research 为指定国家编排可恢复的完整 GETO 市场调研。"
+  short_description: "本地优先地编排广度、深挖、关联扩展和 AI 市场结论。"
+  default_prompt: "使用 $geto-run-market-research 为指定国家开展本地优先、广泛深入且可持续扩展的 GETO 市场调研。"

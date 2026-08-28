@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Validate the minimum inputs and independent identity discovery for one inquiry."""
+"""Route one inquiry into full, identity-gap, provider-gap, or partial-intake diligence."""
 
 from __future__ import annotations
 
@@ -38,10 +38,8 @@ def _valid_observation(value: Any, allowed_statuses: set[str], label: str) -> li
     if status not in allowed_statuses:
         errors.append(f"{label}.status has an invalid value")
     if status == "found":
-        if value.get("strongIdentityMatch") is not True:
-            errors.append(f"{label}.strongIdentityMatch must be true when status=found")
-        if not _text(value.get("matchedEntity")):
-            errors.append(f"{label}.matchedEntity is required when status=found")
+        if value.get("strongIdentityMatch") is True and not _text(value.get("matchedEntity")):
+            errors.append(f"{label}.matchedEntity is required for a strong identity match")
         if not isinstance(value.get("evidence"), list) or not value.get("evidence"):
             errors.append(f"{label}.evidence must contain at least one observation")
         else:
@@ -55,15 +53,44 @@ def _valid_observation(value: Any, allowed_statuses: set[str], label: str) -> li
     return errors
 
 
+def _normalized_entity(value: Any) -> str:
+    return re.sub(r"[^a-z0-9]+", "", _text(value).casefold())
+
+
+def _research_anchors(value: dict[str, Any]) -> list[str]:
+    anchors: list[str] = []
+    if len(_text(value.get("companyName"))) >= 2:
+        anchors.append("companyName")
+    for field in ("contactName", "website", "phone", "projectName"):
+        if _text(value.get(field)):
+            anchors.append(field)
+    email = _text(value.get("email"))
+    if EMAIL_RE.fullmatch(email):
+        anchors.append("emailDomain")
+    requirement = value.get("requirement")
+    if _has_requirement(requirement):
+        anchors.append("requirement")
+    for label in ("webSearch", "tradewind"):
+        observation = value.get(label)
+        if not isinstance(observation, dict):
+            continue
+        if _text(observation.get("matchedEntity")):
+            anchors.append(f"{label}.matchedEntity")
+        if isinstance(observation.get("evidence"), list) and observation.get("evidence"):
+            anchors.append(f"{label}.evidence")
+    return sorted(set(anchors))
+
+
 def validate_intake(value: Any) -> dict[str, Any]:
     errors: list[str] = []
     missing: list[str] = []
     actions: list[str] = []
     if not isinstance(value, dict):
         return {
-            "gateStatus": "blocked_missing_intake",
+            "gateStatus": "blocked_no_research_anchor",
             "errors": ["intake manifest must be an object"],
             "missingFields": [], "nextActions": ["Provide one inquiry intake manifest."],
+            "researchAllowed": False,
         }
 
     if len(_text(value.get("companyName"))) < 2:
@@ -75,8 +102,9 @@ def validate_intake(value: Any) -> dict[str, Any]:
     errors.extend(_valid_observation(value.get("webSearch"), WEB_STATUSES, "webSearch"))
     errors.extend(_valid_observation(value.get("tradewind"), TRADEWIND_STATUSES, "tradewind"))
 
+    anchors = _research_anchors(value)
     if missing:
-        actions.append("补齐公司名、至少一项可描述的产品/技术/项目需求和可回复邮箱。")
+        actions.append("继续现有锚点调研，并向客户补齐公司名、需求和可回复邮箱中的缺失项。")
     web = value.get("webSearch") if isinstance(value.get("webSearch"), dict) else {}
     trade = value.get("tradewind") if isinstance(value.get("tradewind"), dict) else {}
     web_status = web.get("status")
@@ -84,22 +112,41 @@ def validate_intake(value: Any) -> dict[str, Any]:
     if web_status in {"no_result", "not_queried", "failed"} or (
         web_status == "found" and web.get("strongIdentityMatch") is not True
     ):
-        actions.append("补充法定名、官网域名、注册号或项目文件，并完成 Web 主体核验。")
+        actions.append("继续查登记、官网、域名历史、电话、地址、人员、项目和社媒，并补充法定名、注册号或项目文件。")
     if trade_status in {"no_result", "not_queried"} or (
         trade_status == "found" and trade.get("strongIdentityMatch") is not True
     ):
-        actions.append("使用 TradeWind 精确公司查询重试，并核对 queryCountry 与 observedCountry。")
+        actions.append("保留 TradeWind 查询边界，改查精确域名、法定名、展示名和历史别名，并逐条仲裁宽匹配候选。")
     if trade_status in {"not_configured", "upstream_unavailable", "failed"}:
-        actions.append("先配置或恢复 TradeWind 查询能力；工具故障不能记为主体不存在。")
+        actions.append("在恢复 TradeWind 的同时继续 Web、登记、项目、社媒、地图目录和其他可用 Provider；工具故障不能记为主体不存在。")
 
-    if missing:
-        status = "blocked_missing_intake"
-    elif web_status in {"not_queried", "failed"} or trade_status in {"not_queried", "failed", "not_configured", "upstream_unavailable"}:
-        status = "blocked_provider"
-    elif web_status != "found" or trade_status != "found" or not web.get("strongIdentityMatch") or not trade.get("strongIdentityMatch"):
-        status = "blocked_identity_discovery"
+    web_strong = web_status == "found" and web.get("strongIdentityMatch") is True
+    trade_strong = trade_status == "found" and trade.get("strongIdentityMatch") is True
+    same_entity = (
+        web_strong and trade_strong
+        and _normalized_entity(web.get("matchedEntity"))
+        and _normalized_entity(web.get("matchedEntity")) == _normalized_entity(trade.get("matchedEntity"))
+    )
+    provider_gap = (
+        web_status in {"not_queried", "failed"}
+        or trade_status in {"not_queried", "failed", "not_configured", "upstream_unavailable"}
+    )
+
+    if not anchors:
+        status = "blocked_no_research_anchor"
+        research_mode = "awaiting_research_anchor"
+    elif missing:
+        status = "diligence_with_partial_intake"
+        research_mode = "open_research_and_intake_recovery"
+    elif provider_gap:
+        status = "diligence_with_provider_gaps"
+        research_mode = "open_research_with_alternative_sources"
+    elif not same_entity:
+        status = "diligence_with_identity_gaps"
+        research_mode = "identity_resolution_and_full_diligence"
     else:
         status = "ready_for_diligence"
+        research_mode = "full_diligence"
     return {
         "gateStatus": status,
         "companyName": _text(value.get("companyName")),
@@ -107,11 +154,20 @@ def validate_intake(value: Any) -> dict[str, Any]:
         "missingFields": missing,
         "errors": sorted(set(errors)),
         "nextActions": sorted(set(actions)),
+        "researchAllowed": status != "blocked_no_research_anchor",
+        "researchMode": research_mode,
+        "researchAnchors": anchors,
+        "scoringPolicy": (
+            "not_available_without_research_anchor"
+            if status == "blocked_no_research_anchor"
+            else "evidence_only_with_identity_gaps_and_hard_blocks"
+        ),
         "discovery": {
             "webSearch": web_status,
             "tradewind": trade_status,
             "webStrongIdentityMatch": web.get("strongIdentityMatch") is True,
             "tradewindStrongIdentityMatch": trade.get("strongIdentityMatch") is True,
+            "sameStrongMatchedEntity": bool(same_entity),
         },
     }
 
@@ -125,7 +181,10 @@ def main() -> int:
     try:
         value = json.loads(path.read_text(encoding="utf-8"))
     except (OSError, json.JSONDecodeError) as error:
-        result = {"gateStatus": "blocked_missing_intake", "errors": [str(error)], "missingFields": [], "nextActions": []}
+        result = {
+            "gateStatus": "blocked_no_research_anchor", "errors": [str(error)],
+            "missingFields": [], "nextActions": [], "researchAllowed": False,
+        }
     else:
         result = validate_intake(value)
     rendered = json.dumps(result, ensure_ascii=False, indent=2) + "\n"
@@ -134,7 +193,7 @@ def main() -> int:
         output.parent.mkdir(parents=True, exist_ok=True)
         output.write_text(rendered, encoding="utf-8")
     print(rendered, end="")
-    return 0 if result.get("gateStatus") == "ready_for_diligence" else 1
+    return 0 if result.get("researchAllowed") is True else 1
 
 
 if __name__ == "__main__":

@@ -1,6 +1,6 @@
 # GETO Overseas Outreach Skills
 
-GETO 海外市场调研 Skill 家族。当前国家调研任务负责协调，六类角色、竞对、TradeWind、网易外贸通和单公司背调分别使用独立任务；subagent 只在单个任务内部并行。国家任务维护产品×角色×来源覆盖矩阵和候选总账，研究成果保存在唯一的本地 ResearchBundle。
+GETO 海外市场调研 Skill 家族。当前国家调研任务负责协调，六类角色、竞对、TradeWind、网易外贸通和单公司背调分别使用独立任务；subagent 只在单个任务内部并行。国家任务维护产品×角色×来源覆盖矩阵、候选总账和研究前沿，以信息广度、重点路径深挖、关联扩展和 AI 综合结论推动调研，研究成果保存在唯一的本地 ResearchBundle。
 
 本地交付结构：
 
@@ -14,6 +14,8 @@ GETO 海外市场调研 Skill 家族。当前国家调研任务负责协调，�
 ```
 
 company.json 使用内嵌 Evidence，lead/competitor 由 researchClassifications 独立表达。Lead 要求采购、使用、选型影响或正式渠道路径；泛化合作机会不形成 Lead。关键词只用于召回；竞对判定必须核查产品商业控制、目标市场和制造/委外/经销/租赁/安装履约模式。
+
+本地 ResearchBundle 是第一交付。report.md 默认使用自然中文，区分事实底座、关键信号、AI 推理、AI 结论、不确定性和继续研究方向。权威来源、一方披露、专业二手资料、Provider Observation 与开放信号都可以贡献信息，但用途和结论强度按来源性质控制。
 
 Skills：
 
@@ -36,4 +38,4 @@ python3 scripts/validate_skills.py
 python3 -m unittest discover -s tests -v
 ```
 
-OmniX 不是研究完成条件。本地验证通过后才询问用户是否通过独立 `omnix-market` Skill 上传完整 Company Aggregate。
+OmniX 不是研究完成条件。只有用户明确要求上传、同步、发布或管理 OmniX 时，才通过独立 `omnix-market` Skill 准备完整 Company Aggregate；普通本地调研不主动索取 Key 或追加上传确认。

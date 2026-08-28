@@ -1,4 +1,4 @@
 interface:
-  display_name: "GETO 单公司背调"
-  short_description: "按一家公司一任务生成 company.json、报告和内嵌证据。"
-  default_prompt: "使用 $geto-diligence-company 对这一家公司完成独立背调并写入本地 ResearchBundle。"
+  display_name: "GETO 单公司深度背调"
+  short_description: "广泛搜集并重点深挖一家公司的事实、关系和商业信号。"
+  default_prompt: "使用 $geto-diligence-company 对这家公司广泛搜集、重点深挖并形成中文 AI 结论。"

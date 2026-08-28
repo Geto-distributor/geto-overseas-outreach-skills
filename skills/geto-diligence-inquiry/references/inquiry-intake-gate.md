@@ -1,36 +1,37 @@
-# 询盘背调启动闸门
+# 询盘背调启动路由
 
 ## 目的
 
-在创建深度 ResearchBundle、调用主体背调或计算 inquiry readiness 之前，先确认这条询盘具备最小可研究输入，并且两个独立入口都能找到同一主体。该闸门只判断“是否可以开始背调”，不判断客户质量、不替代主体核验，也不产生长期客户价值分。
+在创建深度 ResearchBundle、调用主体背调或计算 inquiry readiness 之前，先盘点可用锚点并选择研究模式。该路由判断“以何种证据边界开始背调”，不把主体确定性当成调研许可，不判断客户质量，也不产生长期客户价值分。
 
 ## 最小输入
 
 | 输入 | 必填条件 | 判定方式 |
 | --- | --- | --- |
-| companyName | 非空自然公司名或询盘中明确的公司称呼 | 去除空白后至少 2 个字符；保留原文，不自行改成法定名 |
-| requirement | 至少一个非空的 requestedProduct、technicalRequirements、用途/项目场景描述 | 询盘原文、附件或聊天记录可追溯；只有“请报价”不算需求 |
-| email | 非空且通过基本邮箱格式检查 | 只证明存在可用的联系入口；邮箱域名不单独证明主体或任职 |
-| webSearch | `status=found`、`strongIdentityMatch=true`、`matchedEntity` 非空、至少一条证据 | 通过官网、注册/政府、项目方或可信独立来源把询盘名称与一个主体闭合 |
-| tradewind | `status=found`、`strongIdentityMatch=true`、`matchedEntity` 非空、至少一条 ExternalObservation 证据 | TradeWind 精确公司查询命中同一主体；需记录 queryCountry 与 observedCountry |
+| companyName | 优先取得自然公司名或询盘中明确的公司称呼 | 保留原文，不自行改成法定名；缺失时使用人名、域名、项目或附件锚点继续检索 |
+| requirement | 优先取得 requestedProduct、technicalRequirements、用途或项目场景 | 缺失时记录 `missingFields`，但不取消主体、联系人和项目线索研究 |
+| email | 优先取得格式有效的可回复邮箱 | 邮箱域名可作为检索锚点，但不单独证明主体、任职或可投递性 |
+| webSearch | 记录 found/no_result/not_queried/failed、候选、强弱锚点和证据 | 强匹配支持主体闭合；弱匹配、冲突和无结果进入继续调查队列 |
+| tradewind | 记录 found/no_result/not_configured/upstream_unavailable/failed/not_queried、queryBoundary 和候选 | Provider 是独立观察源；无结果或故障只说明该边界，不否定主体，也不阻止其他渠道 |
 
-Web 与 TradeWind 的命中必须分别记录，不能用一个 Provider 的结果填充另一个入口。法律后缀、名称相似、通用阿拉伯语法律词、共享地址或项目共现不构成 strongIdentityMatch。
+Web 与 TradeWind 的命中必须分别记录，不能用一个 Provider 的结果填充另一个入口。法律后缀、名称相似、共享地址或项目共现不构成 strongIdentityMatch。两个入口不一致时不得投票合并；创建候选实体矩阵并按 `identity-conflict-investigation.md` 继续溯源。
 
 ## 状态
 
 | gateStatus | 条件 | 后续动作 |
 | --- | --- | --- |
-| ready_for_diligence | 三项询盘输入齐全，Web 和 TradeWind 均为强匹配 | 创建一家公司一个任务，进入主体、项目、联系人和风险背调 |
-| blocked_missing_intake | companyName、requirement 或 email 任一缺失/无效 | 停止深度背调，向用户或询盘人索取缺失字段 |
-| blocked_identity_discovery | Web 或 TradeWind 明确 no_result，或仅有弱匹配 | 停止深度背调，保留查询边界和不匹配原因；要求法定名、官网、注册号或项目文件 |
-| blocked_provider | TradeWind 为 not_configured、upstream_unavailable、failed，或 Web 查询工具不可用 | 不把工具故障写成“找不到主体”；先恢复对应查询能力或由用户补充可核验主体材料 |
+| ready_for_diligence | 关键询盘输入齐全，Web 与 TradeWind 强匹配同一主体 | 进入完整背调；仍继续验证项目、人员、财务和风险 |
+| diligence_with_identity_gaps | 至少有一个检索锚点，但主体只有弱匹配、无结果或候选冲突 | 进入完整信息搜集；拆分候选、溯源冲突、降低结论强度并按证据评分 |
+| diligence_with_provider_gaps | Web 或 Provider 未配置、不可用、失败或未查询 | 继续其他公开来源与可用 Provider；记录替代路线和未覆盖边界 |
+| diligence_with_partial_intake | 公司名、需求或邮箱有缺失，但仍有人名、域名、项目、附件或其他锚点 | 继续能执行的调研，同时把缺失字段列为客户补件问题 |
+| blocked_no_research_anchor | 没有任何可检索公司、人名、域名、项目、地点、附件内容或需求锚点 | 仅在无法构造任何查询时暂停，并明确索取最小锚点 |
 
-`not_queried`、`not_configured`、`upstream_unavailable` 和 `failed` 必须与 `no_result` 分开记录。工具没有返回结果不等于主体不存在。
+`not_queried`、`not_configured`、`upstream_unavailable` 和 `failed` 必须与 `no_result` 分开记录。工具没有返回结果不等于主体不存在；同名、近名或域名不同也不等于无关，必须先验证可能的旧站、关联方、迁移、冒名或纯同名假设。
 
 ## 通过后的交接
 
-Gate 通过后，把原始询盘写入 `inquiries[]`，把 Web 和 TradeWind 结果作为独立 ExternalObservation/Evidence 交给主体归一流程，再按询盘报告合同深挖。Gate 的 JSON 是启动审计工件，可保存为 `intake-gate.json`；它不是 company.json 的业务字段，也不替代 `researchQueries[]`。
+除 `blocked_no_research_anchor` 外，把原始询盘写入 `inquiries[]`，把 Web 与 TradeWind 结果作为独立 ExternalObservation/Evidence 交给主体归一和冲突调查，再按询盘报告合同深挖。路由 JSON 是启动审计工件，可保存为 `intake-gate.json`；它不是 company.json 的业务字段，也不替代 `researchQueries[]`。
 
-## 失败时的最小报告
+## 唯一暂停条件
 
-即使无法开始深度背调，也返回：原始公司称呼、已取得的需求和邮箱状态、Web 状态、TradeWind 状态、阻断原因、已查 query boundary、下一次需要用户提供的最小资料。不要生成没有主体基础的六维准备度分或长篇公司结论。
+只有 `blocked_no_research_anchor` 才暂停。此时返回现有原文、已查 query boundary、为什么无法形成查询、下一次需要用户提供的最小锚点。其余状态必须生成 ResearchBundle、详细报告、候选/冲突分析和证据边界；询盘准备度可以按现有证据评分，身份不确定部分得 0 或进入 gap/hard block，不能用猜测补分。

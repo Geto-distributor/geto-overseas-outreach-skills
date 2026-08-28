@@ -5,15 +5,15 @@
 ## 输入
 
 - 一条明确询盘及其原始附件/聊天记录。
-- 在开始深度背调前通过 [inquiry-intake-gate.md](inquiry-intake-gate.md)：公司名、可描述需求、邮箱齐全，且 Web 与 TradeWind 均能强匹配同一主体。
+- 在开始深度背调前运行 [inquiry-intake-gate.md](inquiry-intake-gate.md) 选择研究模式。除完全没有研究锚点外，主体弱匹配、冲突、Provider 无结果或输入缺失均继续调研。
 - 目标 Company 的主体、产品、项目、联系人和风险 Evidence。
 - 研究截止日和本地公司目录。
 
-项目发现和报告深度分别遵循 project-research-contract.md 与 report-contract.md。项目公开资料不足时仍记录完整查询覆盖、反查路径和客户补件清单。
+项目发现和报告深度分别遵循 project-research-contract.md 与 report-contract.md。主体冲突遵循 identity-conflict-investigation.md。项目或主体公开资料不足时仍记录完整查询覆盖、反查路径、候选解释和客户补件清单。
 
 ## 评分
 
-使用 `inquiry-readiness-model.json` 的六维 components。只给已被询盘原文或目标公司 Evidence 支持的 component 分；缺失信息得 0 readiness points 并进入 gapCodes。未知不等于确认不存在，但二者在“当前能否报价/推进”上都不产生准备度分。
+使用 `inquiry-readiness-model.json` 的六维 components。只给已被询盘原文或目标公司 Evidence 支持的 component 分；缺失信息得 0 readiness points 并进入 gapCodes。未知不等于确认不存在，但二者在“当前能否报价/推进”上都不产生准备度分。单一 Provider 0 结果只形成 gap，不自动封顶；存在互斥强身份、冒名或实体污染时加入 `identity_conflict` 或 `fraud_or_impersonation_signal` hard block 并应用模型 cap。
 
 等级：
 
