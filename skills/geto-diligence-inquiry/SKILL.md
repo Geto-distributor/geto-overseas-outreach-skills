@@ -47,6 +47,8 @@ python '<geto-diligence-inquiry-dir>/scripts/validate_inquiry_intake.py' \
 
 按 [inquiry-research-intelligence-contract.md](references/inquiry-research-intelligence-contract.md) 建立询盘、主体、联系人、项目、产品技术、业务履约、交易风险和信息生态议程。每个信息面记录查了什么、取得什么、新发现什么、是否值得深挖和当前公开边界；不能用“已查”代替研究结果。
 
+公司项目池是公司轴的必交内容。尽量枚举历史、当前、规划、招标、授标、施工、交付和停滞项目；每个已取得名称的去重项目分别写入 `projects[]`，不得把多个具名项目合并成“历史项目池”等汇总占位。正式报告用紧凑项目总表呈现全部 `projects[]`，每个项目名都要带可点击链接：优先链接到该项目最有代表性的公开来源；只有询盘自述时链接到报告内的询盘证据段，并明确“仅客户陈述”。再选择最重要项目深挖。
+
 ### 4. 高价值路径深挖与下一跳
 
 从公司轴和询盘轴共同选择通常 2–5 条最可能改变真假、项目、产品、报价、签约、付款、授信或客户价值判断的路径深挖。数量不是硬门槛；简单询盘可以更少，复杂询盘可以更多。
@@ -73,7 +75,7 @@ python '<geto-diligence-inquiry-dir>/scripts/calculate_inquiry_readiness.py' \
 
 ### 7. Markdown 第一交付
 
-按 [report-contract.md](references/report-contract.md) 生成极致汉化、务实易读的 `report.md`。固定核心业务问题，不固定章节数量；新发现足以改变业务理解时动态增加专题章节。完整研究过程、机器状态、查询日志和低价值技术细节留在结构化档案或 `Additional/`。
+按 [report-contract.md](references/report-contract.md) 生成极致汉化、务实易读的 `report.md`。固定核心业务问题，不固定章节数量；新发现足以改变业务理解时动态增加专题章节。第一页必须提供销售速读：跟进建议、当前阶段、最大阻断、下一步及期限、可直接联系入口和暂不承诺事项。报告必须包含公司项目池总表，逐项覆盖 `company.json.projects[]`；重点项目再展开判断，不用为每个项目建立独立章节。完整研究过程、机器状态、查询日志和低价值技术细节留在结构化档案或 `Additional/`。
 
 生成 `Sources/sources.md`，运行单公司 validator 和报告质量检查：
 

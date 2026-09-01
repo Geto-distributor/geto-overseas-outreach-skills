@@ -771,6 +771,10 @@ class ResearchBundleValidationTests(unittest.TestCase):
 
     def test_inquiry_report_requires_business_answers_not_fixed_section_count(self) -> None:
         company = base_company()
+        company["assessment"] = {
+            "status": "pending_cohort_baseline",
+            "dimensions": [{"dimensionCode": f"value_{index}"} for index in range(6)],
+        }
         company["inquiryAssessment"] = {"status": "completed"}
         shallow = "# Report\n\n## 结论\n\n资料较少。\n"
         errors = RESEARCH_BUNDLE.validate_inquiry_report(shallow, company)
@@ -797,8 +801,49 @@ class ResearchBundleValidationTests(unittest.TestCase):
 """
         self.assertEqual(RESEARCH_BUNDLE.validate_inquiry_report(detailed, company), [])
 
+        company["projects"] = [{
+            "projectName": "Aluminum Pergola Structural Design",
+            "aliases": ["铝制凉棚结构设计"],
+        }]
+        translated_project_report = detailed.replace("结论与建议", "结论先行").replace(
+            "项目、产品与交易判断", "公司公开项目池、产品与交易判断"
+        ).replace(
+            "在已检查的官网、政府许可和交易对手资料中，未发现可直接绑定本次询盘的公开项目。",
+            "公开项目线索包括[铝制凉棚结构设计](https://example.com/project)，但与本次询盘没有直接采购关系。",
+        )
+        self.assertEqual(
+            RESEARCH_BUNDLE.validate_inquiry_report(translated_project_report, company), []
+        )
+
+        company["inquiryAssessment"]["overallScore"] = 39
+        score_errors = RESEARCH_BUNDLE.validate_inquiry_report(translated_project_report, company)
+        self.assertTrue(any("score differs" in item for item in score_errors))
+        score_aligned_report = translated_project_report.replace(
+            "总体判断：", "询盘准备度为39/100。总体判断：", 1
+        )
+        self.assertEqual(
+            RESEARCH_BUNDLE.validate_inquiry_report(score_aligned_report, company), []
+        )
+
+        company["projects"] = [
+            {"projectName": "Project One"}, {"projectName": "Project Two"},
+        ]
+        one_project_report = score_aligned_report.replace(
+            "铝制凉棚结构设计", "Project One"
+        )
+        coverage_errors = RESEARCH_BUNDLE.validate_inquiry_report(one_project_report, company)
+        self.assertTrue(any("Project Two" in item for item in coverage_errors))
+
+        company["projects"] = [{"projectName": "MRM historical project pool (8 projects)"}]
+        aggregate_errors = RESEARCH_BUNDLE.validate_inquiry_report(score_aligned_report, company)
+        self.assertTrue(any("aggregate placeholders" in item for item in aggregate_errors))
+
     def test_inquiry_report_rejects_internal_machine_terms(self) -> None:
         company = base_company()
+        company["assessment"] = {
+            "status": "pending_cohort_baseline",
+            "dimensions": [{"dimensionCode": f"value_{index}"} for index in range(6)],
+        }
         company["inquiryAssessment"] = {"status": "completed"}
         report = ("公司、联系人、询盘、项目、产品、报价、付款、客户价值和下一步均已说明。" * 30)
         report += " pending_cohort_baseline Provider queryBoundary hard block"
@@ -814,6 +859,10 @@ class ResearchBundleValidationTests(unittest.TestCase):
 
     def test_inquiry_report_requires_chinese_to_be_the_dominant_readable_language(self) -> None:
         company = base_company()
+        company["assessment"] = {
+            "status": "pending_cohort_baseline",
+            "dimensions": [{"dimensionCode": f"value_{index}"} for index in range(6)],
+        }
         company["inquiryAssessment"] = {"status": "completed"}
         report = (
             "总体判断 公司 联系人 询盘 项目 产品 报价 付款 客户价值 下一步。\n"
