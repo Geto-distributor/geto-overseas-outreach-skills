@@ -75,7 +75,7 @@ python '<geto-diligence-inquiry-dir>/scripts/calculate_inquiry_readiness.py' \
 
 ### 7. Markdown 第一交付
 
-按 [report-contract.md](references/report-contract.md) 生成极致汉化、务实易读的 `report.md`。固定核心业务问题，不固定章节数量；新发现足以改变业务理解时动态增加专题章节。报告必须包含公司项目池总表，逐项覆盖 `company.json.projects[]`；重点项目再展开判断，不用为每个项目建立独立章节。完整研究过程、机器状态、查询日志和低价值技术细节留在结构化档案或 `Additional/`。
+按 [report-contract.md](references/report-contract.md) 生成极致汉化、务实易读的 `report.md`。固定核心业务问题，不固定章节数量；新发现足以改变业务理解时动态增加专题章节。第一页必须提供销售速读：跟进建议、当前阶段、最大阻断、下一步及期限、可直接联系入口和暂不承诺事项。报告必须包含公司项目池总表，逐项覆盖 `company.json.projects[]`；重点项目再展开判断，不用为每个项目建立独立章节。完整研究过程、机器状态、查询日志和低价值技术细节留在结构化档案或 `Additional/`。
 
 生成 `Sources/sources.md`，运行单公司 validator 和报告质量检查：
 
