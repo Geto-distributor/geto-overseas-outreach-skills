@@ -259,6 +259,15 @@ def _project_report_names(project: dict[str, Any]) -> list[str]:
     return [name for name in names if name]
 
 
+def _project_has_markdown_link(text: str, project: dict[str, Any]) -> bool:
+    names = [name.casefold() for name in _project_report_names(project)]
+    for match in re.finditer(r"\[([^\]]+)\]\(([^)]+)\)", text):
+        label = match.group(1).casefold()
+        if any(name and name in label for name in names):
+            return True
+    return False
+
+
 def validate_inquiry_report(text: str, company: dict[str, Any]) -> list[str]:
     assessment = company.get("inquiryAssessment")
     if not isinstance(assessment, dict) or assessment.get("status") == "not_requested":
@@ -308,6 +317,16 @@ def validate_inquiry_report(text: str, company: dict[str, Any]) -> list[str]:
             errors.append(
                 "report.md: company project-pool table omits structured projects: "
                 + ", ".join(missing_projects)
+            )
+        missing_links = [
+            str(project["projectName"])
+            for project in projects
+            if not _project_has_markdown_link(text, project)
+        ]
+        if missing_links:
+            errors.append(
+                "report.md: project entries need clickable Markdown links: "
+                + ", ".join(missing_links)
             )
     if not projects and not re.search(r"未发现.{0,12}项目|项目.{0,12}未取得|项目检索|公开项目", text):
         errors.append("report.md: no project evidence exists and the public-search boundary is not explained")

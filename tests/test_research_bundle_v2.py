@@ -809,7 +809,7 @@ class ResearchBundleValidationTests(unittest.TestCase):
             "项目、产品与交易判断", "公司公开项目池、产品与交易判断"
         ).replace(
             "在已检查的官网、政府许可和交易对手资料中，未发现可直接绑定本次询盘的公开项目。",
-            "公开项目线索包括铝制凉棚结构设计，但与本次询盘没有直接采购关系。",
+            "公开项目线索包括[铝制凉棚结构设计](https://example.com/project)，但与本次询盘没有直接采购关系。",
         )
         self.assertEqual(
             RESEARCH_BUNDLE.validate_inquiry_report(translated_project_report, company), []
